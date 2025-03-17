@@ -15,6 +15,10 @@ use App\Http\Controllers\APIs\ExamScheduleController;
 use App\Http\Controllers\APIs\AcademicClassController;
 use App\Http\Controllers\APIs\SectionSubjectController;
 
+Route::get('hello', function() {
+    return 'hello';
+});
+
 Route::prefix('academic-years')->group(function(){
     Route::post('list',[AcademicYearController::class,'list']);
     Route::post('create',[AcademicYearController::class,'create']);
