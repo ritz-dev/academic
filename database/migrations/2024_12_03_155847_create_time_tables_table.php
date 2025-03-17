@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('slug');
             $table->string('title')->nullable();
-            $table->string('academic_class_id')->nullable();
-            $table->string('section_id')->nullable();
-            $table->string('subject_id')->nullable();
-            $table->string('teacher_id')->nullable();
-            $table->string('room')->nullable();
+            $table->string('academic_class_id', 191)->nullable();
+            $table->string('section_id', 191)->nullable();
+            $table->string('subject_id', 191)->nullable();
+            $table->string('teacher_id', 191)->nullable();
+            $table->string('room', 191)->nullable();
             $table->date('date')->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
