@@ -20,7 +20,7 @@ Route::get('hello', function() {
 });
 
 Route::prefix('academic-years')->group(function(){
-    Route::post('list',[AcademicYearController::class,'list']);
+    Route::get('list',[AcademicYearController::class,'list']);
     Route::post('create',[AcademicYearController::class,'create']);
     Route::post('detail',[AcademicYearController::class,'detail']);
     Route::put('update',[AcademicYearController::class,'update']);
