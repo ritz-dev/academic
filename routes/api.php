@@ -16,11 +16,15 @@ use App\Http\Controllers\APIs\AcademicClassController;
 use App\Http\Controllers\APIs\SectionSubjectController;
 
 Route::get('hello', function() {
-    return 'hello';
+    return response()->json(['hello']);
+});
+
+Route::post('hello-post', function() {
+    return response()->json(['hello']);
 });
 
 Route::prefix('academic-years')->group(function(){
-    Route::get('list',[AcademicYearController::class,'list']);
+    Route::post('list',[AcademicYearController::class,'list']);
     Route::post('create',[AcademicYearController::class,'create']);
     Route::post('detail',[AcademicYearController::class,'detail']);
     Route::put('update',[AcademicYearController::class,'update']);
