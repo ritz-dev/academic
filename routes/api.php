@@ -25,6 +25,7 @@ Route::post('hello-post', function() {
 
 Route::prefix('academic-years')->group(function(){
     Route::get('list',[AcademicYearController::class,'list']);
+    Route::post('list-post',[AcademicYearController::class,'list']);
     Route::post('create',[AcademicYearController::class,'create']);
     Route::post('detail',[AcademicYearController::class,'detail']);
     Route::put('update',[AcademicYearController::class,'update']);
@@ -33,6 +34,7 @@ Route::prefix('academic-years')->group(function(){
 
 Route::prefix('classes')->group(function(){
     Route::get('list',[AcademicClassController::class,'list']);
+    Route::post('list-post',[AcademicClassController::class,'list']);
     Route::post('create',[AcademicClassController::class,'create']);
     Route::post('detail',[AcademicClassController::class,'detail']);
     Route::put('update',[AcademicClassController::class,'update']);
