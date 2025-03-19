@@ -15,33 +15,17 @@ use App\Http\Controllers\APIs\ExamScheduleController;
 use App\Http\Controllers\APIs\AcademicClassController;
 use App\Http\Controllers\APIs\SectionSubjectController;
 
-Route::get('hello', function() {
-    return response()->json(['hello']);
-});
-
-Route::post('hello-post', function() {
-    return response()->json(['hello']);
-});
-
-Route::put('hello-put', function() {
-    return response()->json(['hello']);
-});
-
-Route::delete('hello-delete', function() {
-    return response()->json(['hello']);
-});
-
 Route::prefix('academic-years')->group(function(){
-    Route::get('list',[AcademicYearController::class,'list']);
+    Route::post('list',[AcademicYearController::class,'list']);
     Route::post('list-post',[AcademicYearController::class,'list']);
     Route::post('create',[AcademicYearController::class,'create']);
     Route::post('detail',[AcademicYearController::class,'detail']);
     Route::put('update',[AcademicYearController::class,'update']);
     Route::post('delete',[AcademicYearController::class,'delete']);
-})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+});
 
 Route::prefix('classes')->group(function(){
-    Route::get('list',[AcademicClassController::class,'list']);
+    Route::post('list',[AcademicClassController::class,'list']);
     Route::post('list-post',[AcademicClassController::class,'list']);
     Route::post('create',[AcademicClassController::class,'create']);
     Route::post('detail',[AcademicClassController::class,'detail']);
