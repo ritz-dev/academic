@@ -38,7 +38,7 @@ Route::prefix('academic-years')->group(function(){
     Route::post('detail',[AcademicYearController::class,'detail']);
     Route::put('update',[AcademicYearController::class,'update']);
     Route::post('delete',[AcademicYearController::class,'delete']);
-});
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 Route::prefix('classes')->group(function(){
     Route::get('list',[AcademicClassController::class,'list']);
