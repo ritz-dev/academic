@@ -23,6 +23,14 @@ Route::post('hello-post', function() {
     return response()->json(['hello']);
 });
 
+Route::put('hello-put', function() {
+    return response()->json(['hello']);
+});
+
+Route::delete('hello-delete', function() {
+    return response()->json(['hello']);
+});
+
 Route::prefix('academic-years')->group(function(){
     Route::get('list',[AcademicYearController::class,'list']);
     Route::post('list-post',[AcademicYearController::class,'list']);
