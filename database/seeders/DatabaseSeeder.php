@@ -11,20 +11,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-       $this->call([
+        $this->call([
             AcademicYearSeeder::class,
             AcademicClassSeeder::class,
             GradeSeeder::class,
             SubjectSeeder::class,
             SectionSeeder::class,
-            TimeTableSeeder::class,
             ExamSeeder::class,
             ExamScheduleSeeder::class,
             ExamTeacherAssignmentSeeder::class,
             ExamStudentAssignmentSeeder::class,
             SectionSubjectSeeder::class,
             HolidaySeeder::class,
-       ]);
+            WeeklyScheduleSeeder::class,
+            ScheduleSeeder::class,
+        ]);
     }
 }

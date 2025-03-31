@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->string('slug');
-            $table->foreignId('timetable_id')->constrained('time_tables')->onDelete('cascade');
+            $table->foreignId('schedule_id')->constrained('schedules')->onDelete('cascade');
             $table->string('attendee_id');
             $table->string('attendee_type');
             $table->enum('status', ['present', 'absent', 'late'])->default('present');
@@ -24,14 +24,14 @@ return new class extends Migration
             $table->text('remarks')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->unique(['timetable_id', 'attendee_id']);
+            $table->unique(['schedule_id', 'attendee_id']);
             $table->index(['attendee_id', 'attendee_type']);
-            $table->index(['timetable_id','attendee_id', 'attendee_type']);
+            $table->index(['schedule_id','attendee_id', 'attendee_type']);
 
         });
     }
 
-    /**
+    /** 
      * Reverse the migrations.
      */
     public function down(): void

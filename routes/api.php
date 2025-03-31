@@ -14,6 +14,7 @@ use App\Http\Controllers\APIs\AcademicYearController;
 use App\Http\Controllers\APIs\ExamScheduleController;
 use App\Http\Controllers\APIs\AcademicClassController;
 use App\Http\Controllers\APIs\SectionSubjectController;
+use App\Http\Controllers\APIs\ScheduleController;
 
 Route::prefix('academic-years')->group(function(){
     Route::post('list',[AcademicYearController::class,'list']);
@@ -88,6 +89,14 @@ Route::prefix('timetables')->group(function(){
     Route::post('delete',[TimeTableController::class,'delete']);
     Route::post('by-section',[TimeTableController::class,'bySection']);
     Route::post('by-section-date',[TimeTableController::class,'bySectionDate']);
+});
+
+Route::prefix('schedules')->group(function () {
+    Route::post('list', [ScheduleController::class, 'list']);
+    Route::post('create', [ScheduleController::class, 'create']);
+    // Route::post('/', [ScheduleController::class, 'store']);
+    // Route::put('/{id}', [ScheduleController::class, 'update']);
+    // Route::delete('/{id}', [ScheduleController::class, 'destroy']);
 });
 
 Route::prefix('holidays')->group(function(){
