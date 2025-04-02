@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('weekly_schedules', function (Blueprint $table) {
             $table->id();
+            $table->string('title', 191);
             $table->foreignId('section_id')->constrained('sections')->cascadeOnDelete();
             $table->string('subject_id')->nullable();
-            $table->enum ('day', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
-            $table->time('start_time');
-            $table->time('end_time');
+            $table->enum ('day', [1, 2, 3, 4, 5, 6, 7]);
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
             $table->boolean('is_break')->default(false);
             $table->timestamps();
             $table->softDeletes();
-            $table->unique(['section_id', 'day']);
         });
     }
 

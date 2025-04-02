@@ -7,13 +7,12 @@ use App\Http\Controllers\APIs\GradeController;
 use App\Http\Controllers\APIs\HolidayController;
 use App\Http\Controllers\APIs\SectionController;
 use App\Http\Controllers\APIs\SubjectController;
-use App\Http\Controllers\APIs\TimeTableController;
+// use App\Http\Controllers\APIs\TimeTableController;
 use App\Http\Controllers\APIs\AttendanceController;
 use App\Http\Controllers\APIs\CertificateController;
 use App\Http\Controllers\APIs\AcademicYearController;
 use App\Http\Controllers\APIs\ExamScheduleController;
 use App\Http\Controllers\APIs\AcademicClassController;
-use App\Http\Controllers\APIs\SectionSubjectController;
 use App\Http\Controllers\APIs\ScheduleController;
 
 Route::prefix('academic-years')->group(function(){
@@ -80,18 +79,19 @@ Route::prefix('exam-schedules')->group(function(){
     Route::post('delete',[ExamScheduleController::class,'delete']);
 });
 
-Route::prefix('timetables')->group(function(){
-    Route::post('list',[TimeTableController::class,'list']);
-    Route::post('create',[TimeTableController::class,'create']);
-    Route::post('detail',[TimeTableController::class,'detail']);
-    Route::put('update',[TimeTableController::class,'update']);
-    Route::put('update-date-time',[TimeTableController::class,'updateDateTime']);
-    Route::post('delete',[TimeTableController::class,'delete']);
-    Route::post('by-section',[TimeTableController::class,'bySection']);
-    Route::post('by-section-date',[TimeTableController::class,'bySectionDate']);
-});
+// Route::prefix('timetables')->group(function(){
+//     Route::post('list',[TimeTableController::class,'list']);
+//     Route::post('create',[TimeTableController::class,'create']);
+//     Route::post('detail',[TimeTableController::class,'detail']);
+//     Route::put('update',[TimeTableController::class,'update']);
+//     Route::put('update-date-time',[TimeTableController::class,'updateDateTime']);
+//     Route::post('delete',[TimeTableController::class,'delete']);
+//     Route::post('by-section',[TimeTableController::class,'bySection']);
+//     Route::post('by-section-date',[TimeTableController::class,'bySectionDate']);
+// });
 
 Route::prefix('schedules')->group(function () {
+    Route::post('weekly',[ScheduleController::class,'weekly']);
     Route::post('list', [ScheduleController::class, 'list']);
     Route::post('create', [ScheduleController::class, 'create']);
     // Route::post('/', [ScheduleController::class, 'store']);

@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Support\Str;
 use App\Models\ExamSchedule;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ExamScheduleSeeder extends Seeder
 {

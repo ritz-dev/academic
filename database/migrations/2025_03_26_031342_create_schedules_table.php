@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->string('title', 191);
             $table->string('teacher_id', 191)->nullable();
             $table->string('weekly_schedule_id', 191)->nullable();
             $table->date('date');

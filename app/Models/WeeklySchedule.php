@@ -11,6 +11,7 @@ class WeeklySchedule extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'title',
         'section_id',
         'subject_id',
         'day',

@@ -23,8 +23,8 @@ class DatabaseSeeder extends Seeder
             ExamStudentAssignmentSeeder::class,
             SectionSubjectSeeder::class,
             HolidaySeeder::class,
-            WeeklyScheduleSeeder::class,
-            ScheduleSeeder::class,
+            // WeeklyScheduleSeeder::class,
+            // ScheduleSeeder::class,
         ]);
     }
 }
