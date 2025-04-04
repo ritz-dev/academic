@@ -27,4 +27,5 @@ class WeeklySchedule extends Model
     {
         return $this->belongsTo(Section::class);
     }
+    
 }

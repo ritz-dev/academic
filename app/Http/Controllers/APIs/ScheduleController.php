@@ -86,7 +86,7 @@ class ScheduleController extends Controller
                         'section_id' => $section->id,
                         'weekly_schedule_id' => $schedule->id,
                         'date' => $date,
-                        'type' => $request->type,
+                        'type' => 'holiday',
                     ]);
                 }
                 
@@ -98,7 +98,7 @@ class ScheduleController extends Controller
                     'subject_id' => null,
                     'day' => $day,
                     'start_time' => $request->startTime,
-                    'end_time' => $request->endTime,
+                    'end_time' => date("H:i:s", strtotime($request->startTime . " +1 hour")),
                     'is_break' => true,
                 ]);
 
@@ -108,7 +108,26 @@ class ScheduleController extends Controller
                         'section_id' => $section->id,
                         'weekly_schedule_id' => $schedule->id,
                         'date' => $date,
-                        'type' => $request->type,
+                        'type' => 'class',
+                    ]);
+                }
+            }else {
+                $schedule = WeeklySchedule::create([
+                    'title' => $request->title,
+                    'section_id' => $section->id,
+                    'subject_id' => 1,
+                    'day' => $day,
+                    'start_time' => $request->startTime,
+                    'end_time' => date("H:i:s", strtotime($request->startTime . " +1 hour 30 minutes")),
+                    'is_break' => false,
+                ]);
+
+                foreach ($dateArray as $date) {
+                    Schedule::create([
+                        'section_id' => $section->id,
+                        'weekly_schedule_id' => $schedule->id,
+                        'date' => $date,
+                        'type' => 'class',
                     ]);
                 }
             }
@@ -122,6 +141,30 @@ class ScheduleController extends Controller
         } catch (\Exception $e) {
 
             DB::rollBack(); // Rollback Transaction if an error occurs
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong!',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function bySection(Request $request)
+    {
+        try {
+            $request->validate([
+                'sectionId' => 'required|string',
+            ]);
+
+            $section = Section::where('slug', $request->sectionId)->firstOrFail();
+
+            $schedules = Schedule::with('weeklySchedule')
+                ->where('section_id', $section->id)
+                ->get();
+
+            return response()->json($schedules,200);
+
+        }catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong!',

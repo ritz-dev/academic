@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('teacher_id', 191)->nullable();
             $table->string('weekly_schedule_id', 191)->nullable();
+            $table->foreignId('section_id')->constrained('sections')->cascadeOnDelete();
             $table->date('date');
             $table->enum('type', ['class', 'holiday', 'exam']);
             $table->timestamps();

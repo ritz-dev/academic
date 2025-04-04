@@ -94,6 +94,7 @@ Route::prefix('schedules')->group(function () {
     Route::post('weekly',[ScheduleController::class,'weekly']);
     Route::post('list', [ScheduleController::class, 'list']);
     Route::post('create', [ScheduleController::class, 'create']);
+    Route::post('by-section',[ScheduleController::class,'bySection']);
     // Route::post('/', [ScheduleController::class, 'store']);
     // Route::put('/{id}', [ScheduleController::class, 'update']);
     // Route::delete('/{id}', [ScheduleController::class, 'destroy']);
