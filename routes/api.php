@@ -11,7 +11,17 @@ use App\Http\Controllers\APIs\CertificateController;
 use App\Http\Controllers\APIs\AcademicYearController;
 use App\Http\Controllers\APIs\ExamScheduleController;
 use App\Http\Controllers\APIs\AcademicClassController;
+use App\Http\Controllers\APIs\AcademicClassSectionController;
 use App\Http\Controllers\APIs\ScheduleController;
+
+Route::prefix('academic')->group(function(){
+    Route::post('/',[AcademicClassSectionController::class,'index']);
+    // Route::post('list-post',[AcademicYearController::class,'list']);
+    // Route::post('create',[AcademicYearController::class,'create']);
+    // Route::post('detail',[AcademicYearController::class,'detail']);
+    // Route::put('update',[AcademicYearController::class,'update']);
+    // Route::post('delete',[AcademicYearController::class,'delete']);
+});
 
 Route::prefix('academic-years')->group(function(){
     Route::post('/',[AcademicYearController::class,'index']);
@@ -51,7 +61,7 @@ Route::prefix('grades')->group(function(){
 });
 
 Route::prefix('subjects')->group(function(){
-    Route::post('list',[SubjectController::class,'list']);
+    Route::post('/',[SubjectController::class,'index']);
     Route::post('create',[SubjectController::class,'create']);
     Route::post('detail',[SubjectController::class,'detail']);
     Route::put('update',[SubjectController::class,'update']);

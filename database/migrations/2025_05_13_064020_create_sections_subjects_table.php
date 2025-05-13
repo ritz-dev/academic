@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subjects', function (Blueprint $table) {
+        Schema::create('sections_subjects', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->string('name')->unique();
+            $table->foreignId('academic_class_section_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('subject_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['academic_class_section_id', 'subject_id'], 'acs_section_subject_unique');
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subjects');
+        Schema::dropIfExists('sections_subjects');
     }
 };

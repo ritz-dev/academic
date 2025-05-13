@@ -24,4 +24,9 @@ class Section extends Model
             }
         });
     }
+
+    public function academicClassSections()
+    {
+        return $this->hasMany(AcademicClassSection::class);
+    }
 }

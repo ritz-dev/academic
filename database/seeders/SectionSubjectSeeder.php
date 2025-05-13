@@ -3,10 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Subject;
-use App\Models\Section;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
-use App\Models\SectionSubject;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\AcademicClassSection;
+
 
 class SectionSubjectSeeder extends Seeder
 {
@@ -15,33 +15,20 @@ class SectionSubjectSeeder extends Seeder
      */
     public function run(): void
     {
-        $sections = Section::all();
+        $sections = AcademicClassSection::all();
+        $subjects = Subject::all();
 
-        $subject_id1 = Subject::where('name','English')->pluck('id')->first();
+        foreach ($sections as $section) {
+            // Randomly assign 3 subjects per section
+            $assignedSubjects = $subjects->random(3);
 
-        $subject_id2 = Subject::where('name','Myanmar')->pluck('id')->first();
-
-        $subject_id3 = Subject::where('name','Math')->pluck('id')->first();
-        
-        $dataToInsert = [];
-
-        foreach ($sections as $index => $section) {
-            $dataToInsert[] = [
-                'section_id' => $section->id,
-                'subject_id' => $subject_id1,
-            ];
-            $dataToInsert[] = [
-                'section_id' => $section->id,
-                'subject_id' => $subject_id2,
-            ];
-            $dataToInsert[] = [
-                'section_id' => $section->id,
-                'subject_id' => $subject_id3,
-            ];
-
-            
+            foreach ($assignedSubjects as $subject) {
+                $section->subjects()->attach($subject->id, [
+                    'slug' => Str::uuid(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
-
-        SectionSubject::insert($dataToInsert);
     }
 }

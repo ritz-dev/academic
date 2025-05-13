@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\AcademicClass;
+use Ramsey\Uuid\Guid\Guid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -10,12 +10,18 @@ class Subject extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ["slug","name","code","description","academic_class_id"];
+    protected $fillable = ["slug","name"];
 
-    protected $hidden = ["created_at","updated_at","deleted_at"];
+    protected $hidden = ["id","created_at","updated_at","deleted_at","pivot"];
 
-    public function academicClass()
+    protected static function boot()
     {
-        return $this->belongsTo(AcademicClass::class,"academic_class_id","id");
+        parent::boot();
+
+        static::creating(function ($model) {
+            if(empty($model->slug)){
+                $model->slug = (string) Guid::uuid4();
+            }
+        });
     }
 }

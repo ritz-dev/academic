@@ -21,8 +21,9 @@ class DatabaseSeeder extends Seeder
             ExamScheduleSeeder::class,
             ExamTeacherAssignmentSeeder::class,
             ExamStudentAssignmentSeeder::class,
-            SectionSubjectSeeder::class,
             HolidaySeeder::class,
+            AcademicClassSectionSeeder::class,
+            SectionSubjectSeeder::class,
             // WeeklyScheduleSeeder::class,
             // ScheduleSeeder::class,
         ]);

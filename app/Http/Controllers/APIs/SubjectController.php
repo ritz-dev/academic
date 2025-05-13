@@ -8,42 +8,42 @@ use App\Models\Subject;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\SectionSubject;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SubjectResource;
 use Illuminate\Validation\ValidationException;
 
 class SubjectController extends Controller
 {
-    public function list(Request $request)
+    public function index(Request $request)
     {
-        try {
-            $limit = (int) $request->limit;
-            $search = $request->search;
+        return response()->json(Subject::get());
+        // try {
+        //     $limit = (int) $request->limit;
+        //     $search = $request->search;
 
-            $query = Subject::orderBy('id', 'desc');
+        //     $query = Subject::orderBy('id', 'desc');
 
-            if ($search) {
-                $query->where('name', 'LIKE', $search . '%');
-            }
+        //     if ($search) {
+        //         $query->where('name', 'LIKE', $search . '%');
+        //     }
 
-            $data = $limit ? $query->paginate($limit) : $query->get();
+        //     $data = $limit ? $query->paginate($limit) : $query->get();
 
-            $data = SubjectResource::collection($data);
+        //     $data = SubjectResource::collection($data);
 
-            $total = Subject::count();
+        //     $total = Subject::count();
 
-            return response()->json([
-                "status" => "OK! The request was successful",
-                "total" => $total,
-                "data" => $data
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'Bad Request!. The request is invalid.',
-                'message' => $e->getMessage()
-            ],400);
-        }
+        //     return response()->json([
+        //         "status" => "OK! The request was successful",
+        //         "total" => $total,
+        //         "data" => $data
+        //     ], 200);
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'status' => 'Bad Request!. The request is invalid.',
+        //         'message' => $e->getMessage()
+        //     ],400);
+        // }
     }
 
     public function create(Request $request)

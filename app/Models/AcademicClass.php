@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Ramsey\Uuid\Guid\Guid;
+use App\Models\AcademicClassSection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -12,7 +13,7 @@ class AcademicClass extends Model
 
     protected $fillable = ['slug','name'];
 
-    protected $hidden = ["created_at","updated_at","deleted_at"];
+    protected $hidden = ["id","created_at","updated_at","deleted_at"];
 
     protected static function boot()
     {
@@ -23,5 +24,10 @@ class AcademicClass extends Model
                 $model->slug = (string) Guid::uuid4();
             }
         });
+    }
+
+    public function academicClassSections()
+    {
+        return $this->hasMany(AcademicClassSection::class);
     }
 }
