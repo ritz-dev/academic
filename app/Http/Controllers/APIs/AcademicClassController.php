@@ -17,35 +17,37 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AcademicClassController extends Controller
 {
-    public function list(Request $request)
+    public function index(Request $request)
     {
-        try {
-            $limit = (int) $request->limit;
-            $search = $request->search;
+        return response()->json(AcademicClass::get());
 
-            $query = AcademicClass::orderBy('id', 'desc');
+        // try {
+        //     $limit = (int) $request->limit;
+        //     $search = $request->search;
 
-            if ($search) {
-                $query->where('name', 'LIKE', $search . '%');
-            }
+        //     $query = AcademicClass::orderBy('id', 'desc');
 
-            $data = $limit ? $query->paginate($limit) : $query->get();
+        //     if ($search) {
+        //         $query->where('name', 'LIKE', $search . '%');
+        //     }
 
-            $data = AcademicClassResource::collection($data);
+        //     $data = $limit ? $query->paginate($limit) : $query->get();
 
-            $total = AcademicClass::count();
+        //     $data = AcademicClassResource::collection($data);
 
-            return response()->json([
-                "status" => "OK! The request was successful",
-                "total" => $total,
-                "data" => $data
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'Bad Request!. The request is invalid.',
-                'message' => $e->getMessage()
-            ],400);
-        }
+        //     $total = AcademicClass::count();
+
+        //     return response()->json([
+        //         "status" => "OK! The request was successful",
+        //         "total" => $total,
+        //         "data" => $data
+        //     ], 200);
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'status' => 'Bad Request!. The request is invalid.',
+        //         'message' => $e->getMessage()
+        //     ],400);
+        // }
     }
 
     public function create(Request $request)

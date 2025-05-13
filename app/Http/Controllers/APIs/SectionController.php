@@ -17,35 +17,36 @@ use Illuminate\Validation\ValidationException;
 
 class SectionController extends Controller
 {
-    public function list(Request $request)
+    public function index(Request $request)
     {
-        try {
-            $limit = (int) $request->limit;
-            $search = $request->search;
+        return response()->json(Section::get());
+        // try {
+        //     $limit = (int) $request->limit;
+        //     $search = $request->search;
 
-            $query = Section::orderBy('id', 'desc');
+        //     $query = Section::orderBy('id', 'desc');
 
-            if ($search) {
-                $query->where('name', 'LIKE', $search . '%');
-            }
+        //     if ($search) {
+        //         $query->where('name', 'LIKE', $search . '%');
+        //     }
 
-            $data = $limit ? $query->paginate($limit) : $query->get();
+        //     $data = $limit ? $query->paginate($limit) : $query->get();
 
-            $data = SectionResource::collection($data);
+        //     $data = SectionResource::collection($data);
 
-            $total = Section::count();
+        //     $total = Section::count();
 
-            return response()->json([
-                "status" => "OK! The request was successful",
-                "total" => $total,
-                "data" => $data
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'Bad Request!. The request is invalid.',
-                'message' => $e->getMessage()
-            ],400);
-        }
+        //     return response()->json([
+        //         "status" => "OK! The request was successful",
+        //         "total" => $total,
+        //         "data" => $data
+        //     ], 200);
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'status' => 'Bad Request!. The request is invalid.',
+        //         'message' => $e->getMessage()
+        //     ],400);
+        // }
     }
 
     public function create(Request $request)

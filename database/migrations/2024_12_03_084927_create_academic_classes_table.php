@@ -13,13 +13,10 @@ return new class extends Migration
     {
         Schema::create('academic_classes', function (Blueprint $table) {
             $table->id();
-            $table->string('slug');
+            $table->string('slug')->unique();
             $table->string('name');
-            $table->integer('limit');
-            $table->foreignId('academic_year_id')->constrained('academic_years')->onDelete('cascade');
-            $table->softDeletes();
             $table->timestamps();
-            $table->index(['academic_year_id']);
+            $table->softDeletes();
         });
     }
 

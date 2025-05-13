@@ -1,13 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\APIs\ExamController;
 use App\Http\Controllers\APIs\GradeController;
 use App\Http\Controllers\APIs\HolidayController;
 use App\Http\Controllers\APIs\SectionController;
 use App\Http\Controllers\APIs\SubjectController;
-// use App\Http\Controllers\APIs\TimeTableController;
 use App\Http\Controllers\APIs\AttendanceController;
 use App\Http\Controllers\APIs\CertificateController;
 use App\Http\Controllers\APIs\AcademicYearController;
@@ -16,7 +14,7 @@ use App\Http\Controllers\APIs\AcademicClassController;
 use App\Http\Controllers\APIs\ScheduleController;
 
 Route::prefix('academic-years')->group(function(){
-    Route::post('list',[AcademicYearController::class,'list']);
+    Route::post('/',[AcademicYearController::class,'index']);
     Route::post('list-post',[AcademicYearController::class,'list']);
     Route::post('create',[AcademicYearController::class,'create']);
     Route::post('detail',[AcademicYearController::class,'detail']);
@@ -25,7 +23,7 @@ Route::prefix('academic-years')->group(function(){
 });
 
 Route::prefix('classes')->group(function(){
-    Route::post('list',[AcademicClassController::class,'list']);
+    Route::post('/',[AcademicClassController::class,'index']);
     Route::post('list-post',[AcademicClassController::class,'list']);
     Route::post('create',[AcademicClassController::class,'create']);
     Route::post('detail',[AcademicClassController::class,'detail']);
@@ -35,7 +33,7 @@ Route::prefix('classes')->group(function(){
 });
 
 Route::prefix('sections')->group(function(){
-    Route::post('list',[SectionController::class,'list']);
+    Route::post('/',[SectionController::class,'index']);
     Route::post('create',[SectionController::class,'create']);
     Route::post('detail',[SectionController::class,'detail']);
     Route::put('update',[SectionController::class,'update']);
@@ -118,6 +116,3 @@ Route::prefix('attendances')->group(function(){
 Route::prefix('certificates')->group(function(){
     Route::post('add-certificate',[CertificateController::class,'addCertificate']);
 });
-
-
-

@@ -11,41 +11,41 @@ use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AcademicYearResource;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class AcademicYearController extends Controller
 {
 
-    public function list(Request $request)
+    public function index(Request $request)
     {
-        try {
-            $limit = (int) $request->limit;
-            $search = $request->search;
+        return response()->json(AcademicYear::get());
+        // try {
+        //     $limit = (int) $request->limit;
+        //     $search = $request->search;
 
-            $query = AcademicYear::orderBy('id', 'desc');
+        //     $query = AcademicYear::orderBy('id', 'desc');
 
-            if ($search) {
-                $query->where('year', 'LIKE', $search . '%');
-            }
+        //     if ($search) {
+        //         $query->where('year', 'LIKE', $search . '%');
+        //     }
 
-            $data = $limit ? $query->paginate($limit) : $query->get();
+        //     $data = $limit ? $query->paginate($limit) : $query->get();
 
-            $data = AcademicYearResource::collection($data);
+        //     $data = AcademicYearResource::collection($data);
 
-            $total = AcademicYear::count();
+        //     $total = AcademicYear::count();
 
-            return response()->json([
-                "status" => "OK! The request was successful",
-                "total" => $total,
-                "data" => $data
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'Bad Request!. The request is invalid.',
-                'message' => $e->getMessage()
-            ],400);
-        }
+        //     return response()->json([
+        //         "status" => "OK! The request was successful",
+        //         "total" => $total,
+        //         "data" => $data
+        //     ], 200);
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'status' => 'Bad Request!. The request is invalid.',
+        //         'message' => $e->getMessage()
+        //     ],400);
+        // }
     }
 
     public function create(Request $request)

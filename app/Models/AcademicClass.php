@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\AcademicYear;
+use Ramsey\Uuid\Guid\Guid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -10,11 +10,18 @@ class AcademicClass extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['slug','name','limit','academic_year_id'];
+    protected $fillable = ['slug','name'];
 
     protected $hidden = ["created_at","updated_at","deleted_at"];
 
-    public function academicYear(){
-        return $this->belongsTo(AcademicYear::class,'academic_year_id','id');
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if(empty($model->slug)){
+                $model->slug = (string) Guid::uuid4();
+            }
+        });
     }
 }
