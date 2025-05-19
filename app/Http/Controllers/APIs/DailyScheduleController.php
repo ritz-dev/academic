@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\APIs;
 
+use Exception;
 use Illuminate\Http\Request;
 use App\Models\DailySchedule;
 use App\Http\Controllers\Controller;
@@ -16,6 +17,8 @@ class DailyScheduleController extends Controller
             'slug'  => 'required'
         ]);
 
+        try{
+
         $section = AcademicClassSection::where('slug', $request->slug)->first();
 
         if (!$section) {
@@ -25,7 +28,7 @@ class DailyScheduleController extends Controller
             ], 404);
         }
 
-        $schedules = DailySchedule::where('academic_class_section_id', $section->id)->get();
+        $schedules = DailySchedule::where('academic_class_section_id', $section->id)->take(10)->get();
 
         if ($schedules->isEmpty()) {
             return response()->json([
@@ -38,5 +41,11 @@ class DailyScheduleController extends Controller
             'success' => true,
             'data' => $schedules
         ]);
+        }catch(Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
