@@ -92,7 +92,7 @@ Route::prefix('student-enrollment')->group(function(){
 });
 
 Route::prefix('attendance')->group(function(){
-    Route::post('schdeule',[AcademicAttendanceController::class,'bySchedule']);
+    Route::post('schedule',[AcademicAttendanceController::class,'bySchedule']);
     // Route::post('record-attendance',[AttendanceController::class,'recordAttendance']);
     // Route::post('get-attendance',[AttendanceController::class,'getAttendance']);
     // Route::post('create',[AttendanceController::class,'create']);

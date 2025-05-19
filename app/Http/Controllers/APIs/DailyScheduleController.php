@@ -16,7 +16,14 @@ class DailyScheduleController extends Controller
             'slug'  => 'required'
         ]);
 
-        $section = AcademicClassSection::where('slug', $request->slug)->firstOrFail();
+        $section = AcademicClassSection::where('slug', $request->slug)->first();
+
+        if (!$section) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Section not found'
+            ], 404);
+        }
 
         $schedules = DailySchedule::where('academic_class_section_id', $section->id)->get();
 
