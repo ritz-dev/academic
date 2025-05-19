@@ -2,25 +2,30 @@
 
 namespace App\Models;
 
+use App\Models\Subject;
 use Ramsey\Uuid\Guid\Guid;
+use App\Models\AcademicClassSection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class WeeklySchedule extends Model
+class DailySchedule extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
         'slug',
+        'date',
+        'academic_class_section_id',
         'subject_id',
         'teacher_id',
-        'day_of_week',
         'start_time',
         'end_time',
+        'is_holiday',
         'type',
+        'holiday_type',
+        'status',
+        'note',
     ];
-
-    protected $hidden = ["id","created_at","updated_at","deleted_at"];
 
     protected static function boot()
     {
@@ -32,7 +37,6 @@ class WeeklySchedule extends Model
             }
         });
     }
-
 
     public function academicClassSection()
     {
@@ -48,5 +52,4 @@ class WeeklySchedule extends Model
     {
         return $this->belongsTo(Teacher::class);
     }
-    
 }

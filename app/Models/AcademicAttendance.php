@@ -3,21 +3,24 @@
 namespace App\Models;
 
 use Ramsey\Uuid\Guid\Guid;
+use App\Models\DailySchedule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class WeeklySchedule extends Model
+class AcademicAttendance extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
         'slug',
-        'subject_id',
-        'teacher_id',
-        'day_of_week',
-        'start_time',
-        'end_time',
-        'type',
+        'previous_hash',
+        'hash',
+        'attendee_type',
+        'attendee_id',
+        'schedule_id',
+        'status',
+        'date',
+        'remark',
     ];
 
     protected $hidden = ["id","created_at","updated_at","deleted_at"];
@@ -33,20 +36,8 @@ class WeeklySchedule extends Model
         });
     }
 
-
-    public function academicClassSection()
+    public function schedule()
     {
-        return $this->belongsTo(AcademicClassSection::class);
+        return $this->belongsTo(DailySchedule::class, 'schedule_id');
     }
-
-    public function subject()
-    {
-        return $this->belongsTo(Subject::class);
-    }
-
-    public function teacher()
-    {
-        return $this->belongsTo(Teacher::class);
-    }
-    
 }

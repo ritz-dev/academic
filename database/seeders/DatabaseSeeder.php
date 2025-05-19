@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\DailyScheduleSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -23,9 +24,10 @@ class DatabaseSeeder extends Seeder
             ExamStudentAssignmentSeeder::class,
             HolidaySeeder::class,
             AcademicClassSectionSeeder::class,
-            SectionSubjectSeeder::class,
-            // WeeklyScheduleSeeder::class,
-            // ScheduleSeeder::class,
+            StudentEnrollmentSeeder::class,
+            WeeklyScheduleSeeder::class,
+            DailyScheduleSeeder::class,
+            AcademicAttendanceSeeder::class,
         ]);
     }
 }

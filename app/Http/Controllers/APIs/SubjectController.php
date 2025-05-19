@@ -17,6 +17,7 @@ class SubjectController extends Controller
     public function index(Request $request)
     {
         return response()->json(Subject::get());
+
         // try {
         //     $limit = (int) $request->limit;
         //     $search = $request->search;
@@ -74,6 +75,7 @@ class SubjectController extends Controller
             return response()->json([
                 "status" => "OK! The request was successful",
             ],200);
+            
         }catch (ValidationException $e) {
             return response()->json([
                 'status' => 'Validation error.',

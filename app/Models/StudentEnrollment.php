@@ -2,22 +2,31 @@
 
 namespace App\Models;
 
-use App\Models\Subject;
 use Ramsey\Uuid\Guid\Guid;
 use App\Models\AcademicClassSection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class SectionSubject extends Model
+class StudentEnrollment extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
         'slug',
+        'student_id',
+        'academic_year_id',
+        'academic_class_section_id',
+        'roll_number',
+        'admission_date',
+        'enrollment_type',
+        'previous_school',
+        'graduation_date',
+        'status',
+        'remarks',
     ];
-    
-    protected $hidden = ["id","academic_class_section_id","subject_id","created_at","updated_at","deleted_at"];
-   
+
+    protected $hidden = ["id","created_at","updated_at","deleted_at"];
+
     protected static function boot()
     {
         parent::boot();
@@ -28,14 +37,10 @@ class SectionSubject extends Model
             }
         });
     }
-    
+
     public function academicClassSection()
     {
         return $this->belongsTo(AcademicClassSection::class);
     }
 
-    public function subject()
-    {
-        return $this->belongsTo(Subject::class);
-    }
 }

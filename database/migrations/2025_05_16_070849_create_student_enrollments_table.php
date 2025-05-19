@@ -1,0 +1,46 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('student_enrollments', function (Blueprint $table) {
+            $table->id();
+            $table->string('slug')->unique();
+            // Foreign keys
+            $table->foreignId('student_id');
+            $table->foreignId('academic_class_section_id')->constrained()->cascadeOnDelete();
+
+            // Enrollment details
+            $table->integer('roll_number')->nullable();
+            $table->date('admission_date')->nullable();
+            $table->enum('enrollment_type', ['new', 'transfer', 're-admission'])->default('new');
+            $table->string('previous_school')->nullable();
+            $table->date('graduation_date')->nullable();
+            $table->enum('status', ['active', 'graduated', 'transferred', 'dropped'])->default('active');
+            $table->text('remarks')->nullable();
+
+            // Unique constraint to avoid duplicate enrollment in same year
+            $table->unique(['student_id', 'academic_class_section_id']);
+
+            // timestamps and soft deletes
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('student_enrollments');
+    }
+};

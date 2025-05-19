@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use App\Models\Holiday;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class HolidaySeeder extends Seeder
 {

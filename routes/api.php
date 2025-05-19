@@ -98,7 +98,7 @@ Route::prefix('exam-schedules')->group(function(){
 //     Route::post('by-section-date',[TimeTableController::class,'bySectionDate']);
 // });
 
-Route::prefix('schedules')->group(function () {
+Route::prefix('weekly-schedule')->group(function () {
     Route::post('weekly',[ScheduleController::class,'weekly']);
     Route::post('list', [ScheduleController::class, 'list']);
     Route::post('create', [ScheduleController::class, 'create']);
