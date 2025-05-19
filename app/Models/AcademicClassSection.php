@@ -16,7 +16,7 @@ class AcademicClassSection extends Model
 
     protected $fillable = ['slug'];
 
-    protected $hidden = ["id","academic_year_id","class_id","section_id","created_at","updated_at","deleted_at"];
+    protected $hidden = ["academic_year_id","class_id","section_id","created_at","updated_at","deleted_at"];
 
     protected static function boot()
     {

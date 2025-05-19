@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 
 class AcademicAttendanceController extends Controller
 {
-    public function bySection(Request $request)
+    public function bySchedule(Request $request)
     {
         // Validate the request if needed
         $request->validate([
