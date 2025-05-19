@@ -72,7 +72,8 @@ class AcademicAttendanceSeeder extends Seeder
             'date' => now(),
             'remark' => null,
         ]);
-        $lastHash = 'teacherhash' . $teacher[0]['id'];
+
+        $lastHash = 'teacherhash' . $teachers[0]['id'];
     
         $this->command->info('Academic attendance seeded successfully.');
     }

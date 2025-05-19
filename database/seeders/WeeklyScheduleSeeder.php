@@ -14,7 +14,7 @@ class WeeklyScheduleSeeder extends Seeder
     {
         $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-        $sections = AcademicClassSection::all();
+        $sections = AcademicClassSection::take(25)->get();
         $subjects = Subject::all();
         $teacherApiUrl = config('services.user_management.url') . 'teachers';
 

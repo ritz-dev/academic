@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Section;
-use App\Models\Subject;
 use Ramsey\Uuid\Guid\Guid;
 use App\Models\AcademicYear;
 use App\Models\AcademicClass;
@@ -43,11 +42,6 @@ class AcademicClassSection extends Model
     public function section()
     {
         return $this->belongsTo(Section::class);
-    }
-
-    public function subjects()
-    {
-        return $this->belongsToMany(Subject::class, 'sections_subjects');// optional if using softDeletes
     }
 
 }
