@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Subject;
+use App\Models\AcademicYear;
 use App\Models\WeeklySchedule;
 use Illuminate\Database\Seeder;
 use App\Models\AcademicClassSection;
@@ -14,7 +15,9 @@ class WeeklyScheduleSeeder extends Seeder
     {
         $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-        $sections = AcademicClassSection::take(25)->get();
+        $academicYear = AcademicYear::where('status', 'In Progress')->first();
+        
+        $sections = AcademicClassSection::where('academic_year_id', $academicYear->id)->get();
         $subjects = Subject::all();
         $teacherApiUrl = config('services.user_management.url') . 'teachers';
 

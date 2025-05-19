@@ -28,7 +28,7 @@ class DailyScheduleSeeder extends Seeder
         $startDate = Carbon::parse($academicYear->start_date);
         $endDate = Carbon::parse($academicYear->end_date);
 
-        $sections = AcademicClassSection::where('academic_year_id', $academicYear->id)->take(5)->first();
+        $sections = AcademicClassSection::where('academic_year_id', $academicYear->id)->take(5)->get();
 
         foreach ($sections as $section) {
             $currentDate = $startDate->copy();
