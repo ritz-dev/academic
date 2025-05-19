@@ -99,21 +99,21 @@ Route::prefix('attendance')->group(function(){
     // Route::post('by-schedule',[AttendanceController::class,'bySchedule']);
 });
 
-Route::prefix('exams')->group(function(){
-    Route::post('list',[ExamController::class,'list']);
-    Route::post('create',[ExamController::class,'create']);
-    Route::post('detail',[ExamController::class,'detail']);
-    Route::put('update',[ExamController::class,'update']);
-    Route::post('delete',[ExamController::class,'delete']);
-});
+// Route::prefix('exams')->group(function(){
+//     Route::post('list',[ExamController::class,'list']);
+//     Route::post('create',[ExamController::class,'create']);
+//     Route::post('detail',[ExamController::class,'detail']);
+//     Route::put('update',[ExamController::class,'update']);
+//     Route::post('delete',[ExamController::class,'delete']);
+// });
 
-Route::prefix('exam-schedules')->group(function(){
-    Route::post('list',[ExamScheduleController::class,'list']);
-    Route::post('create',[ExamScheduleController::class,'create']);
-    Route::post('detail',[ExamScheduleController::class,'detail']);
-    Route::put('update',[ExamScheduleController::class,'update']);
-    Route::post('delete',[ExamScheduleController::class,'delete']);
-});
+// Route::prefix('exam-schedules')->group(function(){
+//     Route::post('list',[ExamScheduleController::class,'list']);
+//     Route::post('create',[ExamScheduleController::class,'create']);
+//     Route::post('detail',[ExamScheduleController::class,'detail']);
+//     Route::put('update',[ExamScheduleController::class,'update']);
+//     Route::post('delete',[ExamScheduleController::class,'delete']);
+// });
 
 // Route::prefix('timetables')->group(function(){
 //     Route::post('list',[TimeTableController::class,'list']);
@@ -128,21 +128,21 @@ Route::prefix('exam-schedules')->group(function(){
 
 
 
-Route::prefix('holidays')->group(function(){
-    Route::post('list',[HolidayController::class,'list']);
-    Route::post('create',[HolidayController::class,'create']);
-    Route::post('detail',[HolidayController::class,'detail']);
-    Route::put('update',[HolidayController::class,'update']);
-    Route::post('delete',[HolidayController::class,'delete']);
-});
+// Route::prefix('holidays')->group(function(){
+//     Route::post('list',[HolidayController::class,'list']);
+//     Route::post('create',[HolidayController::class,'create']);
+//     Route::post('detail',[HolidayController::class,'detail']);
+//     Route::put('update',[HolidayController::class,'update']);
+//     Route::post('delete',[HolidayController::class,'delete']);
+// });
 
-Route::prefix('attendances')->group(function(){
-    Route::post('record-attendance',[AttendanceController::class,'recordAttendance']);
-    Route::post('get-attendance',[AttendanceController::class,'getAttendance']);
-    Route::post('create',[AttendanceController::class,'create']);
-    Route::post('by-schedule',[AttendanceController::class,'bySchedule']);
-});
+// Route::prefix('attendances')->group(function(){
+//     Route::post('record-attendance',[AttendanceController::class,'recordAttendance']);
+//     Route::post('get-attendance',[AttendanceController::class,'getAttendance']);
+//     Route::post('create',[AttendanceController::class,'create']);
+//     Route::post('by-schedule',[AttendanceController::class,'bySchedule']);
+// });
 
-Route::prefix('certificates')->group(function(){
-    Route::post('add-certificate',[CertificateController::class,'addCertificate']);
-});
+// Route::prefix('certificates')->group(function(){
+//     Route::post('add-certificate',[CertificateController::class,'addCertificate']);
+// });

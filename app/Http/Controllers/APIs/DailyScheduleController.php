@@ -27,6 +27,13 @@ class DailyScheduleController extends Controller
 
         $schedules = DailySchedule::where('academic_class_section_id', $section->id)->get();
 
+        if ($schedules->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No schedules found for this section'
+            ], 404);
+        }
+
         return response()->json([
             'success' => true,
             'data' => $schedules
