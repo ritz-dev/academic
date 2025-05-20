@@ -28,6 +28,8 @@ class DailyScheduleController extends Controller
             ], 404);
         }
 
+        logger($section);
+
         $schedules = DailySchedule::where('academic_class_section_id', $section->id)->take(10)->get();
 
         if ($schedules->isEmpty()) {
@@ -36,6 +38,8 @@ class DailyScheduleController extends Controller
                 'message' => 'No schedules found for this section'
             ], 404);
         }
+        
+        logger($schedules);
 
         return response()->json([
             'success' => true,
