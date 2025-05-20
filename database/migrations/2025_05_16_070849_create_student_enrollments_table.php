@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('slug')->unique();
             // Foreign keys
-            $table->foreignId('student_id');
+            $table->string('student_id');
             $table->foreignId('academic_class_section_id')->constrained()->cascadeOnDelete();
 
             // Enrollment details

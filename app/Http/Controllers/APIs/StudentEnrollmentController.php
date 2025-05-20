@@ -6,23 +6,56 @@ use Illuminate\Http\Request;
 use App\Models\StudentEnrollment;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicClassSection;
+use Illuminate\Support\Facades\Http;
 
 class StudentEnrollmentController extends Controller
 {
     public function byAcademicYear(Request $request)
     {
-        // Validate the request if needed
         $request->validate([
-            'slug'  => 'required'
+            'slug' => 'required',
         ]);
-
+    
+        // Get the section using the slug
         $section = AcademicClassSection::where('slug', $request->slug)->firstOrFail();
-
-        $students = StudentEnrollment::where('academic_class_section_id', $section->id)->get();
-
+    
+        // Get all enrollments in that section
+        $enrollments = StudentEnrollment::where('academic_class_section_id', $section->id)->get();
+    
+        // Extract all student IDs
+        $studentIds = $enrollments->pluck('student_id')->toArray();
+    
+        // Send POST request to fetch student details
+        $studentsApiUrl = config('services.user_management.url') . 'students/enrollment';
+    
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+            // 'Authorization' => $request->header('Authorization'), // Uncomment if needed
+        ])->post($studentsApiUrl, [
+            'student_ids' => $studentIds,
+        ]);
+    
+        if (!$response->ok()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch student info from user management service.',
+            ], $response->status());
+        }
+    
+        // Assume the API returns an array keyed by student_id
+        $studentInfoMap = collect($response->json())->keyBy('slug');
+    
+        // Merge student info with enrollments
+        $students = $enrollments->map(function ($enrollment) use ($studentInfoMap) {
+            return [
+                'enrollment' => $enrollment,
+                'student_info' => $studentInfoMap->get($enrollment->student_id),
+            ];
+        });
+    
         return response()->json([
             'success' => true,
-            'data' => $students
+            'data' => $students,
         ]);
     }
 }

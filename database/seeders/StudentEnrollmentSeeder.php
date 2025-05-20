@@ -37,7 +37,7 @@ class StudentEnrollmentSeeder extends Seeder
             foreach ($students as $student) {
                 // Insert student enrollment
                 StudentEnrollment::create([
-                    'student_id' => $student['id'],
+                    'student_id' => $student['slug'],
                     'academic_class_section_id' => $section->id,
                     'roll_number' => rand(1, 100),
                     'admission_date' => now()->subMonths(rand(1, 12)),
