@@ -68,7 +68,7 @@ class StudentEnrollmentController extends Controller
         ]);
     
         // Load class and academic year with a single query using eager loading
-        $section = AcademicClassSection::with(['academicYear', 'academicClass'])
+        $section = AcademicClassSection::with(['academicYear', 'class'])
             ->findOrFail($validated['academic_class_section_id']);
     
         // Check for existing enrollment for the same student, class, and year
@@ -87,7 +87,6 @@ class StudentEnrollmentController extends Controller
     
         // Create enrollment
         $enrollment = StudentEnrollment::create([
-            'slug' => Str::uuid(),
             'student_id' => $validated['student_id'],
             'academic_class_section_id' => $validated['academic_class_section_id'],
             'roll_number' => $request->input('roll_number'),
@@ -103,5 +102,58 @@ class StudentEnrollmentController extends Controller
             'message' => 'Enrollment successful.',
             'data' => $enrollment
         ], 201);
+    }
+
+    public function byStudent (Request $request)
+    {
+        $request->validate([
+            'student_id' => 'required|string|max:255',
+        ]);
+    
+        // Get all enrollments for that student
+        $enrollments = StudentEnrollment::where('student_id', $request->student_id)->get();
+
+        if($enrollments->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No enrollments found for this student.',
+            ], 404);
+        }
+    
+        // Extract all section IDs
+        // $sectionIds = $enrollments->pluck('academic_class_section_id')->toArray();
+    
+        // // Send POST request to fetch section details
+        // $sectionsApiUrl = config('services.user_management.url') . 'students/enrollment';
+    
+        // $response = Http::withHeaders([
+        //     'Accept' => 'application/json',
+        //     // 'Authorization' => $request->header('Authorization'), // Uncomment if needed
+        // ])->post($sectionsApiUrl, [
+        //     'section_ids' => $sectionIds,
+        // ]);
+    
+        // if (!$response->ok()) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Failed to fetch section info from user management service.',
+        //     ], $response->status());
+        // }
+    
+        // // Assume the API returns an array keyed by section_id
+        // $sectionInfoMap = collect($response->json())->keyBy('id');
+    
+        // // Merge section info with enrollments
+        // $sections = $enrollments->map(function ($enrollment) use ($sectionInfoMap) {
+        //     return [
+        //         'enrollment' => $enrollment,
+        //         'section_info' => $sectionInfoMap->get($enrollment->academic_class_section_id),
+        //     ];
+        // });
+    
+        return response()->json([
+            'success' => true,
+            'data' => $enrollments,
+        ]);
     }
 }
