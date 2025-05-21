@@ -89,6 +89,7 @@ Route::prefix('daily-schedule')->group(function () {
 
 Route::prefix('student-enrollment')->group(function(){
     Route::post('academic-year',[StudentEnrollmentController::class,'byAcademicYear']);
+    Route::post('create',[StudentEnrollmentController::class,'create']);
 });
 
 Route::prefix('attendance')->group(function(){

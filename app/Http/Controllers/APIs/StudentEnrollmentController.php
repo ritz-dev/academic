@@ -58,4 +58,50 @@ class StudentEnrollmentController extends Controller
             'data' => $students,
         ]);
     }
+
+    public function create (Request $request)
+    {
+        $validated = $request->validate([
+            'student_id' => 'required|string|max:255',
+            'academic_class_section_id' => 'required|exists:academic_class_sections,id',
+            // other fields...
+        ]);
+    
+        // Load class and academic year with a single query using eager loading
+        $section = AcademicClassSection::with(['academicYear', 'academicClass'])
+            ->findOrFail($validated['academic_class_section_id']);
+    
+        // Check for existing enrollment for the same student, class, and year
+        $alreadyEnrolled = StudentEnrollment::where('student_id', $validated['student_id'])
+            ->whereHas('academicClassSection', function ($query) use ($section) {
+                $query->where('class_id', $section->class_id)
+                      ->where('academic_year_id', $section->academic_year_id);
+            })
+            ->exists();
+    
+        if ($alreadyEnrolled) {
+            return response()->json([
+                'message' => 'This student is already enrolled in the same class for the selected academic year.'
+            ], 422);
+        }
+    
+        // Create enrollment
+        $enrollment = StudentEnrollment::create([
+            'slug' => Str::uuid(),
+            'student_id' => $validated['student_id'],
+            'academic_class_section_id' => $validated['academic_class_section_id'],
+            'roll_number' => $request->input('roll_number'),
+            'admission_date' => $request->input('admission_date'),
+            'enrollment_type' => $request->input('enrollment_type', 'new'),
+            'previous_school' => $request->input('previous_school'),
+            'graduation_date' => $request->input('graduation_date'),
+            'status' => $request->input('status', 'active'),
+            'remarks' => $request->input('remarks'),
+        ]);
+    
+        return response()->json([
+            'message' => 'Enrollment successful.',
+            'data' => $enrollment
+        ], 201);
+    }
 }
