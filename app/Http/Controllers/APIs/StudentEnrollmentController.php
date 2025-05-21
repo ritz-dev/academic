@@ -74,8 +74,7 @@ class StudentEnrollmentController extends Controller
         // Check for existing enrollment for the same student, class, and year
         $alreadyEnrolled = StudentEnrollment::where('student_id', $validated['student_id'])
             ->whereHas('academicClassSection', function ($query) use ($section) {
-                $query->where('class_id', $section->class_id)
-                      ->where('academic_year_id', $section->academic_year_id);
+                $query->where('academic_year_id', $section->academic_year_id);
             })
             ->exists();
     
@@ -120,40 +119,40 @@ class StudentEnrollmentController extends Controller
             ], 404);
         }
     
-        // Extract all section IDs
-        // $sectionIds = $enrollments->pluck('academic_class_section_id')->toArray();
+        // Extract all student IDs
+        $studentIds = $enrollments->pluck('student_id')->toArray();
     
-        // // Send POST request to fetch section details
-        // $sectionsApiUrl = config('services.user_management.url') . 'students/enrollment';
+        // Send POST request to fetch student details
+        $studentsApiUrl = config('services.user_management.url') . 'students/enrollment';
     
-        // $response = Http::withHeaders([
-        //     'Accept' => 'application/json',
-        //     // 'Authorization' => $request->header('Authorization'), // Uncomment if needed
-        // ])->post($sectionsApiUrl, [
-        //     'section_ids' => $sectionIds,
-        // ]);
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+            // 'Authorization' => $request->header('Authorization'), // Uncomment if needed
+        ])->post($studentsApiUrl, [
+            'student_ids' => $studentIds,
+        ]);
     
-        // if (!$response->ok()) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Failed to fetch section info from user management service.',
-        //     ], $response->status());
-        // }
+        if (!$response->ok()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch student info from user management service.',
+            ], $response->status());
+        }
     
-        // // Assume the API returns an array keyed by section_id
-        // $sectionInfoMap = collect($response->json())->keyBy('id');
+        // Assume the API returns an array keyed by student_id
+        $studentInfoMap = collect($response->json())->keyBy('slug');
     
-        // // Merge section info with enrollments
-        // $sections = $enrollments->map(function ($enrollment) use ($sectionInfoMap) {
-        //     return [
-        //         'enrollment' => $enrollment,
-        //         'section_info' => $sectionInfoMap->get($enrollment->academic_class_section_id),
-        //     ];
-        // });
+        // Merge student info with enrollments
+        $students = $enrollments->map(function ($enrollment) use ($studentInfoMap) {
+            return [
+                'enrollment' => $enrollment,
+                'student_info' => $studentInfoMap->get($enrollment->student_id),
+            ];
+        });
     
         return response()->json([
             'success' => true,
-            'data' => $enrollments,
+            'data' => $students,
         ]);
     }
 }
