@@ -59,50 +59,6 @@ class StudentEnrollmentController extends Controller
         ]);
     }
 
-    public function create (Request $request)
-    {
-        $validated = $request->validate([
-            'student_id' => 'required|string|max:255',
-            'academic_class_section_id' => 'required|exists:academic_class_sections,id',
-            // other fields...
-        ]);
-    
-        // Load class and academic year with a single query using eager loading
-        $section = AcademicClassSection::with(['academicYear', 'class'])
-            ->findOrFail($validated['academic_class_section_id']);
-    
-        // Check for existing enrollment for the same student, class, and year
-        $alreadyEnrolled = StudentEnrollment::where('student_id', $validated['student_id'])
-            ->whereHas('academicClassSection', function ($query) use ($section) {
-                $query->where('academic_year_id', $section->academic_year_id);
-            })
-            ->exists();
-    
-        if ($alreadyEnrolled) {
-            return response()->json([
-                'message' => 'This student is already enrolled in the same class for the selected academic year.'
-            ], 422);
-        }
-    
-        // Create enrollment
-        $enrollment = StudentEnrollment::create([
-            'student_id' => $validated['student_id'],
-            'academic_class_section_id' => $validated['academic_class_section_id'],
-            'roll_number' => $request->input('roll_number'),
-            'admission_date' => $request->input('admission_date'),
-            'enrollment_type' => $request->input('enrollment_type', 'new'),
-            'previous_school' => $request->input('previous_school'),
-            'graduation_date' => $request->input('graduation_date'),
-            'status' => $request->input('status', 'active'),
-            'remarks' => $request->input('remarks'),
-        ]);
-    
-        return response()->json([
-            'message' => 'Enrollment successful.',
-            'data' => $enrollment
-        ], 201);
-    }
-
     public function byStudent (Request $request)
     {
         $request->validate([
@@ -155,4 +111,89 @@ class StudentEnrollmentController extends Controller
             'data' => $students,
         ]);
     }
+
+    public function create (Request $request)
+    {
+        $validated = $request->validate([
+            'student_id' => 'required|string|max:255',
+            'academic_class_section_id' => 'required|exists:academic_class_sections,id',
+            // other fields...
+        ]);
+    
+        // Load class and academic year with a single query using eager loading
+        $section = AcademicClassSection::with(['academicYear', 'class'])
+            ->findOrFail($validated['academic_class_section_id']);
+    
+        // Check for existing enrollment for the same student, class, and year
+        $alreadyEnrolled = StudentEnrollment::where('student_id', $validated['student_id'])
+            ->whereHas('academicClassSection', function ($query) use ($section) {
+                $query->where('academic_year_id', $section->academic_year_id);
+            })
+            ->exists();
+    
+        if ($alreadyEnrolled) {
+            return response()->json([
+                'message' => 'This student is already enrolled in the same class for the selected academic year.'
+            ], 422);
+        }
+    
+        // Create enrollment
+        $enrollment = StudentEnrollment::create([
+            'student_id' => $validated['student_id'],
+            'academic_class_section_id' => $validated['academic_class_section_id'],
+            'roll_number' => $request->input('roll_number'),
+            'admission_date' => $request->input('admission_date'),
+            'enrollment_type' => $request->input('enrollment_type', 'new'),
+            'previous_school' => $request->input('previous_school'),
+            'graduation_date' => $request->input('graduation_date'),
+            'status' => $request->input('status', 'active'),
+            'remarks' => $request->input('remarks'),
+        ]);
+    
+        return response()->json([
+            'message' => 'Enrollment successful.',
+            'data' => $enrollment
+        ], 201);
+    }
+
+    public function handleAction(Request $request)
+    {
+        $request->validate([
+            'slug' => 'required|string|exists:student_enrollments,slug',
+            'action' => 'required|string|in:active,graduated,transferred,dropped',
+        ]);
+
+        $slug = $request->input('slug');
+        $action = $request->input('action');
+
+        // Fetch soft-deleted teachers as well
+        $enrollment = StudentEnrollment::withTrashed()->where('slug', $slug)->firstOrFail();
+
+        switch ($action) {
+            case 'active':
+                $enrollment->status = 'active';
+                $enrollment->save();
+                return response()->json(['message' => 'Enrollment status set to active']);
+
+            case 'graduated':
+                $enrollment->status = 'graduated';
+                $enrollment->save();
+                return response()->json(['message' => 'Enrollment graduated']);
+
+            case 'transferred':
+                $enrollment->status = 'transferred';
+                $enrollment->save();
+                return response()->json(['message' => 'Enrollment transferred']);
+
+            case 'dropped':
+                $enrollment->status = 'dropped';
+                $enrollment->save();
+                return response()->json(['message' => 'Enrollment dropped']);
+
+            default:
+                return response()->json(['message' => 'Invalid action'], 400);
+        }
+    }
+
+    
 }

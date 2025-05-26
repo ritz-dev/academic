@@ -31,23 +31,27 @@ class StudentEnrollmentSeeder extends Seeder
         
         $students = $response->json() ?? [];
 
-        logger()->info('Fetched students:', $students);
+        $sectionCount = $sections->count();
 
-        foreach($sections as $section) {
-            foreach ($students as $student) {
-                // Insert student enrollment
-                StudentEnrollment::create([
-                    'student_id' => $student['slug'],
-                    'academic_class_section_id' => $section->id,
-                    'roll_number' => rand(1, 100),
-                    'admission_date' => now()->subMonths(rand(1, 12)),
-                    'enrollment_type' => 'new',
-                    'previous_school' => null,
-                    'graduation_date' => null,
-                    'status' => 'active',
-                    'remarks' => 'Auto seeded enrollment.',
-                ]);
+        foreach ($students as $index => $student) {
+            // Safely get a section using modulo to avoid out-of-bounds
+            $section = $sections[$index % $sectionCount] ?? null;
+
+            if (!$section) {
+                continue;
             }
+
+            StudentEnrollment::create([
+                'student_id' => $student['slug'], // Make sure 'slug' is the correct identifier
+                'academic_class_section_id' => $section->id,
+                'roll_number' => rand(1, 100),
+                'admission_date' => now()->subMonths(rand(1, 12)),
+                'enrollment_type' => 'new',
+                'previous_school' => null,
+                'graduation_date' => null,
+                'status' => 'active',
+                'remarks' => 'Auto seeded enrollment.',
+            ]);
         }
     }
 }

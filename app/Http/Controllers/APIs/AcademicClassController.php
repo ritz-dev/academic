@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\APIs;
 
 use Exception;
-use App\Models\Section;
 use Illuminate\Support\Str;
 use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use App\Models\AcademicClass;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AcademicClassResource;
 use Illuminate\Validation\ValidationException;
@@ -50,129 +48,110 @@ class AcademicClassController extends Controller
         // }
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
-        try{
-            $request->validate([
-                'name' => 'required|string|unique:academic_classes,name',
-                'limit'=> 'required|numeric',
-                'academicYear' => 'required|string',
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
             ]);
 
-            $year = AcademicYear::where('slug',$request->academicYear)->firstOrFail();
-            $academic_class = new AcademicClass;
-            $academic_class->slug = Str::uuid();
-            $academic_class->name = $request->name;
-            $academic_class->limit = $request->limit;
-            $academic_class->academic_year_id = $year->id;
-            $academic_class->save();
+            $academicClass = AcademicClass::create($validated);
 
             return response()->json([
-                "status" => "OK! The request was successful",
-            ],200);
+                'message' => 'Academic class created successfully.',
+                'data' => $academicClass
+            ], 201);
 
-        }catch (ValidationException $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-                'status' => 'Validation error.',
+                'message' => 'Validation failed.',
                 'errors' => $e->errors(),
             ], 422);
-        } catch (Exception $e) {
+
+        } catch (\Exception $e) {
             return response()->json([
-                'status' => 'An error occurred while adding.',
-                'message' => $e->getMessage()
+                'message' => 'An error occurred while creating the academic class.',
+                'error' => $e->getMessage(),
             ], 500);
         }
-
     }
-    public function detail(Request $request)
+
+    public function show(Request $request)
     {
         try {
-            $request->validate([
-                'slug' => 'required|exists:academic_classes,slug'
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:academic_classes,slug',
             ]);
 
-            $data = AcademicClass::where('slug',$request->slug)->firstOrFail();
-            $academic_class = new AcademicClassResource($data);
-            return response()->json($academic_class,200);
+            $academicClass = AcademicClass::withTrashed()->where('slug', $validated['slug'])->firstOrFail();
 
-        }catch (Exception $e) {
+            if($academicClass->trashed()) {
+                return response()->json([
+                    'message' => 'Academic class not found.',
+                ], 404);
+            }
+
+            return response()->json($academicClass);
+
+        } catch (ModelNotFoundException $e) {
+
             return response()->json([
-                'status' => 'An error occurred while showing.',
-                'message' => $e->getMessage()
+                'message' => 'Academic class not found.',
+                'error' => $e->getMessage()
+            ], 404);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => 'An error occurred.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
 
-    public function update(Request $request)
+    public function handleAction(Request $request)
     {
-        try{
-            $request->validate([
-                'name' => [
-                    'required',
-                    'string',
-                    Rule::unique('academic_classes')->ignore($request->slug,'slug'),
-                ],
-                'limit'=> 'required|numeric',
-                'academicYearId' => 'required',
+        try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:academic_classes,slug',
+                'action' => 'required|string|in:delete,restore',
             ]);
 
-            $class = AcademicClass::where('slug',$request->slug)->firstOrFail();
-            $class->name = $request->name;
-            $class->limit = $request->limit;
-            $class->academic_year_id = $request->academicYearId;
-            $class->save();
+            $slug = $validated['slug'];
+            $action = $validated['action'];
 
-            return response()->json($class, 200);
-        }catch (ValidationException $e) {
+            $academicClass = AcademicClass::withTrashed()->where('slug', $slug)->firstOrFail();
+
+            switch ($action) {
+                case 'delete':
+                    $academicClass->delete();
+                    return response()->json(['message' => 'Academic class soft-deleted']);
+
+                case 'restore':
+                    if ($academicClass->trashed()) {
+                        $academicClass->restore();
+                        return response()->json(['message' => 'Academic class restored']);
+                    }
+                    return response()->json(['message' => 'Academic class is not deleted'], 400);
+
+                default:
+                    return response()->json(['message' => 'Invalid action'], 400);
+            }
+        } catch (ValidationException $e) {
             return response()->json([
-                'status' => 'Validation error.',
+                'message' => 'Validation failed.',
                 'errors' => $e->errors(),
             ], 422);
-        } catch (Exception $e) {
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'status' => 'An error occurred while editing.',
-                'message' => $e->getMessage()
+                'message' => 'Academic class not found.',
+                'error' => $e->getMessage()
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred.',
+                'error' => $e->getMessage()
             ], 500);
-        }
-    }
-
-    public function delete(Request $request)
-    {
-        try {
-            $academic_class = AcademicClass::where('slug',$request->slug)->firstOrFail();
-            $academic_class->delete();
-
-            return response()->json([
-                "status" => "OK! Deleting Successfully."
-            ],200);
-        }catch (Exception $e) {
-            return response()->json([
-                'status' => 'An error occurred while deleting.',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function byYear(Request $request)
-    {
-        try {
-
-            $request->validate([
-                'yearId' => 'required',
-            ]);
-
-            $year = AcademicYear::where('slug',$request->yearId)->firstOrFail();
-
-            $data = AcademicClass::where('academic_year_id',$year->id)
-                    ->select(['slug','name','limit'])
-                    ->get();
-
-            return response()->json($data);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ],500);
         }
     }
 }

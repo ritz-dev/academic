@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('previous_hash')->nullable();
             $table->string('hash')->nullable();
             $table->enum('attendee_type', ['student', 'teacher']);
-            $table->foreignId('attendee_id');
+            $table->string('attendee_id');
             $table->foreignId('schedule_id')->constrained('daily_schedules')->onDelete('cascade');
             $table->enum('status', ['present', 'absent', 'late', 'excused']);
             $table->datetime('date');

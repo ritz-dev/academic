@@ -68,7 +68,7 @@ class WeeklyScheduleSeeder extends Seeder
                 foreach ($classSlots as $slot) {
                     $subject = $subjects->random();
                     $randomTeacher = collect($teachers)->random();
-                    $teacherId = $randomTeacher['id'] ?? null;
+                    $teacherId = $randomTeacher['slug'] ?? null;
 
                     WeeklySchedule::create([
                         'academic_class_section_id' => $section->id,

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->foreignId('academic_class_section_id')->constrained()->cascadeOnDelete();
             $table->foreignId('subject_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('teacher_id')->nullable();
+            $table->string('teacher_id')->nullable();
             $table->enum('day_of_week', ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
             $table->time('start_time');
             $table->time('end_time');

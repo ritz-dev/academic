@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('date');
             $table->foreignId('academic_class_section_id')->constrained()->cascadeOnDelete();
             $table->foreignId('subject_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('teacher_id')->nullable();
+            $table->string('teacher_id')->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->boolean('is_holiday')->default(false);

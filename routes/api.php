@@ -16,7 +16,7 @@ use App\Http\Controllers\APIs\StudentEnrollmentController;
 use App\Http\Controllers\APIs\AcademicAttendanceController;
 use App\Http\Controllers\APIs\AcademicClassSectionController;
 
-Route::prefix('academic')->group(function(){
+Route::prefix('class-sections')->group(function(){
     Route::post('/',[AcademicClassSectionController::class,'index']);
     // Route::post('list-post',[AcademicYearController::class,'list']);
     // Route::post('create',[AcademicYearController::class,'create']);
@@ -27,31 +27,24 @@ Route::prefix('academic')->group(function(){
 
 Route::prefix('academic-years')->group(function(){
     Route::post('/',[AcademicYearController::class,'index']);
-    Route::post('list-post',[AcademicYearController::class,'list']);
-    Route::post('create',[AcademicYearController::class,'create']);
-    Route::post('detail',[AcademicYearController::class,'detail']);
+    Route::post('store',[AcademicYearController::class,'store']);
+    Route::post('show',[AcademicYearController::class,'show']);
     Route::put('update',[AcademicYearController::class,'update']);
-    Route::post('delete',[AcademicYearController::class,'delete']);
+    Route::post('action',[AcademicYearController::class,'handleAction']);
 });
 
 Route::prefix('classes')->group(function(){
     Route::post('/',[AcademicClassController::class,'index']);
-    Route::post('list-post',[AcademicClassController::class,'list']);
-    Route::post('create',[AcademicClassController::class,'create']);
-    Route::post('detail',[AcademicClassController::class,'detail']);
-    Route::put('update',[AcademicClassController::class,'update']);
-    Route::post('delete',[AcademicClassController::class,'delete']);
-    Route::post('by-year',[AcademicClassController::class,'byYear']);
+    Route::post('store',[AcademicClassController::class,'store']);
+    Route::post('show',[AcademicClassController::class,'show']);
+    Route::post('action',[AcademicClassController::class,'handleAction']);
 });
 
 Route::prefix('sections')->group(function(){
     Route::post('/',[SectionController::class,'index']);
-    Route::post('create',[SectionController::class,'create']);
-    Route::post('detail',[SectionController::class,'detail']);
-    Route::put('update',[SectionController::class,'update']);
-    Route::post('delete',[SectionController::class,'delete']);
-    Route::post('by-class',[SectionController::class,'byClass']);
-    Route::post('students-in-section',[SectionController::class,'StudentsInSection']);
+    Route::post('store',[SectionController::class,'store']);
+    Route::post('show',[SectionController::class,'show']);
+    Route::post('action',[SectionController::class,'handleAction']);
 });
 
 Route::prefix('grades')->group(function(){
@@ -64,13 +57,9 @@ Route::prefix('grades')->group(function(){
 
 Route::prefix('subjects')->group(function(){
     Route::post('/',[SubjectController::class,'index']);
-    Route::post('create',[SubjectController::class,'create']);
-    Route::post('detail',[SubjectController::class,'detail']);
-    Route::put('update',[SubjectController::class,'update']);
-    Route::post('delete',[SubjectController::class,'delete']);
-    Route::post('by-section',[SubjectController::class,'bySection']);
-    Route::post('not-in-section',[SubjectController::class,'notInSection']);
-    Route::post('add-subject',[SubjectController::class,'addSubject']);
+    Route::post('store',[SubjectController::class,'store']);
+    Route::post('show',[SubjectController::class,'show']);
+    Route::post('action',[SubjectController::class,'handleAction']);
 });
 
 Route::prefix('weekly-schedule')->group(function () {
@@ -85,12 +74,14 @@ Route::prefix('weekly-schedule')->group(function () {
 
 Route::prefix('daily-schedule')->group(function () {
     Route::post('section',[DailyScheduleController::class,'bySection']);
+    Route::post('by-teacher',[DailyScheduleController::class,'byTeacherAcademicYear']);
 });
 
 Route::prefix('student-enrollment')->group(function(){
     Route::post('academic-year',[StudentEnrollmentController::class,'byAcademicYear']);
     Route::post('student',[StudentEnrollmentController::class,'byStudent']);
     Route::post('create',[StudentEnrollmentController::class,'create']);
+    Route::post('action',[StudentEnrollmentController::class,'handleAction']);
 });
 
 Route::prefix('attendance')->group(function(){

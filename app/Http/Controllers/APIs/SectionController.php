@@ -4,11 +4,7 @@ namespace App\Http\Controllers\APIs;
 
 use Exception;
 use App\Models\Section;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Models\AcademicClass;
-use App\Models\StudentSection;
-use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 use App\Http\Resources\SectionResource;
@@ -49,165 +45,110 @@ class SectionController extends Controller
         // }
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         try {
-
-            $request->validate([
-                'name' => 'required',
-                'classId' => "required|exists:academic_classes,slug"
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
             ]);
 
-            $academic_class = AcademicClass::where('slug',$request->classId)->firstOrFail();
-
-            $section = new Section;
-            $section->slug = Str::uuid();
-            $section->name = $request->name;
-            $section->limit = $request->limit;
-            $section->teacher_id = $request->teacherId;
-            $section->academic_class_id = $academic_class->id;
-            $section->save();
+            $seciton = Section::create($validated);
 
             return response()->json([
-                "status" => "OK! The request was successful",
-            ],200);
-        }catch (ValidationException $e) {
+                'message' => 'Academic sections created successfully.',
+                'data' => $seciton
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-                'status' => 'Validation error.',
+                'message' => 'Validation failed.',
                 'errors' => $e->errors(),
             ], 422);
-        } catch (Exception $e) {
+
+        } catch (\Exception $e) {
             return response()->json([
-                'status' => 'An error occurred while adding.',
-                'message' => $e->getMessage()
+                'message' => 'An error occurred while creating the academic section.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    public function detail(Request $request)
+    public function show(Request $request)
     {
         try {
-            $request->validate([
-                'slug' => 'required|exists:sections,slug'
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:sections,slug',
             ]);
 
-            $data = Section::where('slug',$request->slug)->firstOrFail();
-            $class = AcademicClass::where('id',$data->academic_class_id)->firstOrFail();
-            $data->academic_class_id = $class->slug;
-            $section = new SectionResource($data);
-            return response()->json($section,200);
+            $section = Section::withTrashed()->where('slug', $validated['slug'])->firstOrFail();
 
-        }catch (Exception $e) {
-            return response()->json([
-                'status' => 'An error occurred while showing.',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-    public function update(Request $request)
-    {
-        try{
-             $request->validate([
-                'slug' => 'required|exists:sections,slug',
-                'name' => 'required',
-                'classId' => 'required',
-            ]);
-
-            $class = AcademicClass::where('slug',$request->classId)->firstOrFail();
-
-            $section = Section::where('slug',$request->slug)->firstOrFail();
-            $section->name = $request->name;
-            $section->teacher_id = $request->teacherId;
-            $section->limit = $request->limit;
-            $section->academic_class_id = $class->id;
-            $section->save();
-
-            return response()->json([
-                "status" => "OK! The request was updated",
-            ],200);
-        }catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Validation error.',
-                'errors' => $e->errors(),
-            ], 422);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'An error occurred while editing.',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function delete(Request $request)
-    {
-        try {
-            $section = Section::where('slug',$request->slug)->firstOrFail();
-            $section->delete();
-
-            return response()->json([
-                "status" => "OK! Deleting Successfully."
-            ],200);
-        }catch (Exception $e) {
-            return response()->json([
-                'status' => 'An error occurred while deleting.',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function byClass(Request $request)
-    {
-        try {
-            $request->validate([
-                'classId' => 'required',
-            ]);
-
-            $class = AcademicClass::where('slug',$request->classId)->firstOrFail();
-
-            $data = Section::where('academic_class_id',$class->id)
-                        ->select(['slug','name','limit'])
-                        ->get();
-
-            return response()->json($data);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ],500);
-        }
-    }
-
-    public function StudentsInSection(Request $request)
-    {
-        try {
-            $request->validate([
-                'slug' => 'required|exists:sections,slug',
-            ]);
-
-            $section = Section::where('slug', $request->slug)->firstOrFail();
-
-            $userManagementServiceUrl = config('services.user_management.url') . '/students/by-section';
-
-            // Fetch teacher info based on the section ID
-            $response = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => $request->header('Authorization'),
-            ])->post($userManagementServiceUrl, [
-                'sectionId' => $section->id
-            ]);
-
-            // Check if the response is successful
-            if ($response->failed()) {
-                return response()->json(['error' => 'Unable to fetch teacher info'], 400);
+            if($section->trashed()) {
+                return response()->json([
+                    'message' => 'Academic section not found.',
+                ], 404);
             }
 
-            // Parse the response data
-            return $response->json();
-        } catch (Exception $e) {
+            return response()->json($section);
+
+        } catch (ModelNotFoundException $e) {
+
             return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ],500);
+                'message' => 'Academic section not found.',
+                'error' => $e->getMessage()
+            ], 404);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => 'An error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function handleAction(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:sections,slug',
+                'action' => 'required|string|in:delete,restore',
+            ]);
+
+            $slug = $validated['slug'];
+            $action = $validated['action'];
+
+            $section = Section::withTrashed()->where('slug', $slug)->firstOrFail();
+
+            switch ($action) {
+                case 'delete':
+                    $section->delete();
+                    return response()->json(['message' => 'Academic section soft-deleted']);
+
+                case 'restore':
+                    if ($section->trashed()) {
+                        $section->restore();
+                        return response()->json(['message' => 'Academic section restored']);
+                    }
+                    return response()->json(['message' => 'Academic section is not deleted'], 400);
+
+                default:
+                    return response()->json(['message' => 'Invalid action'], 400);
+            }
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Academic section not found.',
+                'error' => $e->getMessage()
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }

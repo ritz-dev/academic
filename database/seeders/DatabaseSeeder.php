@@ -24,10 +24,10 @@ class DatabaseSeeder extends Seeder
             ExamStudentAssignmentSeeder::class,
             HolidaySeeder::class,
             AcademicClassSectionSeeder::class,
-            // StudentEnrollmentSeeder::class,
+            StudentEnrollmentSeeder::class,
             WeeklyScheduleSeeder::class,
             DailyScheduleSeeder::class,
-            // AcademicAttendanceSeeder::class,
+            AcademicAttendanceSeeder::class,
         ]);
     }
 }

@@ -53,7 +53,7 @@ class AcademicAttendanceSeeder extends Seeder
                 'previous_hash' => $lastHash,
                 'hash' => 'studenthash' . $student->id,  // Replace with real hash logic
                 'attendee_type' => 'student',
-                'attendee_id' => $student->id,
+                'attendee_id' => $student->slug,
                 'schedule_id' => $scheduleId,
                 'status' => 'present', // or some logic
                 'date' => now(),
@@ -66,7 +66,7 @@ class AcademicAttendanceSeeder extends Seeder
             'previous_hash' => $lastHash,
             'hash' => 'teacherhash' . $teachers[0]['id'],  // Replace with real hash logic
             'attendee_type' => 'teacher',
-            'attendee_id' => $teachers[0]['id'],
+            'attendee_id' => $teachers[0]['slug'],
             'schedule_id' => $scheduleId,
             'status' => 'present', // or some logic
             'date' => now(),

@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AcademicYearResource;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class AcademicYearController extends Controller
@@ -48,116 +49,127 @@ class AcademicYearController extends Controller
         // }
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         try {
-            $request->validate([
-                'year' => 'required|string|unique:academic_years',
-                'startDate' => 'required|date',
-                'endDate' => 'required|date|after:startDate',
-                'status' => 'required|string|in:Upcoming,In Progress,Completed'
+            $validated = $request->validate([
+                'year' => 'required|unique:academic_years,year',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'status' => 'in:Upcoming,In Progress,Completed',
             ]);
 
-            $start_date = Carbon::parse($request->startDate)->format('Y-m-d');
-            $end_date = Carbon::parse($request->endDate)->format('Y-m-d');
-
-            $academic_year = new AcademicYear;
-            $academic_year->slug = Str::uuid();
-            $academic_year->year = $request->year;
-            $academic_year->start_date = $start_date;
-            $academic_year->end_date = $end_date;
-            $academic_year->status = $request->status;
-            $academic_year->save();
+            $academicYear = AcademicYear::create($validated);
 
             return response()->json([
-                "status" => "OK! The request was successful",
-            ],200);
+                'message' => 'Academic year created successfully.',
+                'data' => $academicYear
+            ], 201);
 
-        }catch (ValidationException $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-                'status' => 'Validation error.',
+                'message' => 'Validation failed.',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while creating the academic year.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function show(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:academic_years,slug',
+            ]);
+
+            $academicYear = AcademicYear::where('slug', $validated['slug'])->firstOrFail();
+
+            if($academicYear->trashed()) {
+                return response()->json([
+                    'message' => 'Academic year not found.',
+                ], 404);
+            }
+
+            return response()->json($academicYear);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Academic year not found.',
+                'error' => $e->getMessage()
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while retrieving the academic year.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function handleAction(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:academic_years,slug',
+                'action' => 'required|string|in:upcoming,in_progress,completed,restore,delete',
+            ]);
+
+            $slug = $validated['slug'];
+            $action = $validated['action'];
+
+            // Support soft-deleted models as well
+            $academicYear = AcademicYear::withTrashed()->where('slug', $slug)->firstOrFail();
+
+            switch ($action) {
+                case 'upcoming':
+                    $academicYear->status = 'Upcoming';
+                    $academicYear->save();
+                    return response()->json(['message' => 'Academic year status set to Upcoming']);
+
+                case 'in_progress':
+                    $academicYear->status = 'In Progress';
+                    $academicYear->save();
+                    return response()->json(['message' => 'Academic year status set to In Progress']);
+
+                case 'completed':
+                    $academicYear->status = 'Completed';
+                    $academicYear->save();
+                    return response()->json(['message' => 'Academic year status set to Completed']);
+
+                case 'delete':
+                    $academicYear->delete();
+                    return response()->json(['message' => 'Academic year soft-deleted']);
+
+                case 'restore':
+                    if ($academicYear->trashed()) {
+                        $academicYear->restore();
+                        return response()->json(['message' => 'Academic year restored']);
+                    }
+                    return response()->json(['message' => 'Academic year is not deleted'], 400);
+
+                default:
+                    return response()->json(['message' => 'Invalid action'], 400);
+            }
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
                 'errors' => $e->errors(),
             ], 422);
-        } catch (Exception $e) {
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
-                'status' => 'An error occurred while adding.',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
+                'message' => 'Academic year not found.',
+                'error' => $e->getMessage(),
+            ], 404);
 
-    public function detail(Request $request)
-    {
-        try {
-            $request->validate([
-                'slug' => 'required|exists:academic_years,slug'
-            ]);
-
-            $data = AcademicYear::where('slug',$request->slug)->firstOrFail();
-            $academic_year = new AcademicYearResource($data);
-            return response()->json($academic_year);
-        }catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
-                'status' => 'An error occurred while showing.',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function update(Request $request)
-    {
-        try {
-            $academic_year = AcademicYear::where('slug',$request->slug)->firstOrFail();
-
-           $request->validate([
-                'year' => [
-                    'required',
-                    Rule::unique('academic_years')->ignore($request->slug, 'slug'),
-                ],
-                'startDate' => 'required|date',
-                'endDate' => 'required|date|after:startDate',
-                'status' => 'required|string|in:Upcoming,In Progress,Completed'
-            ]);
-
-            $start_date = Carbon::parse($request->startDate)->format('Y-m-d');
-            $end_date = Carbon::parse($request->endDate)->format('Y-m-d');
-
-
-            $academic_year->year = $request->year;
-            $academic_year->start_date = $start_date;
-            $academic_year->end_date = $end_date;
-            $academic_year->status = $request->status;
-            $academic_year->save();
-
-            $academic_year = new AcademicYearResource($academic_year);
-
-            return response()->json($academic_year,200);
-        }catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'Validation error.',
-                'errors' => $e->errors(),
-            ], 422);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'An error occurred while editing.',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function delete(Request $request)
-    {
-        try {
-            $academicYear = AcademicYear::where('slug',$request->slug)->firstOrFail();
-            $academicYear->delete();
-
-            return response()->json([
-                "status" => "OK! Deleting Successfully."
-            ],200);
-        }catch (Exception $e) {
-            return response()->json([
-                'status' => 'An error occurred while deleting.',
-                'message' => $e->getMessage()
+                'message' => 'An error occurred while handling the action.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
