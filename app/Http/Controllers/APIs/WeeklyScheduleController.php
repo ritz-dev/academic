@@ -26,4 +26,25 @@ class WeeklyScheduleController extends Controller
             'data' => $schedules
         ]);
     }
+
+    public function store(Request $request)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'academic_class_section_id' => 'required|exists:academic_class_sections,id',
+            'subject_id' => 'nullable|exists:subjects,id',
+            'teacher_id' => 'nullable|string',
+            'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'type' => 'required|in:class,break'
+        ]);
+
+        $schedule = WeeklySchedule::create($validated);
+
+        return response()->json([
+            'message' => 'Weekly schedule created successfully.',
+            'data' => $schedule
+        ],201);
+    }
 }

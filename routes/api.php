@@ -63,6 +63,7 @@ Route::prefix('subjects')->group(function(){
 });
 
 Route::prefix('weekly-schedule')->group(function () {
+    Route::post('store', [WeeklyScheduleController::class, 'store']);
     Route::post('section',[WeeklyScheduleController::class,'bySection']);
     // Route::post('list', [ScheduleController::class, 'list']);
     // Route::post('create', [ScheduleController::class, 'create']);
@@ -73,6 +74,7 @@ Route::prefix('weekly-schedule')->group(function () {
 });
 
 Route::prefix('daily-schedule')->group(function () {
+    Route::post('store', [DailyScheduleController::class, 'store']);
     Route::post('section',[DailyScheduleController::class,'bySection']);
     Route::post('by-teacher',[DailyScheduleController::class,'byTeacherAcademicYear']);
 });
@@ -86,6 +88,7 @@ Route::prefix('student-enrollment')->group(function(){
 
 Route::prefix('attendance')->group(function(){
     Route::post('schedule',[AcademicAttendanceController::class,'bySchedule']);
+    Route::post('store',[AcademicAttendanceController::class,'store']);
     // Route::post('record-attendance',[AttendanceController::class,'recordAttendance']);
     // Route::post('get-attendance',[AttendanceController::class,'getAttendance']);
     // Route::post('create',[AttendanceController::class,'create']);

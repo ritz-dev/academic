@@ -12,6 +12,7 @@ class WeeklySchedule extends Model
 
     protected $fillable = [
         'slug',
+        'academic_class_section_id',
         'subject_id',
         'teacher_id',
         'day_of_week',
