@@ -15,10 +15,7 @@ class AcademicClassResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "slug" => $this->slug,
             "name" => $this->name,
-            "limit" => $this->limit,
-            "academicYearId" => $this->academic_year_id
         ];
     }
 }

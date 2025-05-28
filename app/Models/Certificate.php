@@ -11,7 +11,7 @@ class Certificate extends Model
 
     protected $fillable = ['slug','student_id','certificate_type','issue_date','expiry_date','issued_by','result','additional_details','academic_year_id'];
 
-    protected $hidden = ["created_at","updated_at","deleted_at"];
+    protected $hidden = ["id","created_at","updated_at","deleted_at"];
 
     public function academicYear()
     {

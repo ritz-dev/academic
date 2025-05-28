@@ -15,7 +15,6 @@ class AcademicYearResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'slug' => $this->slug,
             'year' => $this->year,
             'startDate' => $this->start_date,
             'endDate' => $this-> end_date,

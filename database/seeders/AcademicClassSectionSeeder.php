@@ -23,9 +23,9 @@ class AcademicClassSectionSeeder extends Seeder
             foreach ($academicClasses as $class) {
                 foreach ($sections as $section) {
                     AcademicClassSection::create([
-                        'academic_year_id' => $year->id,
-                        'class_id' => $class->id,
-                        'section_id' => $section->id,
+                        'academic_year' => $year->slug,
+                        'class' => $class->slug,
+                        'section' => $section->slug,
                     ]);
                 }
             }

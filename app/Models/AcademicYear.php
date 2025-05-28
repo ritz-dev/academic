@@ -13,7 +13,7 @@ class AcademicYear extends Model
 
     protected $fillable = ['slug','year','start_date','end_date','status'];
 
-    protected $hidden = ["created_at","updated_at","deleted_at"];
+    protected $hidden = ["id","created_at","updated_at","deleted_at"];
 
     protected static function boot()
     {

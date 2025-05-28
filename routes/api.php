@@ -63,26 +63,21 @@ Route::prefix('subjects')->group(function(){
 });
 
 Route::prefix('weekly-schedule')->group(function () {
-    Route::post('store', [WeeklyScheduleController::class, 'store']);
     Route::post('section',[WeeklyScheduleController::class,'bySection']);
-    // Route::post('list', [ScheduleController::class, 'list']);
-    // Route::post('create', [ScheduleController::class, 'create']);
-    // Route::post('by-section',[ScheduleController::class,'bySection']);
-    // Route::post('/', [ScheduleController::class, 'store']);
-    // Route::put('/{id}', [ScheduleController::class, 'update']);
-    // Route::delete('/{id}', [ScheduleController::class, 'destroy']);
+    Route::post('store', [WeeklyScheduleController::class, 'store']);
 });
 
 Route::prefix('daily-schedule')->group(function () {
-    Route::post('store', [DailyScheduleController::class, 'store']);
     Route::post('section',[DailyScheduleController::class,'bySection']);
     Route::post('by-teacher',[DailyScheduleController::class,'byTeacherAcademicYear']);
+    Route::post('store', [DailyScheduleController::class, 'store']);
 });
 
 Route::prefix('student-enrollment')->group(function(){
     Route::post('academic-year',[StudentEnrollmentController::class,'byAcademicYear']);
     Route::post('student',[StudentEnrollmentController::class,'byStudent']);
-    Route::post('create',[StudentEnrollmentController::class,'create']);
+    Route::post('store',[StudentEnrollmentController::class,'store']);
+    Route::post('update',[StudentEnrollmentController::class,'update']);
     Route::post('action',[StudentEnrollmentController::class,'handleAction']);
 });
 
@@ -111,32 +106,12 @@ Route::prefix('attendance')->group(function(){
 //     Route::post('delete',[ExamScheduleController::class,'delete']);
 // });
 
-// Route::prefix('timetables')->group(function(){
-//     Route::post('list',[TimeTableController::class,'list']);
-//     Route::post('create',[TimeTableController::class,'create']);
-//     Route::post('detail',[TimeTableController::class,'detail']);
-//     Route::put('update',[TimeTableController::class,'update']);
-//     Route::put('update-date-time',[TimeTableController::class,'updateDateTime']);
-//     Route::post('delete',[TimeTableController::class,'delete']);
-//     Route::post('by-section',[TimeTableController::class,'bySection']);
-//     Route::post('by-section-date',[TimeTableController::class,'bySectionDate']);
-// });
-
-
-
 // Route::prefix('holidays')->group(function(){
 //     Route::post('list',[HolidayController::class,'list']);
 //     Route::post('create',[HolidayController::class,'create']);
 //     Route::post('detail',[HolidayController::class,'detail']);
 //     Route::put('update',[HolidayController::class,'update']);
 //     Route::post('delete',[HolidayController::class,'delete']);
-// });
-
-// Route::prefix('attendances')->group(function(){
-//     Route::post('record-attendance',[AttendanceController::class,'recordAttendance']);
-//     Route::post('get-attendance',[AttendanceController::class,'getAttendance']);
-//     Route::post('create',[AttendanceController::class,'create']);
-//     Route::post('by-schedule',[AttendanceController::class,'bySchedule']);
 // });
 
 // Route::prefix('certificates')->group(function(){

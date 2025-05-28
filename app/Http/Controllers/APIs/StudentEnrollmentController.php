@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\APIs;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\StudentEnrollment;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicClassSection;
@@ -112,12 +113,18 @@ class StudentEnrollmentController extends Controller
         ]);
     }
 
-    public function create (Request $request)
+    public function store (Request $request)
     {
         $validated = $request->validate([
-            'student_id' => 'required|string|max:255',
-            'academic_class_section_id' => 'required|exists:academic_class_sections,id',
-            // other fields...
+            'student_id' => ['required', 'string'],
+            'academic_class_section_id' => ['required', 'exists:academic_class_sections,id'],
+            'roll_number' => ['nullable', 'integer'],
+            'admission_date' => ['nullable', 'date'],
+            'enrollment_type' => ['required', Rule::in(['new', 'transfer', 're-admission'])],
+            'previous_school' => ['nullable', 'string', 'max:255'],
+            'graduation_date' => ['nullable', 'date'],
+            'status' => ['required', Rule::in(['active', 'graduated', 'transferred', 'dropped'])],
+            'remarks' => ['nullable', 'string'],
         ]);
     
         // Load class and academic year with a single query using eager loading
@@ -154,6 +161,59 @@ class StudentEnrollmentController extends Controller
             'message' => 'Enrollment successful.',
             'data' => $enrollment
         ], 201);
+    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'slug' => ['required', 'string', 'exists:student_enrollments,slug'],
+            'student_id' => ['required', 'string'],
+            'academic_class_section_id' => ['required', 'exists:academic_class_sections,id'],
+            'roll_number' => ['nullable', 'integer'],
+            'admission_date' => ['nullable', 'date'],
+            'enrollment_type' => ['required', Rule::in(['new', 'transfer', 're-admission'])],
+            'previous_school' => ['nullable', 'string', 'max:255'],
+            'graduation_date' => ['nullable', 'date'],
+            'status' => ['required', Rule::in(['active', 'graduated', 'transferred', 'dropped'])],
+            'remarks' => ['nullable', 'string'],
+        ]);
+
+        $enrollment = StudentEnrollment::where('slug',$validated['slug'])->firstOrFail();
+
+        $section = AcademicClassSection::with(['academicYear', 'class'])
+            ->findOrFail($validated['academic_class_section_id']);
+
+        // Check for duplicate enrollment (excluding the current one)
+        $alreadyEnrolled = StudentEnrollment::where('id', '!=', $enrollment->id)
+            ->where('student_id', $validated['student_id'])
+            ->whereHas('academicClassSection', function ($query) use ($section) {
+                $query->where('academic_year_id', $section->academic_year_id);
+            })
+            ->exists();
+
+        if ($alreadyEnrolled) {
+            return response()->json([
+                'message' => 'This student is already enrolled in the same class for the selected academic year.'
+            ], 422);
+        }
+
+        // Update fields
+        $enrollment->update([
+            'student_id' => $validated['student_id'],
+            'academic_class_section_id' => $validated['academic_class_section_id'],
+            'roll_number' => $request->input('roll_number'),
+            'admission_date' => $request->input('admission_date'),
+            'enrollment_type' => $request->input('enrollment_type', 'new'),
+            'previous_school' => $request->input('previous_school'),
+            'graduation_date' => $request->input('graduation_date'),
+            'status' => $request->input('status', 'active'),
+            'remarks' => $request->input('remarks'),
+        ]);
+
+        return response()->json([
+            'message' => 'Enrollment updated successfully.',
+            'data' => $enrollment
+        ]);
     }
 
     public function handleAction(Request $request)

@@ -14,9 +14,9 @@ class AcademicClassSection extends Model
     //
     use SoftDeletes;
 
-    protected $fillable = ['id','slug'];
+    protected $fillable = ['slug'];
 
-    protected $hidden = ["academic_year_id","class_id","section_id","created_at","updated_at","deleted_at"];
+    protected $hidden = ["id","created_at","updated_at","deleted_at"];
 
     protected static function boot()
     {
@@ -31,17 +31,17 @@ class AcademicClassSection extends Model
 
     public function academicYear()
     {
-        return $this->belongsTo(AcademicYear::class);
+        return $this->belongsTo(AcademicYear::class, 'academic_year', 'slug');
     }
 
-    public function class()
+    public function academicClass()
     {
-        return $this->belongsTo(AcademicClass::class);
+        return $this->belongsTo(AcademicClass::class, 'class', 'slug');
     }
 
-    public function section()
+    public function academicSection()
     {
-        return $this->belongsTo(Section::class);
+        return $this->belongsTo(Section::class, 'section', 'slug');
     }
 
 }

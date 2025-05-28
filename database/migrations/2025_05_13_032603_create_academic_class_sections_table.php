@@ -14,9 +14,16 @@ return new class extends Migration
         Schema::create('academic_class_sections', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->foreignId('academic_year_id')->constrained()->onDelete('cascade');
-            $table->foreignId('class_id')->constrained('academic_classes')->onDelete('cascade');
-            $table->foreignId('section_id')->constrained()->onDelete('cascade');
+
+            $table->string('academic_year');
+            $table->string('class');
+            $table->string('section');
+
+            $table->foreign('academic_year')->references('slug')->on('academic_years')->onDelete('cascade');
+            $table->foreign('class')->references('slug')->on('academic_classes')->onDelete('cascade');
+            $table->foreign('section')->references('slug')->on('sections')->onDelete('cascade');
+
+            $table->unique(['academic_year', 'class', 'section']);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -15,11 +15,7 @@ class SectionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'slug' => $this->slug,
             'name' => $this->name,
-            'limit' => $this->limit,
-            'teacherId' => $this->teacher_id,
-            'classId' => $this->academic_class_id
         ];
     }
 }
