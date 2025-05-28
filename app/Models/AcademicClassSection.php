@@ -16,7 +16,7 @@ class AcademicClassSection extends Model
 
     protected $fillable = ['slug'];
 
-    protected $hidden = ["id","created_at","updated_at","deleted_at"];
+    protected $hidden = ["id", 'academic_year_slug', 'class_slug', 'section_slug', "created_at", "updated_at", "deleted_at"];
 
     protected static function boot()
     {
@@ -31,17 +31,17 @@ class AcademicClassSection extends Model
 
     public function academicYear()
     {
-        return $this->belongsTo(AcademicYear::class, 'academic_year', 'slug');
+        return $this->belongsTo(AcademicYear::class, 'academic_year_slug', 'slug');
     }
 
     public function academicClass()
     {
-        return $this->belongsTo(AcademicClass::class, 'class', 'slug');
+        return $this->belongsTo(AcademicClass::class, 'class_slug', 'slug');
     }
 
     public function academicSection()
     {
-        return $this->belongsTo(Section::class, 'section', 'slug');
+        return $this->belongsTo(Section::class, 'section_slug', 'slug');
     }
 
 }

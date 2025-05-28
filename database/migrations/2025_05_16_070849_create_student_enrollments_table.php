@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('student_enrollments', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            // Foreign keys
-            $table->string('student_id');
-            $table->foreignId('academic_class_section_id')->constrained()->cascadeOnDelete();
-
+            $table->string('student_slug');
+            $table->string('academic_class_section_slug');
+            
             // Enrollment details
             $table->integer('roll_number')->nullable();
             $table->date('admission_date')->nullable();
@@ -27,8 +26,11 @@ return new class extends Migration
             $table->enum('status', ['active', 'graduated', 'transferred', 'dropped'])->default('active');
             $table->text('remarks')->nullable();
 
+            // Foreign keys
+            $table->foreign('academic_class_section_slug')->references('slug')->on('academic_class_sections')->onDelete('cascade');
+
             // Unique constraint to avoid duplicate enrollment in same year
-            $table->unique(['student_id', 'academic_class_section_id']);
+            $table->unique(['student_slug', 'academic_class_section_slug'], 'unique_student_enrollment');
 
             // timestamps and soft deletes
             $table->timestamps();

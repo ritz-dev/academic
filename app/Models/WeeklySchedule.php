@@ -12,13 +12,15 @@ class WeeklySchedule extends Model
 
     protected $fillable = [
         'slug',
-        'academic_class_section_id',
-        'subject_id',
-        'teacher_id',
+        'academic_class_section_slug',
+        'subject_slug',
+        'teacher_slug',
+        'teacher_name',
         'day_of_week',
         'start_time',
         'end_time',
         'type',
+        'academic_info'
     ];
 
     protected $hidden = ["id","created_at","updated_at","deleted_at"];

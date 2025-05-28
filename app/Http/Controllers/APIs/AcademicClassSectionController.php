@@ -20,7 +20,6 @@ class AcademicClassSectionController extends Controller
     
         $query = AcademicClassSection::with(['academicYear', 'academicClass', 'academicSection']);
     
-        
         $query->where(function ($q) use ($validated) {
             if (!empty($validated['academic_year_slug'])) {
                 $q->where('academic_year', $validated['academic_year_slug']);

@@ -16,7 +16,7 @@ class DailyScheduleSeeder extends Seeder
      */
     public function run(): void
     {
-        $academicYear = AcademicYear::where('status', 'In Progress')->first();
+        $academicYear = AcademicYear::where('status', 'Completed')->first();
 
         if (!$academicYear) {
             $this->command->error('No academic year with "In Progress" status found.');
@@ -28,7 +28,7 @@ class DailyScheduleSeeder extends Seeder
         $startDate = Carbon::parse($academicYear->start_date);
         $endDate = Carbon::parse($academicYear->end_date);
 
-        $sections = AcademicClassSection::where('academic_year_id', $academicYear->id)->take(5)->get();
+        $sections = AcademicClassSection::where('academic_year_slug', $academicYear->slug)->take(5)->get();
 
         foreach ($sections as $section) {
             $currentDate = $startDate->copy();
@@ -38,36 +38,40 @@ class DailyScheduleSeeder extends Seeder
                 // $isPublicHoliday = in_array($currentDate->toDateString(), $publicHolidays);
                 $isWeeklyHoliday = in_array($dayName, $weeklyHolidays);
 
-                $weeklySlots = WeeklySchedule::where('academic_class_section_id', $section->id)
+                $weeklySlots = WeeklySchedule::where('academic_class_section_slug', $section->slug)
                         ->where('day_of_week', $dayName)
                         ->get();
 
                 if ($isWeeklyHoliday) {
                     DailySchedule::create([
                         'date' => $currentDate->toDateString(),
-                        'academic_class_section_id' => $section->id,
-                        'subject_id' => null,
-                        'teacher_id' => null,
+                        'academic_class_section_slug' => $section->slug,
+                        'subject_slug' => null,
+                        'teacher_slug' => null,
+                        'teacher_name' => null,
                         'start_time' => null,
                         'end_time' => null,
                         'type' => 'break',
                         'is_holiday' => true,
                         'holiday_type' => 'weekly',
                         'note' => 'Weekly Holiday',
+                        'academic_info' => "Academic Year: {$academicYear->year}, Class: {$section->academicClass->name}, Section: {$section->academicSection->name}",
                     ]);
                 } else {
                     foreach ($weeklySlots as $slot) {
                         DailySchedule::create([
                             'date' => $currentDate->toDateString(),
-                            'academic_class_section_id' => $section->id,
-                            'subject_id' => $slot->subject_id,
-                            'teacher_id' => $slot->teacher_id,
+                            'academic_class_section_slug' => $section->slug,
+                            'subject_slug' => $slot->subject_slug,
+                            'teacher_slug' => $slot->teacher_slug,
+                            'teacher_name' => $slot->teacher_name,
                             'start_time' => $slot->start_time,
                             'end_time' => $slot->end_time,
                             'type' => $slot->type,
                             'is_holiday' => false,
                             'holiday_type' => 'none',
                             'note' => null,
+                            'academic_info' => "Academic Year: {$academicYear->year}, Class: {$section->academicClass->name}, Section: {$section->academicSection->name}",
                         ]);
                     }
                 }

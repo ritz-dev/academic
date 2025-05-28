@@ -14,19 +14,25 @@ return new class extends Migration
         Schema::create('academic_attendances', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->string('previous_hash')->nullable();
-            $table->string('hash')->nullable();
+            $table->string('attendee_slug');
+            $table->string('schedule_slug');
+
             $table->enum('attendee_type', ['student', 'teacher']);
-            $table->string('attendee_id');
-            $table->foreignId('schedule_id')->constrained('daily_schedules')->onDelete('cascade');
             $table->enum('status', ['present', 'absent', 'late', 'excused']);
             $table->datetime('date');
             $table->text('remark')->nullable();
+
+            $table->string('previous_hash')->nullable();
+            $table->string('hash')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['attendee_type', 'attendee_id', 'schedule_id'], 'attendee_schedule_unique');
-            $table->index(['attendee_type', 'attendee_id'], 'attendee_type_id_index');
+            // Foreign keys
+            $table->foreign('schedule_slug')->references('slug')->on('daily_schedules')->onDelete('cascade');
+
+            $table->unique(['attendee_type', 'attendee_slug', 'schedule_slug'], 'attendee_schedule_unique');
+            $table->index(['attendee_type', 'attendee_slug'], 'attendee_type_index');
         });
     }
 

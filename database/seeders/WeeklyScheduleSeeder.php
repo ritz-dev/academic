@@ -15,9 +15,9 @@ class WeeklyScheduleSeeder extends Seeder
     {
         $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-        $academicYear = AcademicYear::where('status', 'In Progress')->first();
+        $academicYear = AcademicYear::where('status', 'Completed')->first();
         
-        $sections = AcademicClassSection::where('academic_year_id', $academicYear->id)->get();
+        $sections = AcademicClassSection::where('academic_year_slug', $academicYear->slug)->with(['academicYear', 'academicClass', 'academicSection'])->get();
         $subjects = Subject::all();
         $teacherApiUrl = config('services.user_management.url') . 'teachers';
 
@@ -48,13 +48,15 @@ class WeeklyScheduleSeeder extends Seeder
             foreach ($daysOfWeek as $day) {
                 // Insert break
                 WeeklySchedule::create([
-                    'academic_class_section_id' => $section->id,
-                    'subject_id' => null,
-                    'teacher_id' => null,
+                    'academic_class_section_slug' => $section->slug,
+                    'subject_slug' => null,
+                    'teacher_slug' => null,
+                    'teacher_name' => null,
                     'day_of_week' => $day,
                     'start_time' => '12:00',
                     'end_time' => '13:00',
                     'type' => 'break',
+                    'academic_info' => "Academic Year: {$academicYear->year}, Class: {$section->academicClass->name}, Section: {$section->academicSection->name}",
                 ]);
 
                 // Class slots
@@ -68,16 +70,18 @@ class WeeklyScheduleSeeder extends Seeder
                 foreach ($classSlots as $slot) {
                     $subject = $subjects->random();
                     $randomTeacher = collect($teachers)->random();
-                    $teacherId = $randomTeacher['slug'] ?? null;
 
                     WeeklySchedule::create([
-                        'academic_class_section_id' => $section->id,
-                        'subject_id' => $subject->id,
-                        'teacher_id' => $teacherId,
+                        'academic_class_section_slug' => $section->slug,
+                        'subject_slug' => $subject->slug,
+                        'teacher_slug' => $randomTeacher['slug'] ?? null,
+
+                        'teacher_name' => $randomTeacher['teacher_name'] ?? null,
                         'day_of_week' => $day,
                         'start_time' => $slot['start'],
                         'end_time' => $slot['end'],
                         'type' => 'class',
+                        'academic_info' => "Academic Year: {$academicYear->year}, Class: {$section->academicClass->name}, Section: {$section->academicSection->name}",
                     ]);
                 }
             }

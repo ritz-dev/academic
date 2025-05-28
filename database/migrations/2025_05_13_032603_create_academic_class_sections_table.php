@@ -15,15 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('slug')->unique();
 
-            $table->string('academic_year');
-            $table->string('class');
-            $table->string('section');
+            $table->string('academic_year_slug');
+            $table->string('class_slug');
+            $table->string('section_slug');
 
-            $table->foreign('academic_year')->references('slug')->on('academic_years')->onDelete('cascade');
-            $table->foreign('class')->references('slug')->on('academic_classes')->onDelete('cascade');
-            $table->foreign('section')->references('slug')->on('sections')->onDelete('cascade');
+            $table->foreign('academic_year_slug')->references('slug')->on('academic_years')->onDelete('cascade');
+            $table->foreign('class_slug')->references('slug')->on('academic_classes')->onDelete('cascade');
+            $table->foreign('section_slug')->references('slug')->on('sections')->onDelete('cascade');
 
-            $table->unique(['academic_year', 'class', 'section']);
+            $table->unique(['academic_year_slug', 'class_slug', 'section_slug'],'unique_academic');
             $table->timestamps();
             $table->softDeletes();
         });

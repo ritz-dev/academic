@@ -14,12 +14,12 @@ class WeeklyScheduleController extends Controller
     {
         // Validate the request if needed
         $request->validate([
-            'slug'  => 'required'
+            'academic_class_sections_slug'  => 'required'
         ]);
 
-        $section = AcademicClassSection::where('slug', $request->slug)->first();
+        // $section = AcademicClassSection::where('slug', $request->slug)->first();
 
-        $schedules = WeeklySchedule::where('academic_class_section_id', $section->id)->get();
+        $schedules = WeeklySchedule::where('academic_class_section_slug', $request->academic_class_sections_slug)->get();
 
         return response()->json([
             'success' => true,

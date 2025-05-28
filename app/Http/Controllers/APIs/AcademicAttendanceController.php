@@ -23,8 +23,8 @@ class AcademicAttendanceController extends Controller
         $validated = $request->validate([
             'attendances' => 'required|array|min:1',
             'attendances.*.attendee_type' => 'required|in:student,teacher',
-            'attendances.*.attendee_id' => 'required|string',
-            'attendances.*.schedule_id' => 'required|exists:daily_schedules,id',
+            'attendances.*.attendee_slug' => 'required|string',
+            'attendances.*.schedule_slug' => 'required|exists:daily_schedules,slug',
             'attendances.*.status' => 'required|in:present,absent,late,excused',
             'attendances.*.remark' => 'nullable|string',
         ]);
@@ -45,8 +45,8 @@ class AcademicAttendanceController extends Controller
                     'previous_hash' => $previousHash,
                     'hash' => $calculatedHash,
                     'attendee_type' => $attendance['attendee_type'],
-                    'attendee_id' => $attendance['attendee_id'],
-                    'schedule_id' => $attendance['schedule_id'],
+                    'attendee_slug' => $attendance['attendee_slug'],
+                    'schedule_slug' => $attendance['schedule_slug'],
                     'status' => $attendance['status'],
                     'date' => $timestamp,
                     'remark' => $attendance['remark'] ?? null,
@@ -77,7 +77,7 @@ class AcademicAttendanceController extends Controller
 
         $schedule = DailySchedule::where('slug', $request->slug)->firstOrFail();
 
-        $attendances = AcademicAttendance::where('schedule_id', $schedule->id)->get();
+        $attendances = AcademicAttendance::where('schedule_slug', $schedule->slug)->get();
 
         return response()->json([
             'success' => true,

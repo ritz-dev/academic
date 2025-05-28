@@ -16,8 +16,8 @@ class AcademicAttendance extends Model
         'previous_hash',
         'hash',
         'attendee_type',
-        'attendee_id',
-        'schedule_id',
+        'attendee_slug',
+        'schedule_slug',
         'status',
         'date',
         'remark',
@@ -38,6 +38,6 @@ class AcademicAttendance extends Model
 
     public function schedule()
     {
-        return $this->belongsTo(DailySchedule::class, 'schedule_id');
+        return $this->belongsTo(DailySchedule::class, 'schedule_slug');
     }
 }

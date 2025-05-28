@@ -15,9 +15,10 @@ class DailySchedule extends Model
     protected $fillable = [
         'slug',
         'date',
-        'academic_class_section_id',
-        'subject_id',
-        'teacher_id',
+        'academic_class_section_slug',
+        'subject_slug',
+        'teacher_slug',
+        'teacher_name',
         'start_time',
         'end_time',
         'is_holiday',
@@ -25,6 +26,7 @@ class DailySchedule extends Model
         'holiday_type',
         'status',
         'note',
+        'academic_info'
     ];
 
     protected static function boot()

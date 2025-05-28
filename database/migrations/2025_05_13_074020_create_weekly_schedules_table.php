@@ -14,19 +14,27 @@ return new class extends Migration
         Schema::create('weekly_schedules', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->foreignId('academic_class_section_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('subject_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->string('teacher_id')->nullable();
+            $table->string('academic_class_section_slug');
+            $table->string('subject_slug')->nullable();
+            $table->string('teacher_slug')->nullable();
+
+            $table->string('teacher_name')->nullable();
             $table->enum('day_of_week', ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
             $table->time('start_time');
             $table->time('end_time');
             $table->enum('type', ['class', 'break'])->default('class');
+            $table->string('academic_info');
             $table->timestamps();
             $table->softDeletes();
+
+            // Foreign keys
+            $table->foreign('subject_slug')->references('slug')->on('subjects')->onDelete('cascade')->nullOnDelete();
+            $table->foreign('academic_class_section_slug')->references('slug')->on('academic_class_sections')->onDelete('cascade');
+
             // Optional: to prevent duplicates
-            $table->unique(['academic_class_section_id', 'subject_id', 'day_of_week', 'start_time', 'type'], 'unique_weekly_schedule');
+            $table->unique(['academic_class_section_slug', 'subject_slug', 'day_of_week', 'start_time', 'type'], 'unique_weekly_schedule');
             // Optional: indexing for performance
-            $table->index(['academic_class_section_id', 'day_of_week']);
+            $table->index(['academic_class_section_slug', 'day_of_week']);
         });
     }
 

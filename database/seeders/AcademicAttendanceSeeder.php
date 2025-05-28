@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\DailySchedule;
 use Illuminate\Database\Seeder;
 use App\Models\StudentEnrollment;
 use App\Models\AcademicAttendance;
@@ -17,7 +18,8 @@ class AcademicAttendanceSeeder extends Seeder
     {
         $sections = AcademicClassSection::first();
 
-        $scheduleId = 1;
+        $schedule = DailySchedule::first();
+        
         $lastHash = null;
         
         if (!$sections) {
@@ -25,7 +27,7 @@ class AcademicAttendanceSeeder extends Seeder
             return;
         }
 
-        $students = StudentEnrollment::where('academic_class_section_id', $sections->id)->get();
+        $students = StudentEnrollment::where('academic_class_section_slug', $sections->slug)->get();
         
         if ($students->isEmpty()) {
             $this->command->error('No students found for the section. Please run the StudentEnrollmentSeeder first.');
@@ -45,35 +47,35 @@ class AcademicAttendanceSeeder extends Seeder
             return;
         }
 
-        $teachers = $response->json() ?? [];
+        $teachers = $response->json('data') ?? [];
 
 
         foreach ($students as $student) {
             AcademicAttendance::create([
                 'previous_hash' => $lastHash,
-                'hash' => 'studenthash' . $student->id,  // Replace with real hash logic
+                'hash' => 'studenthash' . $student->slug,  // Replace with real hash logic
                 'attendee_type' => 'student',
-                'attendee_id' => $student->slug,
-                'schedule_id' => $scheduleId,
+                'attendee_slug' => $student->slug,
+                'schedule_slug' => $schedule->slug,
                 'status' => 'present', // or some logic
                 'date' => now(),
                 'remark' => null,
             ]);
-            $lastHash = 'studenthash' . $student->id;
+            $lastHash = 'studenthash' . $student->slug;
         }
 
         AcademicAttendance::create([
             'previous_hash' => $lastHash,
-            'hash' => 'teacherhash' . $teachers[0]['id'],  // Replace with real hash logic
+            'hash' => 'teacherhash' . $teachers[0]['slug'],  // Replace with real hash logic
             'attendee_type' => 'teacher',
-            'attendee_id' => $teachers[0]['slug'],
-            'schedule_id' => $scheduleId,
+            'attendee_slug' => $teachers[0]['slug'],
+            'schedule_slug' => $schedule->slug,
             'status' => 'present', // or some logic
             'date' => now(),
             'remark' => null,
         ]);
 
-        $lastHash = 'teacherhash' . $teachers[0]['id'];
+        $lastHash = 'teacherhash' . $teachers[0]['slug'];
     
         $this->command->info('Academic attendance seeded successfully.');
     }

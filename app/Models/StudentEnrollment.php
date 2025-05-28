@@ -13,9 +13,8 @@ class StudentEnrollment extends Model
 
     protected $fillable = [
         'slug',
-        'student_id',
-        'academic_year_id',
-        'academic_class_section_id',
+        'student_slug',
+        'academic_class_section_slug',
         'roll_number',
         'admission_date',
         'enrollment_type',

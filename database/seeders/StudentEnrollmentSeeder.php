@@ -27,9 +27,8 @@ class StudentEnrollmentSeeder extends Seeder
             $this->command->error('Failed to fetch students from user management service.');
             return;
         }
-
         
-        $students = $response->json() ?? [];
+        $students = $response->json('data') ?? [];
 
         $sectionCount = $sections->count();
 
@@ -42,8 +41,8 @@ class StudentEnrollmentSeeder extends Seeder
             }
 
             StudentEnrollment::create([
-                'student_id' => $student['slug'], // Make sure 'slug' is the correct identifier
-                'academic_class_section_id' => $section->id,
+                'student_slug' => $student['slug'], // Make sure 'slug' is the correct identifier
+                'academic_class_section_slug' => $section->slug,
                 'roll_number' => rand(1, 100),
                 'admission_date' => now()->subMonths(rand(1, 12)),
                 'enrollment_type' => 'new',
