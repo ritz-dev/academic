@@ -32,7 +32,7 @@ class WeeklyScheduleSeeder extends Seeder
             return;
         }
 
-        $teachers = $response->json() ?? [];
+        $teachers = $response->json('data') ?? [];
 
         if ($subjects->isEmpty()) {
             $this->command->error('No subjects found.');
