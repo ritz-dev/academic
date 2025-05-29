@@ -165,13 +165,6 @@ class WeeklyScheduleController extends Controller
             // Find the existing schedule
             $schedule = WeeklySchedule::where('slug', $validated['slug'])->firstOrFail();
 
-            $overlap = WeeklySchedule::where('academic_class_section_slug', $request->academic_class_section_slug)
-                ->where('day_of_week', $request->day_of_week)
-                ->where(function ($query) use ($request) {
-                    $query->where('start_time', '<', $request->end_time)
-                        ->where('end_time', '>', $request->start_time);
-                })->exists();
-
             if ($overlap) {
                 return response()->json([
                     'success' => false,
