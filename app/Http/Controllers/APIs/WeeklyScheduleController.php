@@ -172,26 +172,26 @@ class WeeklyScheduleController extends Controller
             $schedule = WeeklySchedule::where('slug', $validated['slug'])->firstOrFail();
 
             // If teacher_slug is present, verify it using external API
-            if (!empty($validated['teacher_slug'])) {
-                $teacherApiUrl = rtrim(config('services.user_management.url'), '/') . '/teachers/show';
+            // if (!empty($validated['teacher_slug'])) {
+            //     $teacherApiUrl = rtrim(config('services.user_management.url'), '/') . '/teachers/show';
 
-                $response = Http::withHeaders([
-                    'Accept' => 'application/json',
-                    // 'Authorization' => $request->header('Authorization'),
-                ])->post($teacherApiUrl, [
-                    'slug' => $validated['teacher_slug']
-                ]);
+            //     $response = Http::withHeaders([
+            //         'Accept' => 'application/json',
+            //         // 'Authorization' => $request->header('Authorization'),
+            //     ])->post($teacherApiUrl, [
+            //         'slug' => $validated['teacher_slug']
+            //     ]);
 
-                if ($response->failed() || !$response->json('data')) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid teacher_slug.',
-                        'errors' => [
-                            'teacher_slug' => ['Teacher not found in the external system.']
-                        ]
-                    ], 422);
-                }
-            }
+            //     if ($response->failed() || !$response->json('data')) {
+            //         return response()->json([
+            //             'success' => false,
+            //             'message' => 'Invalid teacher_slug.',
+            //             'errors' => [
+            //                 'teacher_slug' => ['Teacher not found in the external system.']
+            //             ]
+            //         ], 422);
+            //     }
+            // }
 
             // Update the schedule
             $schedule->update([
