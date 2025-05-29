@@ -15,6 +15,7 @@ class WeeklyScheduleController extends Controller
     {
         $validated = $request->validate([
             'limit' => 'sometimes|integer|min:1|max:100',
+            'teacher_name' => 'sometimes|string',
             'academic_class_section_slug' => 'sometimes|string|exists:academic_class_sections,slug',
             'academic_year_slug' => 'sometimes|string|exists:academic_years,slug',
             'academic_class_slug' => 'sometimes|string|exists:academic_classes,slug',
@@ -43,8 +44,8 @@ class WeeklyScheduleController extends Controller
                 });
             }    
     
-            if (isset($validated['teacher_slug'])) {
-                $query->where('teacher_slug', $validated['teacher_slug']);
+            if (isset($validated['teacher_name'])) {
+                $query->where('teacher_name',  'like', '%' . $validated['teacher_name'] . '%');
             }
     
             if (isset($validated['day_of_week'])) {
@@ -85,8 +86,9 @@ class WeeklyScheduleController extends Controller
         $validated = $request->validate([
             'academic_class_section_slug' => 'required|exists:academic_class_sections,slug',
             'subject_slug' => 'nullable|exists:subjects,slug',
-            'teacher_slug' => 'nullable|string',
             'subject_name' => 'nullable|string',
+            'teacher_slug' => 'nullable|string',
+            'teacher_name' => 'nullable|string',
             'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
@@ -95,33 +97,33 @@ class WeeklyScheduleController extends Controller
         ]);
 
         try {
-            if (!empty($validated['teacher_slug'])) {
-                $teacherApiUrl = config('services.user_management.url') . 'teachers/show';
+            // if (!empty($validated['teacher_slug'])) {
+            //     $teacherApiUrl = config('services.user_management.url') . 'teachers/show';
     
-                $response = Http::withHeaders([
-                    'Accept' => 'application/json',
-                    // 'Authorization' => $request->header('Authorization'),
-                ])->post($teacherApiUrl, [
-                    'slug' => $validated['teacher_slug']
-                ]);
+            //     $response = Http::withHeaders([
+            //         'Accept' => 'application/json',
+            //         // 'Authorization' => $request->header('Authorization'),
+            //     ])->post($teacherApiUrl, [
+            //         'slug' => $validated['teacher_slug']
+            //     ]);
     
-                if ($response->failed() || !$response->json('data')) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Invalid teacher_slug.',
-                        'errors' => [
-                            'teacher_slug' => ['Teacher not found in the external system.']
-                        ]
-                    ], 422);
-                }
-            }
+            //     if ($response->failed() || !$response->json('data')) {
+            //         return response()->json([
+            //             'success' => false,
+            //             'message' => 'Invalid teacher_slug.',
+            //             'errors' => [
+            //                 'teacher_slug' => ['Teacher not found in the external system.']
+            //             ]
+            //         ], 422);
+            //     }
+            // }
     
             // Step 3: Save the schedule
             $schedule = WeeklySchedule::create([
                 'academic_class_section_slug' => $validated['academic_class_section_slug'],
                 'subject_slug' => $validated['subject_slug'],
                 'teacher_slug' => $validated['teacher_slug'] ?? null,
-                'teacher_name' => $validated['teacher_slug'] ? $response->json('data.name') : null,
+                'teacher_name' => $validated['teacher_name'] ?? null,
                 'subject_name' => $validated['subject_name'],
                 'day_of_week' => $validated['day_of_week'],
                 'start_time' => $validated['start_time'],
