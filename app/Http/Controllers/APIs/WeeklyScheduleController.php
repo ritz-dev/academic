@@ -96,7 +96,7 @@ class WeeklyScheduleController extends Controller
             'academic_info' => 'required|string',
         ]);
 
-        try {
+        // try {
             // if (!empty($validated['teacher_slug'])) {
             //     $teacherApiUrl = config('services.user_management.url') . 'teachers/show';
     
@@ -138,18 +138,18 @@ class WeeklyScheduleController extends Controller
                 'data' => $schedule
             ], 201);
     
-        } catch (\Exception $e) {
-            // Catch all other unexpected exceptions
-            Log::error('Weekly Schedule Store Error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+        // } catch (\Exception $e) {
+        //     // Catch all other unexpected exceptions
+        //     Log::error('Weekly Schedule Store Error', [
+        //         'message' => $e->getMessage(),
+        //         'trace' => $e->getTraceAsString()
+        //     ]);
     
-            return response()->json([
-                'success' => false,
-                'message' => 'An unexpected error occurred while creating the schedule.'
-            ], 500);
-        }
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'An unexpected error occurred while creating the schedule.'
+        //     ], 500);
+        // }
     }
 
     public function update(Request $request)
