@@ -83,20 +83,20 @@ class WeeklyScheduleController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'academic_class_section_slug' => 'required|exists:academic_class_sections,slug',
-            'subject_slug' => 'nullable|exists:subjects,slug',
-            'subject_name' => 'nullable|string',
-            'teacher_slug' => 'nullable|string',
-            'teacher_name' => 'nullable|string',
-            'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'type' => 'required|in:class,break',
-            'academic_info' => 'required|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'academic_class_section_slug' => 'required|exists:academic_class_sections,slug',
+                'subject_slug' => 'nullable|exists:subjects,slug',
+                'subject_name' => 'nullable|string',
+                'teacher_slug' => 'nullable|string',
+                'teacher_name' => 'nullable|string',
+                'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i|after:start_time',
+                'type' => 'required|in:class,break',
+                'academic_info' => 'required|string',
+            ]);
 
-        // try {
             // if (!empty($validated['teacher_slug'])) {
             //     $teacherApiUrl = config('services.user_management.url') . 'teachers/show';
     
@@ -138,36 +138,37 @@ class WeeklyScheduleController extends Controller
                 'data' => $schedule
             ], 201);
     
-        // } catch (\Exception $e) {
-        //     // Catch all other unexpected exceptions
-        //     Log::error('Weekly Schedule Store Error', [
-        //         'message' => $e->getMessage(),
-        //         'trace' => $e->getTraceAsString()
-        //     ]);
+        } catch (\Exception $e) {
+            // Catch all other unexpected exceptions
+            Log::error('Weekly Schedule Store Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
     
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'An unexpected error occurred while creating the schedule.'
-        //     ], 500);
-        // }
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred while creating the schedule.'
+            ], 500);
+        }
     }
 
     public function update(Request $request)
     {
-        $validated = $request->validate([
-            'slug' => 'required|string|exists:weekly_schedules,slug',
-            'academic_class_section_slug' => 'required|exists:academic_class_sections,slug',
-            'subject_slug' => 'nullable|exists:subjects,slug',
-            'teacher_slug' => 'nullable|string',
-            'subject_name' => 'nullable|string',
-            'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'type' => 'required|in:class,break',
-            'academic_info' => 'required|string',
-        ]);
-
         try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:weekly_schedules,slug',
+                'academic_class_section_slug' => 'required|exists:academic_class_sections,slug',
+                'subject_slug' => 'nullable|exists:subjects,slug',
+                'teacher_slug' => 'nullable|string',
+                'teacher_name' => 'nullable|string',
+                'subject_name' => 'nullable|string',
+                'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i|after:start_time',
+                'type' => 'required|in:class,break',
+                'academic_info' => 'required|string',
+            ]);
+
             // Find the existing schedule
             $schedule = WeeklySchedule::where('slug', $validated['slug'])->firstOrFail();
 
@@ -198,7 +199,7 @@ class WeeklyScheduleController extends Controller
                 'academic_class_section_slug' => $validated['academic_class_section_slug'],
                 'subject_slug' => $validated['subject_slug'],
                 'teacher_slug' => $validated['teacher_slug'] ?? null,
-                'teacher_name' => $validated['teacher_slug'] ? $response->json('data.name') : null,
+                'teacher_name' => $validated['teacher_name'] ?? null,
                 'subject_name' => $validated['subject_name'],
                 'day_of_week' => $validated['day_of_week'],
                 'start_time' => $validated['start_time'],
@@ -211,7 +212,7 @@ class WeeklyScheduleController extends Controller
                 'success' => true,
                 'message' => 'Weekly schedule updated successfully.',
                 'data' => $schedule
-            ], 200);
+            ], 201);
 
         } catch (ValidationException $e) {
             return response()->json([
