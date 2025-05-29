@@ -276,4 +276,48 @@ class WeeklyScheduleController extends Controller
             ], 500);
         }
     }
+
+    public function deleteBySection(Request $request)
+    {
+        $validated = $request->validate([
+            'academic_class_section_slug' => 'required|string|exists:academic_class_sections,slug',
+        ]);
+
+        try {
+            // Find the schedule by slug
+            $schedule = WeeklySchedule::where('academic_class_section', $validated['academic_class_section'])->get();
+
+            if( $schedule->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No schedules found for the specified section.'
+                ], 404);
+            }
+
+            // Delete the schedule
+            $schedule->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Weekly schedules deleted successfully.',
+            ], 200);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Schedule not found.'
+            ], 404);
+
+        } catch (\Exception $e) {
+            Log::error('Weekly Schedule Delete Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred while deleting the schedule.'
+            ], 500);
+        }
+    }
 }

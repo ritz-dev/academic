@@ -68,6 +68,7 @@ Route::prefix('weekly-schedule')->group(function () {
     Route::post('store', [WeeklyScheduleController::class, 'store']);
     Route::post('update',[WeeklyScheduleController::class,'update']);
     Route::post('delete',[WeeklyScheduleController::class,'delete']);
+    Route::post('delete-by-section',[WeeklyScheduleController::class,'deleteBySection']);
 });
 
 Route::prefix('daily-schedule')->group(function () {
