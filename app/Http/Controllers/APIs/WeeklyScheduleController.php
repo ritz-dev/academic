@@ -165,13 +165,6 @@ class WeeklyScheduleController extends Controller
             // Find the existing schedule
             $schedule = WeeklySchedule::where('slug', $validated['slug'])->firstOrFail();
 
-            if ($overlap) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This time slot overlaps with another scheduled class.',
-                ], 422);
-            }
-
             // Update the schedule
             $schedule->update([
                 'academic_class_section_slug' => $validated['academic_class_section_slug'],
