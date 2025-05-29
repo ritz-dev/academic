@@ -32,7 +32,7 @@ return new class extends Migration
             $table->foreign('academic_class_section_slug')->references('slug')->on('academic_class_sections')->onDelete('cascade');
 
             // Optional: to prevent duplicates
-            $table->unique(['academic_class_section_slug', 'subject_slug', 'day_of_week', 'start_time', 'type'], 'unique_weekly_schedule');
+            $table->unique(['academic_class_section_slug', 'day_of_week', 'start_time'], 'unique_weekly_schedule');
             // Optional: indexing for performance
             $table->index(['academic_class_section_slug', 'day_of_week']);
         });

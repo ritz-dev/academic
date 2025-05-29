@@ -13,17 +13,17 @@ class WeeklyScheduleController extends Controller
 {
     public function index(Request  $request)
     {
-        $validated = $request->validate([
-            'limit' => 'sometimes|integer|min:1|max:100',
-            'teacher_name' => 'sometimes|string',
-            'academic_class_section_slug' => 'sometimes|string|exists:academic_class_sections,slug',
-            'academic_year_slug' => 'sometimes|string|exists:academic_years,slug',
-            'academic_class_slug' => 'sometimes|string|exists:academic_classes,slug',
-            'day_of_week' => 'sometimes|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
-            'academic_info' => 'sometimes|string',
-        ]);
-
         try {
+            $validated = $request->validate([
+                'limit' => 'sometimes|integer|min:1|max:100',
+                'teacher_name' => 'sometimes|string',
+                'academic_class_section_slug' => 'sometimes|string|exists:academic_class_sections,slug',
+                'academic_year_slug' => 'sometimes|string|exists:academic_years,slug',
+                'academic_class_slug' => 'sometimes|string|exists:academic_classes,slug',
+                'day_of_week' => 'sometimes|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+                'academic_info' => 'sometimes|string',
+            ]);
+
             $limit = $validated['limit'] ?? null;
 
             $query = WeeklySchedule::query();
@@ -86,10 +86,10 @@ class WeeklyScheduleController extends Controller
         try {
             $validated = $request->validate([
                 'academic_class_section_slug' => 'required|exists:academic_class_sections,slug',
-                'subject_slug' => 'nullable|exists:subjects,slug',
-                'subject_name' => 'nullable|string',
-                'teacher_slug' => 'nullable|string',
-                'teacher_name' => 'nullable|string',
+                'subject_slug' => 'sometimes|exists:subjects,slug',
+                'subject_name' => 'sometimes|string',
+                'teacher_slug' => 'sometimes|string',
+                'teacher_name' => 'sometimes|string',
                 'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
                 'start_time' => 'required|date_format:H:i',
                 'end_time' => 'required|date_format:H:i|after:start_time',
@@ -97,34 +97,27 @@ class WeeklyScheduleController extends Controller
                 'academic_info' => 'required|string',
             ]);
 
-            // if (!empty($validated['teacher_slug'])) {
-            //     $teacherApiUrl = config('services.user_management.url') . 'teachers/show';
-    
-            //     $response = Http::withHeaders([
-            //         'Accept' => 'application/json',
-            //         // 'Authorization' => $request->header('Authorization'),
-            //     ])->post($teacherApiUrl, [
-            //         'slug' => $validated['teacher_slug']
-            //     ]);
-    
-            //     if ($response->failed() || !$response->json('data')) {
-            //         return response()->json([
-            //             'success' => false,
-            //             'message' => 'Invalid teacher_slug.',
-            //             'errors' => [
-            //                 'teacher_slug' => ['Teacher not found in the external system.']
-            //             ]
-            //         ], 422);
-            //     }
-            // }
+            $overlap = WeeklySchedule::where('academic_class_section_slug', $request->academic_class_section_slug)
+                    ->where('day_of_week', $request->day_of_week)
+                    ->where(function ($query) use ($request) {
+                        $query->where('start_time', '<', $request->end_time)
+                            ->where('end_time', '>', $request->start_time);
+                    })->exists();
+
+            if ($overlap) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This time slot overlaps with another scheduled class.',
+                ], 422);
+            }
     
             // Step 3: Save the schedule
             $schedule = WeeklySchedule::create([
                 'academic_class_section_slug' => $validated['academic_class_section_slug'],
-                'subject_slug' => $validated['subject_slug'],
+                'subject_slug' => $validated['subject_slug'] ?? null,
                 'teacher_slug' => $validated['teacher_slug'] ?? null,
                 'teacher_name' => $validated['teacher_name'] ?? null,
-                'subject_name' => $validated['subject_name'],
+                'subject_name' => $validated['subject_name'] ?? null,
                 'day_of_week' => $validated['day_of_week'],
                 'start_time' => $validated['start_time'],
                 'end_time' => $validated['end_time'],
@@ -158,10 +151,10 @@ class WeeklyScheduleController extends Controller
             $validated = $request->validate([
                 'slug' => 'required|string|exists:weekly_schedules,slug',
                 'academic_class_section_slug' => 'required|exists:academic_class_sections,slug',
-                'subject_slug' => 'nullable|exists:subjects,slug',
-                'teacher_slug' => 'nullable|string',
-                'teacher_name' => 'nullable|string',
-                'subject_name' => 'nullable|string',
+                'subject_slug' => 'sometimes|exists:subjects,slug',
+                'teacher_slug' => 'sometimes|string',
+                'teacher_name' => 'sometimes|string',
+                'subject_name' => 'sometimes|string',
                 'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
                 'start_time' => 'required|date_format:H:i',
                 'end_time' => 'required|date_format:H:i|after:start_time',
@@ -172,35 +165,27 @@ class WeeklyScheduleController extends Controller
             // Find the existing schedule
             $schedule = WeeklySchedule::where('slug', $validated['slug'])->firstOrFail();
 
-            // If teacher_slug is present, verify it using external API
-            // if (!empty($validated['teacher_slug'])) {
-            //     $teacherApiUrl = rtrim(config('services.user_management.url'), '/') . '/teachers/show';
+            $overlap = WeeklySchedule::where('academic_class_section_slug', $request->academic_class_section_slug)
+                ->where('day_of_week', $request->day_of_week)
+                ->where(function ($query) use ($request) {
+                    $query->where('start_time', '<', $request->end_time)
+                        ->where('end_time', '>', $request->start_time);
+                })->exists();
 
-            //     $response = Http::withHeaders([
-            //         'Accept' => 'application/json',
-            //         // 'Authorization' => $request->header('Authorization'),
-            //     ])->post($teacherApiUrl, [
-            //         'slug' => $validated['teacher_slug']
-            //     ]);
-
-            //     if ($response->failed() || !$response->json('data')) {
-            //         return response()->json([
-            //             'success' => false,
-            //             'message' => 'Invalid teacher_slug.',
-            //             'errors' => [
-            //                 'teacher_slug' => ['Teacher not found in the external system.']
-            //             ]
-            //         ], 422);
-            //     }
-            // }
+            if ($overlap) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This time slot overlaps with another scheduled class.',
+                ], 422);
+            }
 
             // Update the schedule
             $schedule->update([
                 'academic_class_section_slug' => $validated['academic_class_section_slug'],
-                'subject_slug' => $validated['subject_slug'],
+                'subject_slug' => $validated['subject_slug'] ?? null,
                 'teacher_slug' => $validated['teacher_slug'] ?? null,
                 'teacher_name' => $validated['teacher_name'] ?? null,
-                'subject_name' => $validated['subject_name'],
+                'subject_name' => $validated['subject_name'] ?? null,
                 'day_of_week' => $validated['day_of_week'],
                 'start_time' => $validated['start_time'],
                 'end_time' => $validated['end_time'],
@@ -214,24 +199,7 @@ class WeeklyScheduleController extends Controller
                 'data' => $schedule
             ], 201);
 
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed.',
-                'errors' => $e->errors()
-            ], 422);
-
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Schedule not found.'
-            ], 404);
-
         } catch (\Exception $e) {
-            Log::error('Weekly Schedule Update Error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
 
             return response()->json([
                 'success' => false,
@@ -242,11 +210,10 @@ class WeeklyScheduleController extends Controller
 
     public function delete(Request $request)
     {
-        $validated = $request->validate([
-            'slug' => 'required|string|exists:weekly_schedules,slug',
-        ]);
-
         try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:weekly_schedules,slug',
+            ]);
             // Find the schedule by slug
             $schedule = WeeklySchedule::where('slug', $validated['slug'])->firstOrFail();
 
@@ -272,18 +239,18 @@ class WeeklyScheduleController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'An unexpected error occurred while deleting the schedule.'
+                'message' => $e->getMessage()
             ], 500);
         }
     }
 
     public function deleteBySection(Request $request)
     {
-        $validated = $request->validate([
-            'academic_class_section_slug' => 'required|string|exists:academic_class_sections,slug',
-        ]);
-
         try {
+            $validated = $request->validate([
+                'academic_class_section_slug' => 'required|string|exists:academic_class_sections,slug',
+            ]);
+
             // Find the schedule by slug
             $schedule = WeeklySchedule::where('academic_class_section_slug', $validated['academic_class_section_slug'])->delete();
 
