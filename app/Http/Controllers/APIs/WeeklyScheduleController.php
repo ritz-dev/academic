@@ -129,7 +129,7 @@ class WeeklyScheduleController extends Controller
                 'success' => true,
                 'message' => 'Weekly schedule created successfully.',
                 'data' => $schedule
-            ], 201);
+            ]);
     
         } catch (\Exception $e) {
             // Catch all other unexpected exceptions
@@ -183,7 +183,7 @@ class WeeklyScheduleController extends Controller
                 'success' => true,
                 'message' => 'Weekly schedule updated successfully.',
                 'data' => $schedule
-            ], 201);
+            ]);
 
         } catch (\Exception $e) {
 
