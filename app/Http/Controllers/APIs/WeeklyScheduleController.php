@@ -96,7 +96,7 @@ class WeeklyScheduleController extends Controller
 
         try {
             if (!empty($validated['teacher_slug'])) {
-                $teacherApiUrl = rtrim(config('services.user_management.url'), '/') . '/teachers/show';
+                $teacherApiUrl = config('services.user_management.url') . 'teachers/show';
     
                 $response = Http::withHeaders([
                     'Accept' => 'application/json',
@@ -135,14 +135,6 @@ class WeeklyScheduleController extends Controller
                 'message' => 'Weekly schedule created successfully.',
                 'data' => $schedule
             ], 201);
-    
-        } catch (ValidationException $e) {
-            // Catch Laravel validation exceptions
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed.',
-                'errors' => $e->errors()
-            ], 422);
     
         } catch (\Exception $e) {
             // Catch all other unexpected exceptions
