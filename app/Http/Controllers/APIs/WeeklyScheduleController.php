@@ -147,7 +147,7 @@ class WeeklyScheduleController extends Controller
     
             return response()->json([
                 'success' => false,
-                'message' => 'An unexpected error occurred while creating the schedule.'
+                'message' => $e->getMessage()
             ], 500);
         }
     }
@@ -235,7 +235,7 @@ class WeeklyScheduleController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'An unexpected error occurred while updating the schedule.'
+                'message' => $e->getMessage()
             ], 500);
         }
     }
