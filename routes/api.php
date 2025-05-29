@@ -63,8 +63,11 @@ Route::prefix('subjects')->group(function(){
 });
 
 Route::prefix('weekly-schedule')->group(function () {
+    Route::post('/',[WeeklyScheduleController::class,'index']);
     Route::post('section',[WeeklyScheduleController::class,'bySection']);
     Route::post('store', [WeeklyScheduleController::class, 'store']);
+    Route::post('update',[WeeklyScheduleController::class,'update']);
+    Route::post('delete',[WeeklyScheduleController::class,'delete']);
 });
 
 Route::prefix('daily-schedule')->group(function () {

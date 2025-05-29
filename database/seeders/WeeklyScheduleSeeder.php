@@ -51,6 +51,7 @@ class WeeklyScheduleSeeder extends Seeder
                     'academic_class_section_slug' => $section->slug,
                     'subject_slug' => null,
                     'teacher_slug' => null,
+                    'subject_name' => null,
                     'teacher_name' => null,
                     'day_of_week' => $day,
                     'start_time' => '12:00',
@@ -75,7 +76,7 @@ class WeeklyScheduleSeeder extends Seeder
                         'academic_class_section_slug' => $section->slug,
                         'subject_slug' => $subject->slug,
                         'teacher_slug' => $randomTeacher['slug'] ?? null,
-
+                        'subject_name' => $subject->name,
                         'teacher_name' => $randomTeacher['teacher_name'] ?? null,
                         'day_of_week' => $day,
                         'start_time' => $slot['start'],

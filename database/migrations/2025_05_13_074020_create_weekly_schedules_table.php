@@ -19,13 +19,13 @@ return new class extends Migration
             $table->string('teacher_slug')->nullable();
 
             $table->string('teacher_name')->nullable();
+            $table->string('subject_name')->nullable();
             $table->enum('day_of_week', ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
             $table->time('start_time');
             $table->time('end_time');
             $table->enum('type', ['class', 'break'])->default('class');
             $table->string('academic_info');
             $table->timestamps();
-            $table->softDeletes();
 
             // Foreign keys
             $table->foreign('subject_slug')->references('slug')->on('subjects')->onDelete('cascade')->nullOnDelete();

@@ -4,16 +4,14 @@ namespace App\Models;
 
 use Ramsey\Uuid\Guid\Guid;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WeeklySchedule extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = [
         'slug',
         'academic_class_section_slug',
         'subject_slug',
+        'subject_name',
         'teacher_slug',
         'teacher_name',
         'day_of_week',
@@ -39,12 +37,12 @@ class WeeklySchedule extends Model
 
     public function academicClassSection()
     {
-        return $this->belongsTo(AcademicClassSection::class);
+        return $this->belongsTo(AcademicClassSection::class, 'academic_class_section_slug', 'slug');
     }
 
     public function subject()
     {
-        return $this->belongsTo(Subject::class);
+        return $this->belongsTo(Subject::class, 'subject_slug', 'slug');
     }
 
     public function teacher()
