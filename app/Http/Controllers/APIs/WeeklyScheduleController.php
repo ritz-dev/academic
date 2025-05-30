@@ -89,6 +89,7 @@ class WeeklyScheduleController extends Controller
                 'academic_info' => 'required|string',
             ]);
 
+
             $overlap = WeeklySchedule::where('academic_class_section_slug', $request->academic_class_section_slug)
                     ->where('day_of_week', $request->day_of_week)
                     ->where(function ($query) use ($request) {
@@ -143,10 +144,10 @@ class WeeklyScheduleController extends Controller
             $validated = $request->validate([
                 'slug' => 'required|string|exists:weekly_schedules,slug',
                 'academic_class_section_slug' => 'required|exists:academic_class_sections,slug',
-                'subject_slug' => 'nullable|exists:subjects,slug',
-                'teacher_slug' => 'nullable|string',
-                'teacher_name' => 'nullable|string',
-                'subject_name' => 'nullable|string',
+                'subject_slug' => 'string',
+                'teacher_slug' => 'string',
+                'teacher_name' => 'string',
+                'subject_name' => 'string',
                 'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
                 'start_time' => 'required|date_format:H:i',
                 'end_time' => 'required|date_format:H:i|after:start_time',
