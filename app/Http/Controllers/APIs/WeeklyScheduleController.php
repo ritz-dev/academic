@@ -78,10 +78,10 @@ class WeeklyScheduleController extends Controller
         try {
             $validated = $request->validate([
                 'academic_class_section_slug' => 'required|exists:academic_class_sections,slug',
-                'subject_slug' => '|exists:subjects,slug',
-                'subject_name' => '|string',
-                'teacher_slug' => '|string',
-                'teacher_name' => '|string',
+                'subject_slug' => 'string',
+                'subject_name' => 'string',
+                'teacher_slug' => 'string',
+                'teacher_name' => 'string',
                 'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
                 'start_time' => 'required|date_format:H:i',
                 'end_time' => 'required|date_format:H:i|after:start_time',
