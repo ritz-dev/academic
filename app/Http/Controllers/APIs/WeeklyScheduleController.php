@@ -58,14 +58,6 @@ class WeeklyScheduleController extends Controller
     
             $schedules = $limit ? $query->paginate($limit) : $query->get();
 
-            if ($schedules->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No schedules found.',
-                    'data' => [],
-                ], 404);
-            }
-    
             return response()->json([
                 'status' => 'OK! The request was successful',
                 'total' => $limit ? $schedules->total() : $schedules->count(),
@@ -114,10 +106,10 @@ class WeeklyScheduleController extends Controller
             // Step 3: Save the schedule
             $schedule = WeeklySchedule::create([
                 'academic_class_section_slug' => $validated['academic_class_section_slug'],
-                'subject_slug' => $validated['subject_slug'] ?? null,
-                'teacher_slug' => $validated['teacher_slug'] ?? null,
-                'teacher_name' => $validated['teacher_name'] ?? null,
-                'subject_name' => $validated['subject_name'] ?? null,
+                'subject_slug' => $validated['subject_slug'],
+                'teacher_slug' => $validated['teacher_slug'],
+                'teacher_name' => $validated['teacher_name'],
+                'subject_name' => $validated['subject_name'],
                 'day_of_week' => $validated['day_of_week'],
                 'start_time' => $validated['start_time'],
                 'end_time' => $validated['end_time'],
@@ -168,10 +160,10 @@ class WeeklyScheduleController extends Controller
             // Update the schedule
             $schedule->update([
                 'academic_class_section_slug' => $validated['academic_class_section_slug'],
-                'subject_slug' => $validated['subject_slug'] ?? null,
-                'teacher_slug' => $validated['teacher_slug'] ?? null,
-                'teacher_name' => $validated['teacher_name'] ?? null,
-                'subject_name' => $validated['subject_name'] ?? null,
+                'subject_slug' => $validated['subject_slug'],
+                'teacher_slug' => $validated['teacher_slug'],
+                'teacher_name' => $validated['teacher_name'],
+                'subject_name' => $validated['subject_name'],
                 'day_of_week' => $validated['day_of_week'],
                 'start_time' => $validated['start_time'],
                 'end_time' => $validated['end_time'],
