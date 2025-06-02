@@ -14,7 +14,7 @@ class AcademicClassSection extends Model
     //
     use SoftDeletes;
 
-    protected $fillable = ['slug'];
+    protected $fillable = ['slug','academic_year_slug', 'class_slug', 'section_slug'];
 
     protected $hidden = ["id", 'academic_year_slug', 'class_slug', 'section_slug', "created_at", "updated_at", "deleted_at"];
 

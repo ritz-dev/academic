@@ -18,14 +18,14 @@ use App\Http\Controllers\APIs\AcademicClassSectionController;
 
 Route::prefix('class-sections')->group(function(){
     Route::post('/',[AcademicClassSectionController::class,'index']);
-    // Route::post('list-post',[AcademicYearController::class,'list']);
-    // Route::post('create',[AcademicYearController::class,'create']);
-    // Route::post('detail',[AcademicYearController::class,'detail']);
-    // Route::put('update',[AcademicYearController::class,'update']);
-    // Route::post('delete',[AcademicYearController::class,'delete']);
+    Route::post('store',[AcademicClassSectionController::class,'store']);
+    Route::post('show',[AcademicClassSectionController::class,'show']);
+    Route::post('update',[AcademicClassSectionController::class,'update']);
+    Route::post('delete',[AcademicClassSectionController::class,'delete']);
 });
 
 Route::prefix('academic-years')->group(function(){
+
     Route::post('/',[AcademicYearController::class,'index']);
     Route::post('store',[AcademicYearController::class,'store']);
     Route::post('show',[AcademicYearController::class,'show']);
@@ -78,8 +78,7 @@ Route::prefix('daily-schedule')->group(function () {
 });
 
 Route::prefix('student-enrollment')->group(function(){
-    Route::post('academic-year',[StudentEnrollmentController::class,'byAcademicYear']);
-    Route::post('student',[StudentEnrollmentController::class,'byStudent']);
+    Route::post('/',[StudentEnrollmentController::class,'index']);
     Route::post('store',[StudentEnrollmentController::class,'store']);
     Route::post('update',[StudentEnrollmentController::class,'update']);
     Route::post('action',[StudentEnrollmentController::class,'handleAction']);

@@ -11,113 +11,57 @@ use Illuminate\Support\Facades\Http;
 
 class StudentEnrollmentController extends Controller
 {
-    public function byAcademicYear(Request $request)
+    public function index (Request $request)
     {
-        $request->validate([
-            'slug' => 'required',
+        $validated = $request->validate([
+            'academic_year_slug' => ['string', 'exists:academic_years,slug'],
+            'academic_class_section_slug' => ['string', 'exists:academic_class_sections,slug'],
+            'student_slug' => ['nullable', 'string'],
+            'enrollment_type' => ['nullable', 'in:new,transfer,re-admission'],
+            'status' => ['nullable', 'in:active,graduated,transferred,dropped'],
+            'limit' => ['nullable', 'integer', 'min:1'],
+            'skip' => ['nullable', 'integer', 'min:0'],
+            
         ]);
-    
-        // Get the section using the slug
-        $section = AcademicClassSection::where('slug', $request->slug)->firstOrFail();
-    
-        // Get all enrollments in that section
-        $enrollments = StudentEnrollment::where('academic_class_section_id', $section->id)->get();
-    
-        // Extract all student IDs
-        $studentIds = $enrollments->pluck('student_id')->toArray();
-    
-        // Send POST request to fetch student details
-        $studentsApiUrl = config('services.user_management.url') . 'students/enrollment';
-    
-        $response = Http::withHeaders([
-            'Accept' => 'application/json',
-            // 'Authorization' => $request->header('Authorization'), // Uncomment if needed
-        ])->post($studentsApiUrl, [
-            'student_ids' => $studentIds,
-        ]);
-    
-        if (!$response->ok()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch student info from user management service.',
-            ], $response->status());
-        }
-    
-        // Assume the API returns an array keyed by student_id
-        $studentInfoMap = collect($response->json())->keyBy('slug');
-    
-        // Merge student info with enrollments
-        $students = $enrollments->map(function ($enrollment) use ($studentInfoMap) {
-            return [
-                'enrollment' => $enrollment,
-                'student_info' => $studentInfoMap->get($enrollment->student_id),
-            ];
-        });
-    
-        return response()->json([
-            'success' => true,
-            'data' => $students,
-        ]);
-    }
 
-    public function byStudent (Request $request)
-    {
-        $request->validate([
-            'student_id' => 'required|string|max:255',
-        ]);
-    
-        // Get all enrollments for that student
-        $enrollments = StudentEnrollment::where('student_id', $request->student_id)->get();
+        $query = StudentEnrollment::query()
+                ->join('academic_class_sections', 'student_enrollments.academic_class_section_slug', '=', 'academic_class_sections.slug')
+                ->when(!empty($validated['academic_year_slug']), fn($q) =>
+                    $q->where('academic_class_sections.academic_year_slug', $validated['academic_year_slug']))
+                ->when(!empty($validated['academic_class_section_slug']), fn($q) =>
+                    $q->where('student_enrollments.academic_class_section_slug', $validated['academic_class_section_slug']))
+                ->when(!empty($validated['student_slug']), fn($q) =>
+                    $q->where('student_enrollments.student_slug', $validated['student_slug']))
+                ->when(!empty($validated['enrollment_type']), fn($q) =>
+                    $q->where('student_enrollments.enrollment_type', $validated['enrollment_type']))
+                ->when(!empty($validated['status']), fn($q) =>
+                    $q->where('student_enrollments.status', $validated['status']))
+                ->select('student_enrollments.*');
 
-        if($enrollments->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No enrollments found for this student.',
-            ], 404);
+        $total = $query->count();
+
+        if (!empty($validated['skip'])) {
+            $query->skip($validated['skip']);
         }
-    
-        // Extract all student IDs
-        $studentIds = $enrollments->pluck('student_id')->toArray();
-    
-        // Send POST request to fetch student details
-        $studentsApiUrl = config('services.user_management.url') . 'students/enrollment';
-    
-        $response = Http::withHeaders([
-            'Accept' => 'application/json',
-            // 'Authorization' => $request->header('Authorization'), // Uncomment if needed
-        ])->post($studentsApiUrl, [
-            'student_ids' => $studentIds,
-        ]);
-    
-        if (!$response->ok()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch student info from user management service.',
-            ], $response->status());
+        if (!empty($validated['limit'])) {
+            $query->take($validated['limit']);
         }
-    
-        // Assume the API returns an array keyed by student_id
-        $studentInfoMap = collect($response->json())->keyBy('slug');
-    
-        // Merge student info with enrollments
-        $students = $enrollments->map(function ($enrollment) use ($studentInfoMap) {
-            return [
-                'enrollment' => $enrollment,
-                'student_info' => $studentInfoMap->get($enrollment->student_id),
-            ];
-        });
-    
+
+        $results = $query->get();
+
         return response()->json([
-            'success' => true,
-            'data' => $students,
+            'status' => 'OK! The request was successful',
+            'total' => $total,
+            'data' => $results,
         ]);
     }
 
     public function store (Request $request)
     {
         $validated = $request->validate([
-            'student_id' => ['required', 'string'],
-            'academic_class_section_id' => ['required', 'exists:academic_class_sections,id'],
+            'student_slug' => ['required', 'string'],
+            'academic_class_section_slug' => ['required', 'exists:academic_class_sections,slug'],
+            'student_name' => ['required', 'string', 'max:255'],
             'roll_number' => ['nullable', 'integer'],
             'admission_date' => ['nullable', 'date'],
             'enrollment_type' => ['required', Rule::in(['new', 'transfer', 're-admission'])],
@@ -129,12 +73,12 @@ class StudentEnrollmentController extends Controller
     
         // Load class and academic year with a single query using eager loading
         $section = AcademicClassSection::with(['academicYear', 'class'])
-            ->findOrFail($validated['academic_class_section_id']);
+            ->findOrFail($validated['academic_class_section_slug']);
     
         // Check for existing enrollment for the same student, class, and year
-        $alreadyEnrolled = StudentEnrollment::where('student_id', $validated['student_id'])
+        $alreadyEnrolled = StudentEnrollment::where('student_slug', $validated['student_slug'])
             ->whereHas('academicClassSection', function ($query) use ($section) {
-                $query->where('academic_year_id', $section->academic_year_id);
+                $query->where('academic_year_slug', $section->academic_year_slug);
             })
             ->exists();
     
@@ -146,8 +90,9 @@ class StudentEnrollmentController extends Controller
     
         // Create enrollment
         $enrollment = StudentEnrollment::create([
-            'student_id' => $validated['student_id'],
-            'academic_class_section_id' => $validated['academic_class_section_id'],
+            'student_slug' => $validated['student_slug'],
+            'academic_class_section_slug' => $validated['academic_class_section_slug'],
+            'student_name' => $request->input('student_name'),
             'roll_number' => $request->input('roll_number'),
             'admission_date' => $request->input('admission_date'),
             'enrollment_type' => $request->input('enrollment_type', 'new'),
@@ -167,8 +112,9 @@ class StudentEnrollmentController extends Controller
     {
         $validated = $request->validate([
             'slug' => ['required', 'string', 'exists:student_enrollments,slug'],
-            'student_id' => ['required', 'string'],
-            'academic_class_section_id' => ['required', 'exists:academic_class_sections,id'],
+            'student_slug' => ['required', 'string'],
+            'academic_class_section_slug' => ['required', 'exists:academic_class_sections,slug'],
+            'student_name' => ['required', 'string', 'max:255'],
             'roll_number' => ['nullable', 'integer'],
             'admission_date' => ['nullable', 'date'],
             'enrollment_type' => ['required', Rule::in(['new', 'transfer', 're-admission'])],
@@ -199,8 +145,9 @@ class StudentEnrollmentController extends Controller
 
         // Update fields
         $enrollment->update([
-            'student_id' => $validated['student_id'],
-            'academic_class_section_id' => $validated['academic_class_section_id'],
+            'student_slug' => $validated['student_slug'],
+            'academic_class_section_slug' => $validated['academic_class_section_slug'],
+            'student_name' => $request->input('student_name'),
             'roll_number' => $request->input('roll_number'),
             'admission_date' => $request->input('admission_date'),
             'enrollment_type' => $request->input('enrollment_type', 'new'),

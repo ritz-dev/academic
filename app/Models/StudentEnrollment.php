@@ -15,6 +15,7 @@ class StudentEnrollment extends Model
         'slug',
         'student_slug',
         'academic_class_section_slug',
+        'student_name',
         'roll_number',
         'admission_date',
         'enrollment_type',

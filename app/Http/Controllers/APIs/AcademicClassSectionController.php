@@ -11,45 +11,122 @@ use App\Http\Resources\AcademicClassResource;
 
 class AcademicClassSectionController extends Controller
 {
-    public function index(Request $request)  
+    public function index(Request $request)
     {
         $validated = $request->validate([
+            'year' => 'nullable|string',
             'academic_year_slug' => 'nullable|string|exists:academic_years,slug',
             'academic_class_slug' => 'nullable|string|exists:academic_classes,slug',
+            'limit' => 'nullable|integer|min:1',
+            'skip' => 'nullable|integer|min:0',
         ]);
     
-        $query = AcademicClassSection::with(['academicYear', 'academicClass', 'academicSection']);
+        $query = AcademicClassSection::with(['academicYear', 'academicClass', 'academicSection'])
+            ->when(!empty($validated['academic_year_slug']), fn($q) => $q->where('academic_year', $validated['academic_year_slug']))
+            ->when(!empty($validated['academic_class_slug']), fn($q) => $q->where('class', $validated['academic_class_slug']))
+            ->when(!empty($validated['year']), fn($q) => $q->where('year', 'like', '%' . $validated['year'] . '%'));
     
-        $query->where(function ($q) use ($validated) {
-            if (!empty($validated['academic_year_slug'])) {
-                $q->where('academic_year', $validated['academic_year_slug']);
-
-                if (!empty($validated['academic_class_slug'])) {
-                    $q->where('class', $validated['academic_class_slug']);
-                }
-            }    
-        });
-
-        $academicClassSections = $query->get();
-
-        if ($academicClassSections->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No academic class sections found for the given criteria.',
-                'data' => []
-            ], 404);
+        $total = $query->count(); // Total before limit/skip
+    
+        // Apply skip and limit
+        if (!empty($validated['skip'])) {
+            $query->skip($validated['skip']);
+        }
+        if (!empty($validated['limit'])) {
+            $query->take($validated['limit']);
         }
     
+        $results = $query->get();
+    
         return response()->json([
-            'success' => true,
-            'data' => $academicClassSections->map(function ($item) {
-                return [
-                    'slug' => $item->slug,
-                    'academicYear' => new AcademicYearResource($item->academicYear),
-                    'academicClass' => new AcademicClassResource($item->academicClass),
-                    'academicSection' => new SectionResource($item->academicSection),
-                ];
-            }),
+            'status' => 'OK! The request was successful',
+            'total' => $total,
+            'data' => $results->map(fn($item) => $this->transform($item)),
+        ]);
+    }
+
+    private function transform($item)
+    {
+        return [
+            'slug' => $item->slug,
+            'academicYear' => new AcademicYearResource($item->academicYear),
+            'academicClass' => new AcademicClassResource($item->academicClass),
+            'academicSection' => new SectionResource($item->academicSection),
+        ];
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'academic_year_slug' => 'required|string|exists:academic_years,slug',
+            'academic_class_slug' => 'required|string|exists:academic_classes,slug',
+            'academic_section_slug' => 'required|string|exists:sections,slug',
+        ]);
+
+        $trashedRecord = AcademicClassSection::onlyTrashed()
+        ->where('academic_year_slug', $validated['academic_year_slug'])
+        ->where('class_slug', $validated['academic_class_slug'])
+        ->where('section_slug', $validated['academic_section_slug'])
+        ->first();
+
+        if ($trashedRecord) {
+            // Restore the trashed record
+            $trashedRecord->restore();
+
+            return response()->json([
+                'status' => 'Created successfully (restored from trash)',
+                'data' => $this->transform($trashedRecord->load(['academicYear', 'academicClass', 'academicSection'])),
+            ]);
+        }
+
+        $academicClassSection = AcademicClassSection::create([
+            'academic_year_slug' => $validated['academic_year_slug'],
+            'class_slug' => $validated['academic_class_slug'],
+            'section_slug' => $validated['academic_section_slug'],
+        ]);
+
+        return response()->json([
+            'status' => 'Created successfully',
+            'data' => $this->transform($academicClassSection->load(['academicYear', 'academicClass', 'academicSection'])),
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'slug' => 'required|string|exists:academic_class_sections,slug',
+            'academic_year_slug' => 'required|string|exists:academic_years,slug',
+            'academic_class_slug' => 'required|string|exists:academic_classes,slug',
+            'academic_section_slug' => 'required|string|exists:sections,slug'
+        ]);
+
+        $academicClassSection = AcademicClassSection::where('slug', $validated['slug'])->firstOrFail();
+
+        $academicClassSection->update([
+            'academic_year_slug' => $validated['academic_year_slug'],
+            'class_slug' => $validated['academic_class_slug'],
+            'section_slug' => $validated['academic_section_slug'],
+
+        ]);
+
+        return response()->json([
+            'status' => 'Updated successfully',
+            'data' => $this->transform($academicClassSection->load(['academicYear', 'academicClass', 'academicSection'])),
+        ]);
+    }
+
+    public function delete(Request $request)
+    {
+        $validated = $request->validate([
+            'slug' => 'required|string',
+        ]);
+
+        $academicClassSection = AcademicClassSection::where('slug', $validated['slug'])->firstOrFail();
+
+        $academicClassSection->delete();
+
+        return response()->json([
+            'status' => 'Deleted successfully',
         ]);
     }
 }

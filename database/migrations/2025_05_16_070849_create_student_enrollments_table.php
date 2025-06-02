@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('academic_class_section_slug');
             
             // Enrollment details
+            $table->string('student_name')->nullable();
             $table->integer('roll_number')->nullable();
             $table->date('admission_date')->nullable();
             $table->enum('enrollment_type', ['new', 'transfer', 're-admission'])->default('new');
