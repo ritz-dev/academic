@@ -43,7 +43,7 @@ class StudentEnrollmentSeeder extends Seeder
             StudentEnrollment::create([
                 'student_slug' => $student['slug'], // Make sure 'slug' is the correct identifier
                 'academic_class_section_slug' => $section->slug,
-                'student_name' => $student['name'] ?? null,
+                'student_name' => $student['student_name'] ?? null,
                 'roll_number' => rand(1, 100),
                 'admission_date' => now()->subMonths(rand(1, 12)),
                 'enrollment_type' => 'new',
