@@ -40,7 +40,7 @@ class StudentEnrollment extends Model
 
     public function academicClassSection()
     {
-        return $this->belongsTo(AcademicClassSection::class);
+        return $this->belongsTo(AcademicClassSection::class, 'academic_class_section_slug', 'slug');
     }
 
 }

@@ -80,6 +80,7 @@ Route::prefix('daily-schedule')->group(function () {
 Route::prefix('student-enrollment')->group(function(){
     Route::post('/',[StudentEnrollmentController::class,'index']);
     Route::post('store',[StudentEnrollmentController::class,'store']);
+    Route::post('show',[StudentEnrollmentController::class,'show']);
     Route::post('update',[StudentEnrollmentController::class,'update']);
     Route::post('action',[StudentEnrollmentController::class,'handleAction']);
 });

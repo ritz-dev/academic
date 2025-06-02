@@ -73,8 +73,7 @@ class StudentEnrollmentController extends Controller
             ]);
         
             // Load class and academic year with a single query using eager loading
-            $section = AcademicClassSection::with(['academicYear', 'class'])
-                ->findOrFail($validated['academic_class_section_slug']);
+            $section = AcademicClassSection::with(['academicYear'])->where('slug', $validated['academic_class_section_slug'])->firstOrFail();
         
             // Check for existing enrollment for the same student, class, and year
             $alreadyEnrolled = StudentEnrollment::where('student_slug', $validated['student_slug'])
@@ -115,6 +114,29 @@ class StudentEnrollmentController extends Controller
             ], 500);
         }
         
+    }
+
+    public function show(Request $request)
+    {
+        $validated = $request->validate([
+            'slug' => ['required', 'string', 'exists:student_enrollments,slug'],
+        ]);
+
+        $enrollment = StudentEnrollment::where('slug', $validated['slug'])
+            ->with(['academicClassSection.academicYear'])
+            ->firstOrFail();
+
+        if (!$enrollment) {
+            return response()->json([
+                'status' => 'Not Found',
+                'message' => 'Enrollment not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'OK! The request was successful',
+            'data' => $enrollment,
+        ]);
     }
 
     public function update(Request $request)
