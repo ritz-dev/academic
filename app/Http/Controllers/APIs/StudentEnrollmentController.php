@@ -13,47 +13,54 @@ class StudentEnrollmentController extends Controller
 {
     public function index (Request $request)
     {
-        $validated = $request->validate([
-            'academic_year_slug' => ['string', 'exists:academic_years,slug'],
-            'academic_class_section_slug' => ['string', 'exists:academic_class_sections,slug'],
-            'student_slug' => ['nullable', 'string'],
-            'enrollment_type' => ['nullable', 'in:new,transfer,re-admission'],
-            'status' => ['nullable', 'in:active,graduated,transferred,dropped'],
-            'limit' => ['nullable', 'integer', 'min:1'],
-            'skip' => ['nullable', 'integer', 'min:0'],
-            
-        ]);
+        try {
+            $validated = $request->validate([
+                'academic_year_slug' => ['string', 'exists:academic_years,slug'],
+                'academic_class_section_slug' => ['string', 'exists:academic_class_sections,slug'],
+                'student_slug' => ['nullable', 'string'],
+                'enrollment_type' => ['nullable', 'in:new,transfer,re-admission'],
+                'status' => ['nullable', 'in:active,graduated,transferred,dropped'],
+                'limit' => ['nullable', 'integer', 'min:1'],
+                'skip' => ['nullable', 'integer', 'min:0'],
+                
+            ]);
 
-        $query = StudentEnrollment::query()
-                ->join('academic_class_sections', 'student_enrollments.academic_class_section_slug', '=', 'academic_class_sections.slug')
-                ->when(!empty($validated['academic_year_slug']), fn($q) =>
-                    $q->where('academic_class_sections.academic_year_slug', $validated['academic_year_slug']))
-                ->when(!empty($validated['academic_class_section_slug']), fn($q) =>
-                    $q->where('student_enrollments.academic_class_section_slug', $validated['academic_class_section_slug']))
-                ->when(!empty($validated['student_slug']), fn($q) =>
-                    $q->where('student_enrollments.student_slug', $validated['student_slug']))
-                ->when(!empty($validated['enrollment_type']), fn($q) =>
-                    $q->where('student_enrollments.enrollment_type', $validated['enrollment_type']))
-                ->when(!empty($validated['status']), fn($q) =>
-                    $q->where('student_enrollments.status', $validated['status']))
-                ->select('student_enrollments.*');
+            $query = StudentEnrollment::query()
+                    ->join('academic_class_sections', 'student_enrollments.academic_class_section_slug', '=', 'academic_class_sections.slug')
+                    ->when(!empty($validated['academic_year_slug']), fn($q) =>
+                        $q->where('academic_class_sections.academic_year_slug', $validated['academic_year_slug']))
+                    ->when(!empty($validated['academic_class_section_slug']), fn($q) =>
+                        $q->where('student_enrollments.academic_class_section_slug', $validated['academic_class_section_slug']))
+                    ->when(!empty($validated['student_slug']), fn($q) =>
+                        $q->where('student_enrollments.student_slug', $validated['student_slug']))
+                    ->when(!empty($validated['enrollment_type']), fn($q) =>
+                        $q->where('student_enrollments.enrollment_type', $validated['enrollment_type']))
+                    ->when(!empty($validated['status']), fn($q) =>
+                        $q->where('student_enrollments.status', $validated['status']))
+                    ->select('student_enrollments.*');
 
-        $total = $query->count();
+            $total = $query->count();
 
-        if (!empty($validated['skip'])) {
-            $query->skip($validated['skip']);
+            if (!empty($validated['skip'])) {
+                $query->skip($validated['skip']);
+            }
+            if (!empty($validated['limit'])) {
+                $query->take($validated['limit']);
+            }
+
+            $results = $query->get();
+
+            return response()->json([
+                'status' => 'OK! The request was successful',
+                'total' => $total,
+                'data' => $results,
+            ]);
+        } catch (\Exception $e) {   
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
-        if (!empty($validated['limit'])) {
-            $query->take($validated['limit']);
-        }
-
-        $results = $query->get();
-
-        return response()->json([
-            'status' => 'OK! The request was successful',
-            'total' => $total,
-            'data' => $results,
-        ]);
     }
 
     public function store (Request $request)
