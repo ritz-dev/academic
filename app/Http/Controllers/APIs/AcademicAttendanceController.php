@@ -95,7 +95,18 @@ class AcademicAttendanceController extends Controller
 
             $inserted = [];
 
+            DB::beginTransaction();
+
             foreach ($validated['attendances'] as $item) {
+                $previousHash = $this->blockchainService->getPreviousHash(AcademicAttendance::class);
+                $timestamp = now();
+                $calculatedHash = $this->blockchainService->calculateHash(
+                    $previousHash,
+                    json_encode($attendance),
+                    $timestamp->format('Y-m-d H:i:s')
+                );
+    
+
                 $inserted[] = AcademicAttendance::create([
                     'slug' => Str::uuid(), // or custom logic
                     'weekly_schedule_slug' => $item['schedule_slug'],
@@ -114,11 +125,15 @@ class AcademicAttendanceController extends Controller
                     'modified_by' => auth()->user()?->name ?? 'system',
                     'remark' => $item['remark'] ?? null,
         
-                    'previous_hash' => null,
-                    'hash' => null,
-            ]);
+                    'previous_hash' => $previousHash,
+                    'hash' => $calculatedHash,
+                ]);
+            }
+            DB::commit();
 
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'message' => 'Failed to record attendance.',
                 'error' => $e->getMessage()
