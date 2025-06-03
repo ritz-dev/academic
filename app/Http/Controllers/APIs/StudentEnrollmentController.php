@@ -75,7 +75,8 @@ class StudentEnrollmentController extends Controller
                 'enrollment_type' => ['required', Rule::in(['new', 'transfer', 're-admission'])],
                 'previous_school' => ['nullable', 'string', 'max:255'],
                 'graduation_date' => ['nullable', 'date'],
-                'status' => ['required', Rule::in(['active', 'graduated', 'transferred', 'dropped'])],
+                'academic_info' => ['nullable', 'string'],
+                'status' => ['required', Rule::in(['active', 'graduated', 'transferred'])],
                 'remarks' => ['nullable', 'string'],
             ]);
         
@@ -105,6 +106,7 @@ class StudentEnrollmentController extends Controller
                 'enrollment_type' => $request->input('enrollment_type', 'new'),
                 'previous_school' => $request->input('previous_school'),
                 'graduation_date' => $request->input('graduation_date'),
+                'academic_info' => $request->input('academic_info'),
                 'status' => $request->input('status', 'active'),
                 'remarks' => $request->input('remarks'),
             ]);
@@ -159,7 +161,8 @@ class StudentEnrollmentController extends Controller
                 'enrollment_type' => ['required', Rule::in(['new', 'transfer', 're-admission'])],
                 'previous_school' => ['nullable', 'string', 'max:255'],
                 'graduation_date' => ['nullable', 'date'],
-                'status' => ['required', Rule::in(['active', 'graduated', 'transferred', 'dropped'])],
+                'status' => ['required', Rule::in(['active', 'graduated', 'transferred'])],
+                'acaemidc_info' => ['nullable', 'string'],
                 'remarks' => ['nullable', 'string'],
             ]);
     
@@ -193,6 +196,7 @@ class StudentEnrollmentController extends Controller
                 'previous_school' => $request->input('previous_school'),
                 'graduation_date' => $request->input('graduation_date'),
                 'status' => $request->input('status', 'active'),
+                'academic_info' => $request->input('academic_info'),
                 'remarks' => $request->input('remarks'),
             ]);
     
@@ -214,7 +218,7 @@ class StudentEnrollmentController extends Controller
     {
         $request->validate([
             'slug' => 'required|string|exists:student_enrollments,slug',
-            'action' => 'required|string|in:active,graduated,transferred,dropped',
+            'action' => 'required|string|in:active,graduated,transferred,dropped,delete',
         ]);
 
         $slug = $request->input('slug');
@@ -242,8 +246,22 @@ class StudentEnrollmentController extends Controller
             case 'dropped':
                 $enrollment->status = 'dropped';
                 $enrollment->save();
+                $student->delete();
                 return response()->json(['message' => 'Enrollment dropped']);
 
+            case 'delete':
+                $enrollment->forceDelete();
+                return response()->json(['message' => 'Enrollment permanently deleted']);
+
+            case 'restore':
+                if ($student->trashed()) {
+                    $student->restore();
+                    $student->status = 'enrolled'; // or whatever is appropriate
+                    $student->save();
+                    return response()->json(['message' => 'Student restored']);
+                }
+                return response()->json(['message' => 'Student is not deleted'], 400);    
+                
             default:
                 return response()->json(['message' => 'Invalid action'], 400);
         }

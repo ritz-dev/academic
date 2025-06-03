@@ -50,6 +50,7 @@ class StudentEnrollmentSeeder extends Seeder
                 'previous_school' => null,
                 'graduation_date' => null,
                 'status' => 'active',
+                'academic_info' => null,
                 'remarks' => 'Auto seeded enrollment.',
             ]);
         }

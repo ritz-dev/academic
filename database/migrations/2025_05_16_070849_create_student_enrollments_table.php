@@ -26,6 +26,7 @@ return new class extends Migration
             $table->date('graduation_date')->nullable();
             $table->enum('status', ['active', 'graduated', 'transferred', 'dropped'])->default('active');
             $table->text('remarks')->nullable();
+            $table->string('academic_info')->nullable();
 
             // Foreign keys
             $table->foreign('academic_class_section_slug')->references('slug')->on('academic_class_sections')->onDelete('cascade');

@@ -21,6 +21,7 @@ class StudentEnrollment extends Model
         'enrollment_type',
         'previous_school',
         'graduation_date',
+        'academic_info',
         'status',
         'remarks',
     ];

@@ -14,12 +14,21 @@ return new class extends Migration
         Schema::create('academic_attendances', function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
-            $table->string('attendee_slug');
-            $table->string('schedule_slug');
+            $table->string('weekly_schedule_slug');
+            $table->string('subject');
+            $table->string('academic_class_section_slug');
+            $table->string('academic_info')->nullable();
 
+            //Attedance Person
+            $table->string('attendee_slug');
+            $table->string('attendee_name');
             $table->enum('attendee_type', ['student', 'teacher']);
             $table->enum('status', ['present', 'absent', 'late', 'excused']);
+            $table->string('attendance_type',['class', 'exam', 'event'])->default('class');
+
             $table->datetime('date');
+            $table->datetime('modified')->nullable();
+            $table->string('modified_by')->nullable();
             $table->text('remark')->nullable();
 
             $table->string('previous_hash')->nullable();
@@ -29,9 +38,9 @@ return new class extends Migration
             $table->softDeletes();
 
             // Foreign keys
-            $table->foreign('schedule_slug')->references('slug')->on('daily_schedules')->onDelete('cascade');
+            // $table->foreign('weekly_schedule_slug')->references('slug')->on('daily_schedules')->onDelete('cascade');
 
-            $table->unique(['attendee_type', 'attendee_slug', 'schedule_slug'], 'attendee_schedule_unique');
+            $table->unique(['attendee_type', 'attendee_slug', 'weekly_schedule_slug'], 'attendee_schedule_unique');
             $table->index(['attendee_type', 'attendee_slug'], 'attendee_type_index');
         });
     }
