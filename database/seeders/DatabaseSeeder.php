@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             AcademicClassSectionSeeder::class,
             StudentEnrollmentSeeder::class,
             WeeklyScheduleSeeder::class,
-            DailyScheduleSeeder::class,
+            // DailyScheduleSeeder::class,
             AcademicAttendanceSeeder::class,
         ]);
     }

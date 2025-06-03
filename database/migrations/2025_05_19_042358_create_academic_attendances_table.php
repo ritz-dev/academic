@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('attendee_name');
             $table->enum('attendee_type', ['student', 'teacher']);
             $table->enum('status', ['present', 'absent', 'late', 'excused']);
-            $table->string('attendance_type',['class', 'exam', 'event'])->default('class');
+            $table->enum('attendance_type',['class', 'exam', 'event'])->default('class');
 
             $table->datetime('date');
             $table->datetime('modified')->nullable();

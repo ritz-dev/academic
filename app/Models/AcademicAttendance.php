@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Ramsey\Uuid\Guid\Guid;
-use App\Models\DailySchedule;
+use App\Models\WeeklySchedule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -15,9 +15,14 @@ class AcademicAttendance extends Model
         'slug',
         'previous_hash',
         'hash',
-        'attendee_type',
+        'weekly_schedule_slug',
+        'subject',
+        'academic_class_section_slug',
+        'academic_info',
         'attendee_slug',
-        'schedule_slug',
+        'attendee_name',
+        'attendee_type',
+        'attendance_type',
         'status',
         'date',
         'remark',
@@ -38,6 +43,6 @@ class AcademicAttendance extends Model
 
     public function schedule()
     {
-        return $this->belongsTo(DailySchedule::class, 'schedule_slug');
+        return $this->belongsTo(WeeklySchedule::class, 'weekly_schedule_slug');
     }
 }

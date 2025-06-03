@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\DailySchedule;
+use App\Models\WeeklySchedule;
 use Illuminate\Database\Seeder;
 use App\Models\StudentEnrollment;
 use App\Models\AcademicAttendance;
@@ -18,7 +18,7 @@ class AcademicAttendanceSeeder extends Seeder
     {
         $sections = AcademicClassSection::first();
 
-        $schedule = DailySchedule::first();
+        $schedule = WeeklySchedule::first();
         
         $lastHash = null;
         
@@ -49,33 +49,46 @@ class AcademicAttendanceSeeder extends Seeder
 
         $teachers = $response->json('data') ?? [];
 
+        if($schedule->type !== 'break') {
 
-        foreach ($students as $student) {
+            foreach ($students as $student) {
+                AcademicAttendance::create([
+                    'previous_hash' => $lastHash,
+                    'hash' => 'studenthash' . $student->slug,
+                    'weekly_schedule_slug' => $schedule->slug,
+                    'subject' => $schedule->subject_name,
+                    'academic_class_section_slug' => $sections->slug,
+                    'academic_info' => $schedule->academic_info,
+                    'attendee_slug' => $student->slug,
+                    'attendee_name' => $student->name,
+                    'attendee_type' => 'student',
+                    'status' => 'present',
+                    'attendance_type' => 'class',
+                    'date' => now(),
+                    'remark' => null,
+                ]);
+                $lastHash = 'studenthash' . $student->slug;
+            }
+
             AcademicAttendance::create([
                 'previous_hash' => $lastHash,
-                'hash' => 'studenthash' . $student->slug,  // Replace with real hash logic
-                'attendee_type' => 'student',
-                'attendee_slug' => $student->slug,
-                'schedule_slug' => $schedule->slug,
-                'status' => 'present', // or some logic
+                'hash' => 'teacherhash' . $teachers[0]['slug'],
+                'weekly_schedule_slug' => $schedule->slug,
+                'subject' => $schedule->subject_name,
+                'academic_class_section_slug' => $sections->slug,
+                'academic_info' => $schedule->academic_info,
+                'attendee_slug' => $teachers[0]['slug'],
+                'attendee_name' => $teachers[0]['name'],
+                'attendee_type' => 'teacher',
+                'status' => 'present',
+                'attendance_type' => 'class',
                 'date' => now(),
                 'remark' => null,
             ]);
-            $lastHash = 'studenthash' . $student->slug;
-        }
-
-        AcademicAttendance::create([
-            'previous_hash' => $lastHash,
-            'hash' => 'teacherhash' . $teachers[0]['slug'],  // Replace with real hash logic
-            'attendee_type' => 'teacher',
-            'attendee_slug' => $teachers[0]['slug'],
-            'schedule_slug' => $schedule->slug,
-            'status' => 'present', // or some logic
-            'date' => now(),
-            'remark' => null,
-        ]);
 
         $lastHash = 'teacherhash' . $teachers[0]['slug'];
+
+        }
     
         $this->command->info('Academic attendance seeded successfully.');
     }
