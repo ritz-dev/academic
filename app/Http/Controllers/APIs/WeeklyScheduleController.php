@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\WeeklySchedule;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Models\AcademicClassSection;
 use Illuminate\Support\Facades\Http;
 
 
@@ -14,38 +13,57 @@ class WeeklyScheduleController extends Controller
 {
     public function index(Request  $request)
     {
-        $validated = $request->validate([
-            'year' => 'nullable|string',
-            'academic_year_slug' => 'nullable|string|exists:academic_years,slug',
-            'academic_class_slug' => 'nullable|string|exists:academic_classes,slug',
-            'limit' => 'nullable|integer|min:1',
-            'skip' => 'nullable|integer|min:0',
-        ]);
-
-        $limit = $validated['limit'] ?? null;
+        try {
+            $validated = $request->validate([
+                'academic_class_section_slug' => ['nullable', 'string', 'exists:academic_class_sections,slug'],
+                'day_of_week' => ['nullable', 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'],
+                'type' => ['nullable', 'in:class,break'],
+                'teacher_slug' => ['nullable', 'string'], // optionally validate existence if needed
+                'limit' => ['nullable', 'integer', 'min:1'],
+                'skip' => ['nullable', 'integer', 'min:0'],
+                'search' => ['nullable', 'string', 'max:255'],
+            ]);
     
-        $query = AcademicClassSection::with(['academicYear', 'academicClass', 'academicSection'])
-            ->when(!empty($validated['academic_year_slug']), fn($q) => $q->where('academic_year', $validated['academic_year_slug']))
-            ->when(!empty($validated['academic_class_slug']), fn($q) => $q->where('class', $validated['academic_class_slug']))
-            ->when(!empty($validated['year']), fn($q) => $q->where('year', 'like', '%' . $validated['year'] . '%'));
+            $query = WeeklySchedule::query()
+                ->when(!empty($validated['academic_class_section_slug']), fn($q) =>
+                    $q->where('academic_class_section_slug', $validated['academic_class_section_slug']))
+                ->when(!empty($validated['day_of_week']), fn($q) =>
+                    $q->where('day_of_week', $validated['day_of_week']))
+                ->when(!empty($validated['type']), fn($q) =>
+                    $q->where('type', $validated['type']))
+                ->when(!empty($validated['teacher_slug']), fn($q) =>
+                    $q->where('teacher_slug', $validated['teacher_slug']))
+                ->when(!empty($validated['search']), fn($q) =>
+                    $q->where(function($query) use ($validated) {
+                        $query->where('subject_name', 'like', '%'.$validated['search'].'%')
+                              ->orWhere('teacher_name', 'like', '%'.$validated['search'].'%');
+                    }));
     
-        $total = $query->count();
-
-        // Apply limit and skip
-        if (!empty($validated['skip'])) {
-            $query->skip($validated['skip']);
+            $total = $query->count();
+    
+            if (!empty($validated['skip'])) {
+                $query->skip($validated['skip']);
+            }
+    
+            if (!empty($validated['limit'])) {
+                $query->take($validated['limit']);
+            }
+    
+            $results = $query->get();
+    
+            return response()->json([
+                'status' => 'OK! The request was successful',
+                'total' => $total,
+                'data' => $results,
+            ], 200);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch weekly schedules.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-        if (!empty($validated['limit'])) {
-            $query->take($validated['limit']);
-        }
-
-        $results = $query->get();
-    
-        return response()->json([
-            'status' => 'OK! The request was successful',
-            'total' => $total,
-            'data' => $results,
-        ]);
     }
 
     public function store(Request $request)
