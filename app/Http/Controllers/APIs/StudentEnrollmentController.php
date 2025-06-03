@@ -218,7 +218,7 @@ class StudentEnrollmentController extends Controller
     {
         $request->validate([
             'slug' => 'required|string|exists:student_enrollments,slug',
-            'action' => 'required|string|in:active,graduated,transferred,dropped,delete',
+            'action' => 'required|string|in:active,graduated,transferred,dropped,restore,delete',
         ]);
 
         $slug = $request->input('slug');
