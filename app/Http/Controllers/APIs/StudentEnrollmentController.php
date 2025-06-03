@@ -256,7 +256,7 @@ class StudentEnrollmentController extends Controller
             case 'restore':
                 if ($student->trashed()) {
                     $student->restore();
-                    $student->status = 'enrolled'; // or whatever is appropriate
+                    $student->status = 'active';
                     $student->save();
                     return response()->json(['message' => 'Student restored']);
                 }
