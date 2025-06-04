@@ -220,7 +220,7 @@ class AcademicAttendanceController extends Controller
         }
     }
 
-    public function destroy(Request $request)
+    public function delete(Request $request)
     {
         try {
             $validated = $request->validate([
@@ -229,7 +229,7 @@ class AcademicAttendanceController extends Controller
             DB::beginTransaction();
 
             $attendance = AcademicAttendance::where('slug', $validated['slug'])->firstOrFail();
-            
+
             if (!$attendance) {
                 return response()->json([
                     'message' => 'Attendance not found.',

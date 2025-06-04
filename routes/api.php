@@ -87,12 +87,11 @@ Route::prefix('student-enrollment')->group(function(){
 });
 
 Route::prefix('attendance')->group(function(){
-    Route::post('schedule',[AcademicAttendanceController::class,'bySchedule']);
+    Route::post('/',[AcademicAttendanceController::class,'index']);
     Route::post('store',[AcademicAttendanceController::class,'store']);
-    // Route::post('record-attendance',[AttendanceController::class,'recordAttendance']);
-    // Route::post('get-attendance',[AttendanceController::class,'getAttendance']);
-    // Route::post('create',[AttendanceController::class,'create']);
-    // Route::post('by-schedule',[AttendanceController::class,'bySchedule']);
+    Route::post('show',[AcademicAttendanceController::class,'show']);
+    Route::post('update',[AcademicAttendanceController::class,'update']);
+    Route::post('delete',[AcademicAttendanceController::class,'delete']);
 });
 
 Route::prefix('student-leave')->group(function(){
