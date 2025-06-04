@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\APIs;
 
+use App\Models\StudentLeave;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\StudentEnrollment;
@@ -267,5 +268,45 @@ class StudentEnrollmentController extends Controller
         }
     }
 
-    
+    public function byClassSection(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'academic_class_section_slug' => ['required', 'string', 'exists:academic_class_sections,slug'],
+                'weekly_schedule_slug' => ['required', 'string'],
+            ]);
+
+            $enrollments = StudentEnrollment::where('academic_class_section_slug', $validated['academic_class_section_slug'])->get();
+
+            if ($enrollments->isEmpty()) {
+                return response()->json([
+                    'status' => 'No enrollments found for this class section',
+                    'data' => []
+                ], 404);
+            }
+
+            //Check student attendance for the given weekly schedule and today
+            $today = now()->format('Y-m-d');
+
+            $attendance = StudentLeave::where('weekly_schedule_slug', $validated['weekly_schedule_slug'])
+                ->whereDate('date', $today)
+                ->whereIn('student_enrollment_slug', $enrollments->pluck('slug'))
+                ->get();
+
+            // Attach attendance status to each enrollment
+            foreach ($enrollments as $enrollment) {
+                $enrollment->attendance_status = $attendance->where('student_enrollment_slug', $enrollment->slug)->first();
+            }
+
+            return response()->json([
+                'status' => 'OK! The request was successful',
+                'data' => $enrollments,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

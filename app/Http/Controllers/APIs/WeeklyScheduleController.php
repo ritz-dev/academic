@@ -118,11 +118,6 @@ class WeeklyScheduleController extends Controller
             ]);
     
         } catch (\Exception $e) {
-            // Catch all other unexpected exceptions
-            Log::error('Weekly Schedule Store Error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
     
             return response()->json([
                 'success' => false,

@@ -83,6 +83,7 @@ Route::prefix('student-enrollment')->group(function(){
     Route::post('show',[StudentEnrollmentController::class,'show']);
     Route::post('update',[StudentEnrollmentController::class,'update']);
     Route::post('action',[StudentEnrollmentController::class,'handleAction']);
+    Route::post('by-class-section',[StudentEnrollmentController::class,'byClassSection']);
 });
 
 Route::prefix('attendance')->group(function(){
@@ -92,6 +93,14 @@ Route::prefix('attendance')->group(function(){
     // Route::post('get-attendance',[AttendanceController::class,'getAttendance']);
     // Route::post('create',[AttendanceController::class,'create']);
     // Route::post('by-schedule',[AttendanceController::class,'bySchedule']);
+});
+
+Route::prefix('student-leave')->group(function(){
+    Route::post('/',[StudentLeaveController::class,'index']);
+    Route::post('store',[StudentLeaveController::class,'store']);
+    Route::post('show',[StudentLeaveController::class,'show']);
+    Route::post('update',[StudentLeaveController::class,'update']);
+    Route::post('delete',[StudentLeaveController::class,'delete']);
 });
 
 // Route::prefix('exams')->group(function(){

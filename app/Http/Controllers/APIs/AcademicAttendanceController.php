@@ -84,6 +84,7 @@ class AcademicAttendanceController extends Controller
                 'attendances.*.attendee_type' => 'required|in:student,teacher',
                 'attendances.*.attendee_slug' => 'required|string',
                 'attendances.*.weekly_schedule_slug' => 'required|exists:weekly_schedules,slug',
+                'attendances.*.attendee_name' => 'nullable|string',
                 'attendances.*.subject' => 'required|string',
                 'attendances.*.academic_class_section_slug' => 'required|string',
                 'attendances.*.academic_info' => 'nullable|string',
@@ -102,20 +103,19 @@ class AcademicAttendanceController extends Controller
                 $timestamp = now();
                 $calculatedHash = $this->blockchainService->calculateHash(
                     $previousHash,
-                    json_encode($attendance),
+                    json_encode($item),
                     $timestamp->format('Y-m-d H:i:s')
                 );
     
 
                 $inserted[] = AcademicAttendance::create([
-                    'slug' => Str::uuid(), // or custom logic
-                    'weekly_schedule_slug' => $item['schedule_slug'],
+                    'weekly_schedule_slug' => $item['weekly_schedule_slug'],
                     'subject' => $item['subject'],
                     'academic_class_section_slug' => $item['academic_class_section_slug'],
                     'academic_info' => $item['academic_info'] ?? null,
         
                     'attendee_slug' => $item['attendee_slug'],
-                    'attendee_name' => $this->getAttendeeName($item['attendee_slug'], $item['attendee_type']), // Optional helper
+                    'attendee_name' => $item['attendee_name'] . ':' .$item['attendee_type'],
                     'attendee_type' => $item['attendee_type'],
                     'status' => $item['status'],
                     'attendance_type' => $item['attendance_type'] ?? 'class',
@@ -131,6 +131,11 @@ class AcademicAttendanceController extends Controller
             }
             DB::commit();
 
+            return response()->json([
+                'message' => 'Attendances recorded successfully.',
+                'data' => $inserted
+            ], 201);
+
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -139,50 +144,110 @@ class AcademicAttendanceController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-        // Validate the request if needed
-        $validated = $request->validate([
-            'attendances' => 'required|array|min:1',
-            'attendances.*.attendee_type' => 'required|in:student,teacher',
-            'attendances.*.attendee_slug' => 'required|string',
-            'attendances.*.schedule_slug' => 'required|exists:daily_schedules,slug',
-            'attendances.*.status' => 'required|in:present,absent,late,excused',
-            'attendances.*.remark' => 'nullable|string',
-        ]);
+    }
 
+    public function update(Request $request)
+    {
         try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:academic_attendances,slug',
+                'attendee_type' => 'required|in:student,teacher',
+                'attendee_slug' => 'required|string',
+                'weekly_schedule_slug' => 'required|exists:weekly_schedules,slug',
+                'attendee_name' => 'nullable|string',
+                'subject' => 'required|string',
+                'academic_class_section_slug' => 'required|string',
+                'academic_info' => 'nullable|string',
+                'status' => 'required|in:present,absent,late,excused',
+                'remark' => 'nullable|string',
+                'attendance_type' => 'nullable|in:class,exam,event',
+                'date' => 'required|date',
+            ]);
+
+            $attendance = AcademicAttendance::where('slug', $validated['slug'])->firstOrFail();
+
+            if (!$attendance) {
+                return response()->json([
+                    'message' => 'Attendance not found.',
+                ], 404);
+            }
+
             DB::beginTransaction();
 
-            foreach ($validated['attendances'] as $attendance) {
-                $previousHash = $this->blockchainService->getPreviousHash(AcademicAttendance::class);
-                $timestamp = now();
-                $calculatedHash = $this->blockchainService->calculateHash(
-                    $previousHash,
-                    json_encode($attendance),
-                    $timestamp->format('Y-m-d H:i:s')
-                );
-    
-                AcademicAttendance::create([
-                    'previous_hash' => $previousHash,
-                    'hash' => $calculatedHash,
-                    'attendee_type' => $attendance['attendee_type'],
-                    'attendee_slug' => $attendance['attendee_slug'],
-                    'schedule_slug' => $attendance['schedule_slug'],
-                    'status' => $attendance['status'],
-                    'date' => $timestamp,
-                    'remark' => $attendance['remark'] ?? null,
-                ]);
-            }
-    
+            $previousHash = $this->blockchainService->getPreviousHash(AcademicAttendance::class);
+            $timestamp = now();
+            $calculatedHash = $this->blockchainService->calculateHash(
+                $previousHash,
+                json_encode($validated),
+                $timestamp->format('Y-m-d H:i:s')
+            );
+
+            $attendance->update([
+                'weekly_schedule_slug' => $validated['weekly_schedule_slug'],
+                'subject' => $validated['subject'],
+                'academic_class_section_slug' => $validated['academic_class_section_slug'],
+                'academic_info' => $validated['academic_info'] ?? null,
+
+                'attendee_slug' => $validated['attendee_slug'],
+                'attendee_name' => $validated['attendee_name'] . ':' . $validated['attendee_type'],
+                'attendee_type' => $validated['attendee_type'],
+                'status' => $validated['status'],
+                'attendance_type' => $validated['attendance_type'] ?? 'class',
+
+                'date' => $validated['date'],
+                'modified' => $timestamp,
+                'modified_by' => auth()->user()?->name ?? 'system',
+                'remark' => $validated['remark'] ?? null,
+
+                'previous_hash' => $previousHash,
+                'hash' => $calculatedHash,
+            ]);
+
             DB::commit();
-    
+
             return response()->json([
-                'message' => 'Attendance recorded successfully.',
-            ], 201);
-    
+                'message' => 'Attendance updated successfully.',
+                'data' => $attendance
+            ], 200);
+
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
-                'message' => 'Failed to record attendance.',
+                'message' => 'Failed to update attendance.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:academic_attendances,slug',
+            ]);
+            DB::beginTransaction();
+
+            $attendance = AcademicAttendance::where('slug', $validated['slug'])->firstOrFail();
+            
+            if (!$attendance) {
+                return response()->json([
+                    'message' => 'Attendance not found.',
+                ], 404);
+            }
+            $attendance->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Attendance deleted successfully.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to delete attendance.',
                 'error' => $e->getMessage()
             ], 500);
         }
