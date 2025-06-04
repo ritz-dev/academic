@@ -146,6 +146,34 @@ class AcademicAttendanceController extends Controller
         }
     }
 
+    public function show(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:academic_attendances,slug',
+            ]);
+
+            $attendance = AcademicAttendance::where('slug', $validated['slug'])->firstOrFail();
+
+            if (!$attendance) {
+                return response()->json([
+                    'message' => 'Attendance not found.',
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Attendance retrieved successfully.',
+                'data' => $attendance
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve attendance.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function update(Request $request)
     {
         try {
