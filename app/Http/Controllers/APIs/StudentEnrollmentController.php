@@ -290,12 +290,20 @@ class StudentEnrollmentController extends Controller
 
             $attendance = StudentLeave::where('weekly_schedule_slug', $validated['weekly_schedule_slug'])
                 ->whereDate('date', $today)
+                ->where('academic_class_section_slug', $validated['academic_class_section_slug'])
                 ->whereIn('student_enrollment_slug', $enrollments->pluck('slug'))
                 ->get();
 
+            logger($attendance);
+
             // Attach attendance status to each enrollment
             foreach ($enrollments as $enrollment) {
-                $enrollment->attendance_status = $attendance->where('student_enrollment_slug', $enrollment->slug)->first();
+                $enrollment->leave_status = optional(
+                    $attendance->where('student_enrollment_slug', $enrollment->slug)->first()
+                )->status;
+                $enrollment->leave_type = optional(
+                    $attendance->where('student_enrollment_slug', $enrollment->slug)->first()
+                )->leave_type;
             }
 
             return response()->json([
