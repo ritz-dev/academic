@@ -9,6 +9,7 @@ use App\Http\Controllers\APIs\SubjectController;
 use App\Http\Controllers\APIs\CertificateController;
 use App\Http\Controllers\APIs\AcademicYearController;
 use App\Http\Controllers\APIs\ExamScheduleController;
+use App\Http\Controllers\APIs\StudentLeaveController;
 use App\Http\Controllers\APIs\AcademicClassController;
 use App\Http\Controllers\APIs\DailyScheduleController;
 use App\Http\Controllers\APIs\WeeklyScheduleController;

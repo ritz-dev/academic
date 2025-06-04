@@ -18,7 +18,7 @@ class AcademicAttendanceSeeder extends Seeder
     {
         $sections = AcademicClassSection::first();
 
-        $schedule = WeeklySchedule::first();
+        $schedule = WeeklySchedule::where('type', 'class')->first();
         
         $lastHash = null;
         
@@ -60,7 +60,7 @@ class AcademicAttendanceSeeder extends Seeder
                     'academic_class_section_slug' => $sections->slug,
                     'academic_info' => $schedule->academic_info,
                     'attendee_slug' => $student->slug,
-                    'attendee_name' => $student->name,
+                    'attendee_name' => $student->student_name,
                     'attendee_type' => 'student',
                     'status' => 'present',
                     'attendance_type' => 'class',
@@ -78,7 +78,7 @@ class AcademicAttendanceSeeder extends Seeder
                 'academic_class_section_slug' => $sections->slug,
                 'academic_info' => $schedule->academic_info,
                 'attendee_slug' => $teachers[0]['slug'],
-                'attendee_name' => $teachers[0]['name'],
+                'attendee_name' => "Teacher 1",
                 'attendee_type' => 'teacher',
                 'status' => 'present',
                 'attendance_type' => 'class',

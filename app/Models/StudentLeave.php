@@ -2,7 +2,12 @@
 
 namespace App\Models;
 
+use Ramsey\Uuid\Guid\Guid;
+use App\Models\WeeklySchedule;
+use App\Models\StudentEnrollment;
+use App\Models\AcademicClassSection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StudentLeave extends Model
 {
