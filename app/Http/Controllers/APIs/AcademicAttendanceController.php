@@ -88,18 +88,10 @@ class AcademicAttendanceController extends Controller
 
             $results = $results->map(function ($item) use ($attendeeData) {
                 $attendee = $attendeeData[$item->attendee_type][$item->attendee_slug] ?? null;
-    
-                return [
-                    'id' => $item->id,
-                    'weekly_schedule_slug' => $item->weekly_schedule_slug,
-                    'academic_class_section_slug' => $item->academic_class_section_slug,
-                    'attendee_type' => $item->attendee_type,
-                    'attendee_slug' => $item->attendee_slug,
-                    'status' => $item->status,
-                    'attendance_type' => $item->attendance_type,
-                    'date' => $item->date,
-                    'attendee' => $attendee
-                ];
+                $data = $item->toArray();
+                $data['attendee'] = $attendee;
+                
+                return $data;
             });
 
             return response()->json([
