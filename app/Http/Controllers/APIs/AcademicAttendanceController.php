@@ -70,7 +70,7 @@ class AcademicAttendanceController extends Controller
             $attendeeData = [];
 
             foreach ($grouped as $type => $slugs) {
-                $baseUrl = config('services.attendee_api.url');
+                $baseUrl = config('services.user_management.url');
                 $endpoint = match ($type) {
                     'student' => "$baseUrl/students",
                     'teacher' => "$baseUrl/teachers",
