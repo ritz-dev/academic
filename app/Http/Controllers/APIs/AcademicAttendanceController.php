@@ -32,7 +32,7 @@ class AcademicAttendanceController extends Controller
                 'skip' => ['nullable', 'integer', 'min:0'],
             ]);
 
-            $query = AcademicAttendance::with(['weeklySchedule', 'academicClassSection'])
+            $query = AcademicAttendance::with(['weeklySchedule', 'academicClassSection','attendee'])
                 ->when(!empty($validated['weekly_schedule_slug']), fn($q) =>
                     $q->where('weekly_schedule_slug', $validated['weekly_schedule_slug']))
                 ->when(!empty($validated['academic_class_section_slug']), fn($q) =>
@@ -61,6 +61,45 @@ class AcademicAttendanceController extends Controller
             }
 
             $results = $query->get();
+
+            $grouped = $results->groupBy('attendee_type')->map(function ($items) {
+                return $items->pluck('attendee_slug')->unique()->values()->all();
+            });
+
+            $attendeeData = [];
+
+            foreach ($grouped as $type => $slugs) {
+                $baseUrl = config('services.attendee_api.url');
+                $endpoint = match ($type) {
+                    'student' => "$baseUrl/students",
+                    'teacher' => "$baseUrl/teachers",
+                    default => null,
+                };
+    
+                if (!$endpoint) continue;
+    
+                $response = Http::get($endpoint, ['slugs' => $slugs]);
+    
+                if ($response->successful()) {
+                    $attendeeData[$type] = collect($response->json())->keyBy('slug')->toArray();
+                }
+            }
+
+            $results = $results->map(function ($item) use ($attendeeData) {
+                $attendee = $attendeeData[$item->attendee_type][$item->attendee_slug] ?? null;
+    
+                return [
+                    'id' => $item->id,
+                    'weekly_schedule_slug' => $item->weekly_schedule_slug,
+                    'academic_class_section_slug' => $item->academic_class_section_slug,
+                    'attendee_type' => $item->attendee_type,
+                    'attendee_slug' => $item->attendee_slug,
+                    'status' => $item->status,
+                    'attendance_type' => $item->attendance_type,
+                    'date' => $item->date,
+                    'attendee' => $attendee
+                ];
+            });
 
             return response()->json([
                 'status' => 'OK! The request was successful',
