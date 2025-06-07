@@ -32,7 +32,7 @@ class AcademicAttendanceController extends Controller
                 'skip' => ['nullable', 'integer', 'min:0'],
             ]);
 
-            $query = AcademicAttendance::with(['weeklySchedule', 'academicClassSection','attendee'])
+            $query = AcademicAttendance::with(['weeklySchedule', 'academicClassSection'])
                 ->when(!empty($validated['weekly_schedule_slug']), fn($q) =>
                     $q->where('weekly_schedule_slug', $validated['weekly_schedule_slug']))
                 ->when(!empty($validated['academic_class_section_slug']), fn($q) =>
