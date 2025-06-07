@@ -82,7 +82,7 @@ class AcademicAttendanceController extends Controller
                 $response = Http::get($endpoint, ['slugs' => $slugs]);
     
                 if ($response->successful()) {
-                    $attendeeData[$type] = collect($response->json())->keyBy('slug')->toArray();
+                    $attendeeData[$type] = collect($response->json('data'))->keyBy('slug')->toArray();
                 }
             }
 

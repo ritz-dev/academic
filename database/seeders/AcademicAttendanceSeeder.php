@@ -27,12 +27,12 @@ class AcademicAttendanceSeeder extends Seeder
             return;
         }
 
-        $students = StudentEnrollment::where('academic_class_section_slug', $sections->slug)->get();
+        // $students = StudentEnrollment::where('academic_class_section_slug', $sections->slug)->get();
         
-        if ($students->isEmpty()) {
-            $this->command->error('No students found for the section. Please run the StudentEnrollmentSeeder first.');
-            return;
-        }
+        // if ($students->isEmpty()) {
+        //     $this->command->error('No students found for the section. Please run the StudentEnrollmentSeeder first.');
+        //     return;
+        // }
 
         $teacherApiUrl = config('services.user_management.url') . 'teachers';
 
