@@ -32,7 +32,7 @@ class AcademicAttendanceController extends Controller
                 'skip' => ['nullable', 'integer', 'min:0'],
             ]);
 
-            $query = AcademicAttendance::query()
+            $query = AcademicAttendance::with(['weeklySchedule', 'academicClassSection'])
                 ->when(!empty($validated['weekly_schedule_slug']), fn($q) =>
                     $q->where('weekly_schedule_slug', $validated['weekly_schedule_slug']))
                 ->when(!empty($validated['academic_class_section_slug']), fn($q) =>
@@ -44,12 +44,12 @@ class AcademicAttendanceController extends Controller
                 ->when(!empty($validated['status']), fn($q) =>
                     $q->where('status', $validated['status']))
                 ->when(!empty($validated['attendance_type']), fn($q) =>
-                    $q->where('attendance_type', $validated['attendance_type']));
-                // ->when(!empty($validated['start_date']), fn($q) =>
-                //     $q->whereDate('date', '>=', $validated['start_date']))
-                // ->when(!empty($validated['end_date']), fn($q) =>
-                //     $q->whereDate('date', '<=', $validated['end_date']))
-                // ->orderByDesc('date');
+                    $q->where('attendance_type', $validated['attendance_type']))
+                ->when(!empty($validated['start_date']), fn($q) =>
+                    $q->whereDate('date', '>=', $validated['start_date']))
+                ->when(!empty($validated['end_date']), fn($q) =>
+                    $q->whereDate('date', '<=', $validated['end_date']))
+                ->orderByDesc('date');
 
             $total = $query->count();
 
@@ -106,7 +106,6 @@ class AcademicAttendanceController extends Controller
                     json_encode($item),
                     $timestamp->format('Y-m-d H:i:s')
                 );
-    
 
                 $inserted[] = AcademicAttendance::create([
                     'weekly_schedule_slug' => $item['weekly_schedule_slug'],
@@ -115,14 +114,14 @@ class AcademicAttendanceController extends Controller
                     'academic_info' => $item['academic_info'] ?? null,
         
                     'attendee_slug' => $item['attendee_slug'],
-                    'attendee_name' => $item['attendee_name'] . ':' .$item['attendee_type'],
+                    'attendee_name' => $item['attendee_name'],
                     'attendee_type' => $item['attendee_type'],
                     'status' => $item['status'],
-                    'attendance_type' => $item['attendance_type'] ?? 'class',
+                    'attendance_type' => $item['attendance_type'],
         
                     'date' => $item['date'],
-                    'modified' => now(),
-                    'modified_by' => auth()->user()?->name ?? 'system',
+                    'modified' => null,
+                    'modified_by' => null,
                     'remark' => $item['remark'] ?? null,
         
                     'previous_hash' => $previousHash,
@@ -153,7 +152,7 @@ class AcademicAttendanceController extends Controller
                 'slug' => 'required|string|exists:academic_attendances,slug',
             ]);
 
-            $attendance = AcademicAttendance::where('slug', $validated['slug'])->firstOrFail();
+            $attendance = AcademicAttendance::where('slug', $validated['slug'])->with(['weeklySchedule', 'academicClassSection'])->firstOrFail();
 
             if (!$attendance) {
                 return response()->json([
@@ -217,7 +216,7 @@ class AcademicAttendanceController extends Controller
                 'academic_info' => $validated['academic_info'] ?? null,
 
                 'attendee_slug' => $validated['attendee_slug'],
-                'attendee_name' => $validated['attendee_name'] . ':' . $validated['attendee_type'],
+                'attendee_name' => $validated['attendee_name'],
                 'attendee_type' => $validated['attendee_type'],
                 'status' => $validated['status'],
                 'attendance_type' => $validated['attendance_type'] ?? 'class',
