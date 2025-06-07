@@ -38,7 +38,7 @@ return new class extends Migration
             $table->softDeletes();
 
             // Foreign keys
-            $table->foreign('weekly_schedule_slug')->references('slug')->on('daily_schedules')->onDelete('cascade');
+            $table->foreign('weekly_schedule_slug')->references('slug')->on('weekly_schedules')->onDelete('cascade');
 
             $table->unique(['attendee_type', 'attendee_slug', 'weekly_schedule_slug', 'date'], 'attendee_schedule_unique');
             $table->index(['attendee_type', 'attendee_slug'], 'attendee_type_index');
