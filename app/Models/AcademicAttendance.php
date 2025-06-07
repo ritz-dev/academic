@@ -41,7 +41,7 @@ class AcademicAttendance extends Model
         });
     }
 
-    public function schedule()
+    public function weeklySchedule()
     {
         return $this->belongsTo(WeeklySchedule::class, 'weekly_schedule_slug', 'slug');
     }
@@ -51,8 +51,5 @@ class AcademicAttendance extends Model
         return $this->belongsTo(AcademicClassSection::class, 'academic_class_section_slug', 'slug');
     }
 
-    public function attendee()
-    {
-        return $this->morphTo(__FUNCTION__, 'attendee_type', 'attendee_slug');
-    }
+
 }
