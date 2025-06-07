@@ -7,6 +7,7 @@ use App\Models\AcademicAttendance;
 use Illuminate\Support\Facades\DB;
 use App\Services\BlockChainService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Http;
 
 
 class AcademicAttendanceController extends Controller
