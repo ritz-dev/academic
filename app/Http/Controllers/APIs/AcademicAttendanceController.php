@@ -33,7 +33,7 @@ class AcademicAttendanceController extends Controller
                 'skip' => ['nullable', 'integer', 'min:0'],
             ]);
 
-            $query = AcademicAttendance::with(['weeklySchedule', 'academicClassSection'])
+            $query = AcademicAttendance::with(['weeklySchedule'])
                 ->when(!empty($validated['weekly_schedule_slug']), fn($q) =>
                     $q->where('weekly_schedule_slug', $validated['weekly_schedule_slug']))
                 ->when(!empty($validated['academic_class_section_slug']), fn($q) =>
@@ -72,14 +72,17 @@ class AcademicAttendanceController extends Controller
             foreach ($grouped as $type => $slugs) {
                 $baseUrl = config('services.user_management.url');
                 $endpoint = match ($type) {
-                    'student' => "$baseUrl/students",
-                    'teacher' => "$baseUrl/teachers",
+                    'student' => "$baseUrl" . "students",
+                    'teacher' => "$baseUrl" . "teachers",
                     default => null,
                 };
     
                 if (!$endpoint) continue;
-    
-                $response = Http::get($endpoint, ['slugs' => $slugs]);
+
+                $response = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    // 'Authorization' => $request->header('Authorization'),
+                ])->post($endpoint, ['slugs' => $slugs]);
     
                 if ($response->successful()) {
                     $attendeeData[$type] = collect($response->json('data'))->keyBy('slug')->toArray();
