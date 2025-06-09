@@ -15,7 +15,7 @@ class StudentEnrollmentSeeder extends Seeder
     public function run(): void
     {
 
-        $sections = AcademicClassSection::all();
+        $sections = AcademicClassSection::first();
         $studentsApiUrl = config('services.user_management.url') . 'students';
     
         $response = Http::withHeaders([
@@ -34,15 +34,15 @@ class StudentEnrollmentSeeder extends Seeder
 
         foreach ($students as $index => $student) {
             // Safely get a section using modulo to avoid out-of-bounds
-            $section = $sections[$index % $sectionCount] ?? null;
+            // $section = $sections[$index % $sectionCount] ?? null;
 
-            if (!$section) {
-                continue;
-            }
+            // if (!$section) {
+            //     continue;
+            // }
 
             StudentEnrollment::create([
                 'student_slug' => $student['slug'], // Make sure 'slug' is the correct identifier
-                'academic_class_section_slug' => $section->slug,
+                'academic_class_section_slug' => $sections['slug'],
                 'student_name' => $student['student_name'] ?? null,
                 'roll_number' => rand(1, 100),
                 'admission_date' => now()->subMonths(rand(1, 12)),
