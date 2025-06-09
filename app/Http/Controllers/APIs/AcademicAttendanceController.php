@@ -29,6 +29,8 @@ class AcademicAttendanceController extends Controller
                 'attendance_type' => ['nullable', 'in:class,exam,event'],
                 'start_date' => ['nullable', 'date'],
                 'end_date' => ['nullable', 'date'],
+                'start_time' => ['nullable', 'date_format:H:i:s'],
+                'end_time' => ['nullable', 'date_format:H:i:s'],
                 'limit' => ['nullable', 'integer', 'min:1'],
                 'skip' => ['nullable', 'integer', 'min:0'],
             ]);
@@ -46,13 +48,29 @@ class AcademicAttendanceController extends Controller
                     $q->where('status', $validated['status']))
                 ->when(!empty($validated['attendance_type']), fn($q) =>
                     $q->where('attendance_type', $validated['attendance_type']))
-                ->when(!empty($validated['start_date']), fn($q) =>
-                    $q->whereDate('date', '>=', $validated['start_date']))
-                ->when(!empty($validated['end_date']), fn($q) =>
-                    $q->whereDate('date', '<=', $validated['end_date']))
+                ->when(!empty($validated['start_date']) && !empty($validated['end_date']), function ($q) use ($validated) {
+                    $q->whereBetween('date', [$validated['start_date'], $validated['end_date']]);
+                })
+                ->when(!empty($validated['start_date']) && empty($validated['end_date']), function ($q) use ($validated) {
+                    $q->whereDate('date', '>=', $validated['start_date']);
+                })
+                ->when(empty($validated['start_date']) && !empty($validated['end_date']), function ($q) use ($validated) {
+                    $q->whereDate('date', '<=', $validated['end_date']);
+                })
+                ->when(!empty($validated['start_time']), function ($q) use ($validated) {
+                    $q->whereHas('weeklySchedule', function ($query) use ($validated) {
+                        $query->where('start_time', '>=', $validated['start_time']);
+                    });
+                })
+                ->when(!empty($validated['end_time']), function ($q) use ($validated) {
+                    $q->whereHas('weeklySchedule', function ($query) use ($validated) {
+                        $query->where('end_time', '<=', $validated['end_time']);
+                    });
+                })
                 ->orderByDesc('date');
 
-            $total = $query->count();
+           $total = (clone $query)->count();
+
 
             if (!empty($validated['skip'])) {
                 $query->skip($validated['skip']);
