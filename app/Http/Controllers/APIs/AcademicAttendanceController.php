@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\APIs;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\AcademicAttendance;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +36,13 @@ class AcademicAttendanceController extends Controller
                 'skip' => ['nullable', 'integer', 'min:0'],
             ]);
 
+            if (!empty($validated['start_date'])) {
+                $validated['start_date_int'] = (int) Carbon::parse($validated['start_date'])->format('Ymd');
+            }
+            if (!empty($validated['end_date'])) {
+                $validated['end_date_int'] = (int) Carbon::parse($validated['end_date'])->format('Ymd');
+            }
+
             $query = AcademicAttendance::with(['weeklySchedule'])
                 ->when(!empty($validated['weekly_schedule_slug']), fn($q) =>
                     $q->where('weekly_schedule_slug', $validated['weekly_schedule_slug']))
@@ -49,13 +57,17 @@ class AcademicAttendanceController extends Controller
                 ->when(!empty($validated['attendance_type']), fn($q) =>
                     $q->where('attendance_type', $validated['attendance_type']))
                 ->when(!empty($validated['start_date']) && !empty($validated['end_date']), function ($q) use ($validated) {
-                    $q->whereBetween('date', [$validated['start_date'], $validated['end_date']]);
+                    $startInt = (int) Carbon::parse($validated['start_date'])->format('Ymd');
+                    $endInt = (int) Carbon::parse($validated['end_date'])->format('Ymd');
+                    $q->whereBetween('date', [$startInt, $endInt]);
                 })
                 ->when(!empty($validated['start_date']) && empty($validated['end_date']), function ($q) use ($validated) {
-                    $q->whereDate('date', '>=', $validated['start_date']);
+                    $startInt = (int) Carbon::parse($validated['start_date'])->format('Ymd');
+                    $q->where('date', '>=', $startInt);
                 })
-                ->when(empty($validated['start_date']) && !empty($validated['end_date']), function ($q) use ($validated) {
-                    $q->whereDate('date', '<=', $validated['end_date']);
+                ->when(!empty($validated['end_date']) && empty($validated['start_date']), function ($q) use ($validated) {
+                    $endInt = (int) \Carbon\Carbon::parse($validated['end_date'])->format('Ymd');
+                    $q->where('date', '<=', $endInt);
                 })
                 ->when(!empty($validated['start_time']), function ($q) use ($validated) {
                     $q->whereHas('weeklySchedule', function ($query) use ($validated) {
@@ -110,6 +122,8 @@ class AcademicAttendanceController extends Controller
             $results = $results->map(function ($item) use ($attendeeData) {
                 $attendee = $attendeeData[$item->attendee_type][$item->attendee_slug] ?? null;
                 $data = $item->toArray();
+
+                $data['date'] = \Carbon\Carbon::createFromFormat('Ymd', $item->date)->toDateString();
                 $data['attendee'] = $attendee;
                 
                 return $data;
@@ -160,6 +174,9 @@ class AcademicAttendanceController extends Controller
                     $timestamp->format('Y-m-d H:i:s')
                 );
 
+                $dateInput = $request->input('date'); 
+                $formattedDate = (int) \Carbon\Carbon::parse($dateInput)->format('Ymd');
+
                 $inserted[] = AcademicAttendance::create([
                     'weekly_schedule_slug' => $item['weekly_schedule_slug'],
                     'subject' => $item['subject'],
@@ -172,7 +189,7 @@ class AcademicAttendanceController extends Controller
                     'status' => $item['status'],
                     'attendance_type' => $item['attendance_type'],
         
-                    'date' => $item['date'],
+                    'date' => $formattedDate,
                     'modified' => null,
                     'modified_by' => null,
                     'remark' => $item['remark'] ?? null,
@@ -240,6 +257,7 @@ class AcademicAttendanceController extends Controller
                 }
             }
 
+            $attendance->date = Carbon::createFromFormat('Ymd', $attendance->date)->toDateString();
             $attendance->attendee = $attendeeData;
 
             return response()->json([
@@ -291,6 +309,9 @@ class AcademicAttendanceController extends Controller
                 $timestamp->format('Y-m-d H:i:s')
             );
 
+            $dateInput = $request->input('date'); 
+            $formattedDate = (int) \Carbon\Carbon::parse($dateInput)->format('Ymd');
+
             $attendance->update([
                 'weekly_schedule_slug' => $validated['weekly_schedule_slug'],
                 'subject' => $validated['subject'],
@@ -303,7 +324,7 @@ class AcademicAttendanceController extends Controller
                 'status' => $validated['status'],
                 'attendance_type' => $validated['attendance_type'] ?? 'class',
 
-                'date' => $validated['date'],
+                'date' => $formattedDate,
                 'modified' => $timestamp,
                 'modified_by' => auth()->user()?->name ?? 'system',
                 'remark' => $validated['remark'] ?? null,

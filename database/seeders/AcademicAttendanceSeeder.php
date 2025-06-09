@@ -78,6 +78,9 @@ class AcademicAttendanceSeeder extends Seeder
             return;
         }
 
+        $dateInt = now()->format('Ymd'); // Returns '20250609' as a string
+        $dateInt = (int) $dateInt;    
+
         if($schedule->type !== 'break') {
 
             foreach ($students as $student) {
@@ -93,7 +96,7 @@ class AcademicAttendanceSeeder extends Seeder
                     'attendee_type' => 'student',
                     'status' => 'present',
                     'attendance_type' => 'class',
-                    'date' => now(),
+                    'date' => $dateInt,
                     'remark' => null,
                 ]);
                 $lastHash = 'studenthash' . $student['slug'];
@@ -111,7 +114,7 @@ class AcademicAttendanceSeeder extends Seeder
                 'attendee_type' => 'teacher',
                 'status' => 'present',
                 'attendance_type' => 'class',
-                'date' => now(),
+                'date' => $dateInt,
                 'remark' => null,
             ]);
 
