@@ -49,12 +49,47 @@ class StudentEnrollmentController extends Controller
                 $query->take($validated['limit']);
             }
 
-            $results = $query->get();
+            $enrollments = $query->get();
+
+            // Extract unique student slugs
+            $slugs = $enrollments->pluck('student_slug')->filter()->unique()->values();
+
+            logger($slugs);
+
+            $studentData = collect();
+
+            if ($slugs->isNotEmpty()) {
+                $baseUrl = config('services.user_management.url');
+
+                $type = 'student'; // or dynamically set this if needed
+                $endpoint = "{$baseUrl}students";
+
+                if ($endpoint) {
+                    $response = Http::withHeaders([
+                        'Accept' => 'application/json',
+                        // You can include auth header if needed
+                        // 'Authorization' => $request->header('Authorization'),
+                    ])->post($endpoint, [
+                        'slugs' => $slugs
+                    ]);
+
+                    if ($response->successful()) {
+                        $studentData = collect($response->json('data'))->keyBy('slug');
+                    }
+                }
+            }
+
+            // Merge student data into enrollment records
+            $enriched = $enrollments->map(function ($enrollment) use ($studentData) {
+                return array_merge($enrollment->toArray(), [
+                    'student' => $studentData[$enrollment->student_slug] ?? null,
+                ]);
+            });
 
             return response()->json([
                 'status' => 'OK! The request was successful',
                 'total' => $total,
-                'data' => $results,
+                'data' => $enriched,
             ]);
         } catch (\Exception $e) {   
             return response()->json([

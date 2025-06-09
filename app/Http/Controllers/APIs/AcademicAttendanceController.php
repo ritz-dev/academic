@@ -84,6 +84,10 @@ class AcademicAttendanceController extends Controller
                     // 'Authorization' => $request->header('Authorization'),
                 ])->post($endpoint, ['slugs' => $slugs]);
     
+                // $response = Http::post($endpoint, ['slugs' => $slugs])
+
+                logger($response);
+    
                 if ($response->successful()) {
                     $attendeeData[$type] = collect($response->json('data'))->keyBy('slug')->toArray();
                 }
