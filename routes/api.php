@@ -92,6 +92,7 @@ Route::prefix('attendance')->group(function(){
     Route::post('store',[AcademicAttendanceController::class,'store']);
     Route::post('show',[AcademicAttendanceController::class,'show']);
     Route::post('update',[AcademicAttendanceController::class,'update']);
+    Route::post('action',[AcademicAttendanceController::class,'handleAction']);
     Route::post('delete',[AcademicAttendanceController::class,'delete']);
 });
 

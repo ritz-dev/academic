@@ -84,10 +84,6 @@ class AcademicAttendanceController extends Controller
                     // 'Authorization' => $request->header('Authorization'),
                 ])->post($endpoint, ['slugs' => $slugs]);
     
-                // $response = Http::post($endpoint, ['slugs' => $slugs])
-
-                logger($response);
-    
                 if ($response->successful()) {
                     $attendeeData[$type] = collect($response->json('data'))->keyBy('slug')->toArray();
                 }
@@ -199,6 +195,35 @@ class AcademicAttendanceController extends Controller
                 ], 404);
             }
 
+            $baseUrl = config('services.user_management.url');
+            $attendeeData = null;
+    
+            // Only proceed if attendee_type and attendee_slug are set
+            if ($attendance->attendee_type && $attendance->attendee_slug) {
+                $endpoint = match ($attendance->attendee_type) {
+                    'student' => "{$baseUrl}students/show",
+                    'teacher' => "{$baseUrl}teachers/show",
+                    default => null,
+                };
+                
+                if ($endpoint) {
+                    $response = Http::withHeaders([
+                        'Accept' => 'application/json',
+                        // Optional: include auth
+                        // 'Authorization' => $request->header('Authorization'),
+                    ])->post($endpoint, [
+                        'slug' => $attendance->attendee_slug,
+                    ]);
+
+                    if ($response->successful()) {
+                        $fetched = $response->json('data');
+                        $attendeeData = $fetched;
+                    }
+                }
+            }
+
+            $attendance->attendee = $attendeeData;
+
             return response()->json([
                 'message' => 'Attendance retrieved successfully.',
                 'data' => $attendance
@@ -281,6 +306,58 @@ class AcademicAttendanceController extends Controller
 
             return response()->json([
                 'message' => 'Failed to update attendance.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function handleAction(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:academic_attendances,slug',
+                'status' => 'required|string|in:present,absent,late,excused',
+            ]);
+
+            $attendance = AcademicAttendance::where('slug', $validated['slug'])->firstOrFail();
+
+            if (!$attendance) {
+                return response()->json([
+                    'message' => 'Attendance not found.',
+                ], 404);
+            }
+
+            DB::beginTransaction();
+
+            switch ($validated['status']) {
+                case 'present':
+                    $attendance->status = 'present';
+                    break;
+                case 'absent':
+                    $attendance->status = 'absent';
+                    break;
+                case 'late':
+                    $attendance->status = 'late';
+                    break;
+                case 'excused':
+                    $attendance->status = 'excused';
+                    break;
+            }
+
+            $attendance->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => "Attendance marked as {$attendance->status} successfully.",
+                'data' => $attendance
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to perform action on attendance.',
                 'error' => $e->getMessage()
             ], 500);
         }
