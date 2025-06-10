@@ -39,7 +39,7 @@ class WeeklyScheduleController extends Controller
                               ->orWhere('teacher_name', 'like', '%'.$validated['search'].'%');
                     }));
     
-            $total = $query->count();
+            $total = (clone $query)->count();
     
             if (!empty($validated['skip'])) {
                 $query->skip($validated['skip']);

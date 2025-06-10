@@ -12,45 +12,15 @@ class AcademicClassSeeder extends Seeder
      */
     public function run(): void
     {
-        AcademicClass::create([
-            'name' => 'Primary 1',
-        ]);
+        $classNames = range(1, 10); // [1, 2, 3, ..., 10]
 
-        AcademicClass::create([
-            'name' => 'Primary 2',
-        ]);
+        foreach ($classNames as $index => $number) {
+            $customId = generateCustomId($index);
 
-        AcademicClass::create([
-            'name' => 'Primary 3',
-        ]);
-
-        AcademicClass::create([
-            'name' => 'Primary 4',
-        ]);
-
-        AcademicClass::create([
-            'name' => 'Primary 5',
-        ]);
-
-        AcademicClass::create([
-            'name' => 'Primary 6',
-        ]);
-
-        AcademicClass::create([
-            'name' => 'Primary 7',
-        ]);
-
-        AcademicClass::create([
-            'name' => 'Primary 8',
-        ]);
-
-        AcademicClass::create([
-            'name' => 'Primary 9',
-        ]);
-
-        AcademicClass::create([
-            'name' => 'Primary 10',
-        ]);
-
+            AcademicClass::create([
+                'slug' => $customId,
+                'name' => 'Primary ' . $number,
+            ]);
+        }
     }
 }

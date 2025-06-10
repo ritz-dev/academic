@@ -33,14 +33,8 @@ class StudentEnrollmentSeeder extends Seeder
         $sectionCount = $sections->count();
 
         foreach ($students as $index => $student) {
-            // Safely get a section using modulo to avoid out-of-bounds
-            // $section = $sections[$index % $sectionCount] ?? null;
-
-            // if (!$section) {
-            //     continue;
-            // }
-
             StudentEnrollment::create([
+                'slug' => generateCustomId($index),
                 'student_slug' => $student['slug'], // Make sure 'slug' is the correct identifier
                 'academic_class_section_slug' => $sections['slug'],
                 'student_name' => $student['student_name'] ?? null,

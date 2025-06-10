@@ -7,42 +7,45 @@ use App\Models\Section;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
-use App\Http\Resources\SectionResource;
 use Illuminate\Validation\ValidationException;
-
 
 class SectionController extends Controller
 {
     public function index(Request $request)
     {
-        return response()->json(Section::get());
-        // try {
-        //     $limit = (int) $request->limit;
-        //     $search = $request->search;
-
-        //     $query = Section::orderBy('id', 'desc');
-
-        //     if ($search) {
-        //         $query->where('name', 'LIKE', $search . '%');
-        //     }
-
-        //     $data = $limit ? $query->paginate($limit) : $query->get();
-
-        //     $data = SectionResource::collection($data);
-
-        //     $total = Section::count();
-
-        //     return response()->json([
-        //         "status" => "OK! The request was successful",
-        //         "total" => $total,
-        //         "data" => $data
-        //     ], 200);
-        // } catch (Exception $e) {
-        //     return response()->json([
-        //         'status' => 'Bad Request!. The request is invalid.',
-        //         'message' => $e->getMessage()
-        //     ],400);
-        // }
+        try {
+            $validated = $request->validate([
+                'name' => 'nullable|string',
+                'limit' => 'nullable|integer|min:1',
+                'skip' => 'nullable|integer|min:0',
+            ]);
+        
+            $query = Section::with(['academicClassSections'])
+                ->when(!empty($validated['name']), fn($q) => $q->where('name', 'like', '%' . $validated['name'] . '%'));
+        
+            $total = (clone $query)->count();
+        
+            // Apply skip and limit
+            if (!empty($validated['skip'])) {
+                $query->skip($validated['skip']);
+            }
+            if (!empty($validated['limit'])) {
+                $query->take($validated['limit']);
+            }
+        
+            $results = $query->get();
+        
+            return response()->json([
+                'status' => 'OK! The request was successful',
+                'total' => $total,
+                'data' => $results,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'Bad Request! The request is invalid.',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     public function store(Request $request)

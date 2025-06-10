@@ -83,8 +83,30 @@ class AcademicAttendanceSeeder extends Seeder
 
         if($schedule->type !== 'break') {
 
-            foreach ($students as $student) {
+            AcademicAttendance::create([
+                'slug' => generateCustomId(0),
+                'previous_hash' => $lastHash,
+                'hash' => 'teacherhash' . $teachers[0]['slug'],
+                'weekly_schedule_slug' => $schedule->slug,
+                'subject' => $schedule->subject_name,
+                'academic_class_section_slug' => $sections->slug,
+                'academic_info' => $schedule->academic_info,
+                'attendee_slug' => $teachers[0]['slug'],
+                'attendee_name' => $teachers[0]['teacher_name'],
+                'attendee_type' => 'teacher',
+                'status' => 'present',
+                'attendance_type' => 'class',
+                'date' => $dateInt,
+                'remark' => null,
+            ]);
+
+            $lastHash = 'teacherhash' . $teachers[0]['slug'];
+
+            foreach ($students as $index => $student) {
+                $customId = generateCustomId($index + 1);
+
                 AcademicAttendance::create([
+                    'slug' => $customId,
                     'previous_hash' => $lastHash,
                     'hash' => 'studenthash' . $student['slug'],
                     'weekly_schedule_slug' => $schedule->slug,
@@ -102,23 +124,7 @@ class AcademicAttendanceSeeder extends Seeder
                 $lastHash = 'studenthash' . $student['slug'];
             }
 
-            AcademicAttendance::create([
-                'previous_hash' => $lastHash,
-                'hash' => 'teacherhash' . $teachers[0]['slug'],
-                'weekly_schedule_slug' => $schedule->slug,
-                'subject' => $schedule->subject_name,
-                'academic_class_section_slug' => $sections->slug,
-                'academic_info' => $schedule->academic_info,
-                'attendee_slug' => $teachers[0]['slug'],
-                'attendee_name' => $teachers[0]['teacher_name'],
-                'attendee_type' => 'teacher',
-                'status' => 'present',
-                'attendance_type' => 'class',
-                'date' => $dateInt,
-                'remark' => null,
-            ]);
-
-            $lastHash = 'teacherhash' . $teachers[0]['slug'];
+            
         }
     
         $this->command->info('Academic attendance seeded successfully.');

@@ -22,8 +22,7 @@ class StudentEnrollmentController extends Controller
                 'enrollment_type' => ['nullable', 'in:new,transfer,re-admission'],
                 'status' => ['nullable', 'in:active,graduated,transferred,dropped'],
                 'limit' => ['nullable', 'integer', 'min:1'],
-                'skip' => ['nullable', 'integer', 'min:0'],
-                
+                'skip' => ['nullable', 'integer', 'min:0'],   
             ]);
 
             $query = StudentEnrollment::query()
@@ -40,7 +39,7 @@ class StudentEnrollmentController extends Controller
                         $q->where('student_enrollments.status', $validated['status']))
                     ->select('student_enrollments.*');
 
-            $total = $query->count();
+            $total = (clone $query)->count();
 
             if (!empty($validated['skip'])) {
                 $query->skip($validated['skip']);

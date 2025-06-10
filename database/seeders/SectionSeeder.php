@@ -12,24 +12,13 @@ class SectionSeeder extends Seeder
      */
     public function run(): void
     {
-        Section::create([
-            'name' => 'Section A',
-        ]);
+        $sections = ['Section A', 'Section B', 'Section C', 'Section D', 'Section E'];
 
-        Section::create([
-            'name' => 'Section B',
-        ]);
-
-        Section::create([
-            'name' => 'Section C',
-        ]);
-
-        Section::create([
-            'name' => 'Section D',
-        ]);
-
-        Section::create([
-            'name' => 'Section E',
-        ]);
+        foreach ($sections as $index => $sectionName) {
+            Section::create([
+                'slug' => generateCustomId($index),
+                'name' => $sectionName,
+            ]);
+        }
     }
 }

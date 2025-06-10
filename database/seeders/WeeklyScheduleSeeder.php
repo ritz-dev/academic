@@ -44,10 +44,15 @@ class WeeklyScheduleSeeder extends Seeder
             return;
         }
 
+        $indexx = 0;
+
         foreach ($sections as $section) {
             foreach ($daysOfWeek as $day) {
-                // Insert break
+                // generate unique slug for break slot
+                $customId = generateCustomId($indexx++);
+        
                 WeeklySchedule::create([
+                    'slug' => $customId,
                     'academic_class_section_slug' => $section->slug,
                     'subject_slug' => null,
                     'teacher_slug' => null,
@@ -59,7 +64,7 @@ class WeeklyScheduleSeeder extends Seeder
                     'type' => 'break',
                     'academic_info' => "Academic Year: {$academicYear->year}, Class: {$section->academicClass->name}, Section: {$section->academicSection->name}",
                 ]);
-
+        
                 // Class slots
                 $classSlots = [
                     ['start' => '09:00', 'end' => '10:30'],
@@ -67,12 +72,16 @@ class WeeklyScheduleSeeder extends Seeder
                     ['start' => '13:00', 'end' => '14:30'],
                     ['start' => '14:30', 'end' => '16:00'],
                 ];
-
+        
                 foreach ($classSlots as $slot) {
                     $subject = $subjects->random();
                     $randomTeacher = collect($teachers)->random();
-
+        
+                    // generate unique slug for each class slot
+                    $customId = generateCustomId($indexx++);
+        
                     WeeklySchedule::create([
+                        'slug' => $customId,
                         'academic_class_section_slug' => $section->slug,
                         'subject_slug' => $subject->slug,
                         'teacher_slug' => $randomTeacher['slug'] ?? null,

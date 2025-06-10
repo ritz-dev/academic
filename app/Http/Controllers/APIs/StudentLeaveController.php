@@ -43,7 +43,7 @@ class StudentLeaveController extends Controller
                     return $q->where('status', $validate['status']);
                 });
             
-            $total = $query->count();
+            $total = (clone $query)->count();
 
             if (!empty($validate['limit'])) {
                 $query->limit($validate['limit']);

@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Subject;
-use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 
 class SubjectSeeder extends Seeder
@@ -13,29 +12,13 @@ class SubjectSeeder extends Seeder
      */
     public function run(): void
     {
-        Subject::create([
-            'name' => 'Math',
-        ]);
+        $subjects = ['Math', 'English', 'Myanmar', 'Science', 'Geography', 'History'];
 
-        Subject::create([
-            'name' => 'English',
-        ]);
-
-        Subject::create([
-            'slug' => Str::uuid(),
-            'name' => 'Myanmar',
-        ]);
-
-        Subject::create([
-            'name' => 'Science',
-        ]);
-
-        Subject::create([
-            'name' => 'Geography',
-        ]);
-
-        Subject::create([
-            'name' => 'History',
-        ]);
+        foreach ($subjects as $index => $subjectName) {
+            Subject::create([
+                'name' => $subjectName,
+                'slug' => generateCustomId($index), // generate UUID slug for every subject
+            ]);
+        }
     }
 }

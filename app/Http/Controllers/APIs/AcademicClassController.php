@@ -3,13 +3,9 @@
 namespace App\Http\Controllers\APIs;
 
 use Exception;
-use Illuminate\Support\Str;
-use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use App\Models\AcademicClass;
-use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AcademicClassResource;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -17,35 +13,39 @@ class AcademicClassController extends Controller
 {
     public function index(Request $request)
     {
-        return response()->json(AcademicClass::get());
-
-        // try {
-        //     $limit = (int) $request->limit;
-        //     $search = $request->search;
-
-        //     $query = AcademicClass::orderBy('id', 'desc');
-
-        //     if ($search) {
-        //         $query->where('name', 'LIKE', $search . '%');
-        //     }
-
-        //     $data = $limit ? $query->paginate($limit) : $query->get();
-
-        //     $data = AcademicClassResource::collection($data);
-
-        //     $total = AcademicClass::count();
-
-        //     return response()->json([
-        //         "status" => "OK! The request was successful",
-        //         "total" => $total,
-        //         "data" => $data
-        //     ], 200);
-        // } catch (Exception $e) {
-        //     return response()->json([
-        //         'status' => 'Bad Request!. The request is invalid.',
-        //         'message' => $e->getMessage()
-        //     ],400);
-        // }
+        try {
+            $validated = $request->validate([
+                'name' => 'nullable|string',
+                'limit' => 'nullable|integer|min:1',
+                'skip' => 'nullable|integer|min:0',
+            ]);
+        
+            $query = AcademicClass::with(['academicClassSections'])
+                ->when(!empty($validated['name']), fn($q) => $q->where('name', 'like', '%' . $validated['name'] . '%'));
+        
+            $total = (clone $query)->count();
+        
+            // Apply skip and limit
+            if (!empty($validated['skip'])) {
+                $query->skip($validated['skip']);
+            }
+            if (!empty($validated['limit'])) {
+                $query->take($validated['limit']);
+            }
+        
+            $results = $query->get();
+        
+            return response()->json([
+                'status' => 'OK! The request was successful',
+                'total' => $total,
+                'data' => $results,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'Bad Request! The request is invalid.',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     public function store(Request $request)

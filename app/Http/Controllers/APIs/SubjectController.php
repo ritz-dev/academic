@@ -3,13 +3,9 @@
 namespace App\Http\Controllers\APIs;
 
 use Exception;
-use App\Models\Section;
 use App\Models\Subject;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Models\SectionSubject;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\SubjectResource;
 use Illuminate\Validation\ValidationException;
 
 class SubjectController extends Controller
@@ -18,33 +14,38 @@ class SubjectController extends Controller
     {
         return response()->json(Subject::get());
 
-        // try {
-        //     $limit = (int) $request->limit;
-        //     $search = $request->search;
-
-        //     $query = Subject::orderBy('id', 'desc');
-
-        //     if ($search) {
-        //         $query->where('name', 'LIKE', $search . '%');
-        //     }
-
-        //     $data = $limit ? $query->paginate($limit) : $query->get();
-
-        //     $data = SubjectResource::collection($data);
-
-        //     $total = Subject::count();
-
-        //     return response()->json([
-        //         "status" => "OK! The request was successful",
-        //         "total" => $total,
-        //         "data" => $data
-        //     ], 200);
-        // } catch (Exception $e) {
-        //     return response()->json([
-        //         'status' => 'Bad Request!. The request is invalid.',
-        //         'message' => $e->getMessage()
-        //     ],400);
-        // }
+        try {
+            $validated = $request->validate([
+                'name' => 'nullable|string',
+                'limit' => 'nullable|integer|min:1',
+                'skip' => 'nullable|integer|min:0',
+            ]);
+        
+            $query = Subject::when(!empty($validated['name']), fn($q) => $q->where('name', 'like', '%' . $validated['name'] . '%'));
+        
+            $total = (clone $query)->count();
+        
+            // Apply skip and limit
+            if (!empty($validated['skip'])) {
+                $query->skip($validated['skip']);
+            }
+            if (!empty($validated['limit'])) {
+                $query->take($validated['limit']);
+            }
+        
+            $results = $query->get();
+        
+            return response()->json([
+                'status' => 'OK! The request was successful',
+                'total' => $total,
+                'data' => $results,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'Bad Request! The request is invalid.',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     public function store(Request $request)
