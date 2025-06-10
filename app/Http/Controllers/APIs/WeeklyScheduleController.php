@@ -78,7 +78,7 @@ class WeeklyScheduleController extends Controller
             }
 
             $weeklyWithTeacher = $results->map(function ($result) use ($teacherData) {
-                return array_merge($enrollment->toArray(), [
+                return array_merge($result->toArray(), [
                     'teacher' => $teacherData[$result->teacher_slug] ?? null,
                 ]);
             });
