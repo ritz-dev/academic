@@ -179,25 +179,54 @@ class StudentEnrollmentController extends Controller
 
     public function show(Request $request)
     {
-        $validated = $request->validate([
-            'slug' => ['required', 'string', 'exists:student_enrollments,slug'],
-        ]);
+        try {
+            $validated = $request->validate([
+                'slug' => ['required', 'string', 'exists:student_enrollments,slug'],
+            ]);
 
-        $enrollment = StudentEnrollment::where('slug', $validated['slug'])
-            ->with(['academicClassSection.academicYear'])
-            ->firstOrFail();
+            $enrollment = StudentEnrollment::where('slug', $validated['slug'])
+                ->with(['academicClassSection.academicYear'])
+                ->firstOrFail();
 
-        if (!$enrollment) {
+            if (!$enrollment) {
+                return response()->json([
+                    'status' => 'Not Found',
+                    'message' => 'Enrollment not found'
+                ], 404);
+            }
+
+            $baseUrl = config('services.user_management.url');
+            $endpoint = "{$baseUrl}students/show";
+
+            $enrollmentData = null;
+
+            if ($endpoint) {
+                $response = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    // You can include auth header if needed
+                    // 'Authorization' => $request->header('Authorization'),
+                ])->post($endpoint, [
+                    'slug' => $enrollment->student_slug
+                ]);
+            }
+
+            if ($response->successful()) {
+                $fetched = $response->json('data');
+                $enrollmentData = $fetched;
+            }
+
+            $enrollment->student = $enrollmentData;
+
             return response()->json([
-                'status' => 'Not Found',
-                'message' => 'Enrollment not found'
-            ], 404);
+                'status' => 'OK! The request was successful',
+                'data' => $enrollment,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'status' => 'OK! The request was successful',
-            'data' => $enrollment,
-        ]);
     }
 
     public function update(Request $request)
