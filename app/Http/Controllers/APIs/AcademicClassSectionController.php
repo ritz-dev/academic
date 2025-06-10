@@ -64,38 +64,45 @@ class AcademicClassSectionController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'academic_year_slug' => 'required|string|exists:academic_years,slug',
-            'academic_class_slug' => 'required|string|exists:academic_classes,slug',
-            'academic_section_slug' => 'required|string|exists:sections,slug',
-        ]);
+        try {
+            $validated = $request->validate([
+                'academic_year_slug' => 'required|string|exists:academic_years,slug',
+                'academic_class_slug' => 'required|string|exists:academic_classes,slug',
+                'academic_section_slug' => 'required|string|exists:sections,slug',
+            ]);
 
-        $trashedRecord = AcademicClassSection::onlyTrashed()
-        ->where('academic_year_slug', $validated['academic_year_slug'])
-        ->where('class_slug', $validated['academic_class_slug'])
-        ->where('section_slug', $validated['academic_section_slug'])
-        ->first();
+            $trashedRecord = AcademicClassSection::onlyTrashed()
+            ->where('academic_year_slug', $validated['academic_year_slug'])
+            ->where('class_slug', $validated['academic_class_slug'])
+            ->where('section_slug', $validated['academic_section_slug'])
+            ->first();
 
-        if ($trashedRecord) {
-            // Restore the trashed record
-            $trashedRecord->restore();
+            if ($trashedRecord) {
+                // Restore the trashed record
+                $trashedRecord->restore();
+
+                return response()->json([
+                    'status' => 'Created successfully (restored from trash)',
+                    'data' => $this->transform($trashedRecord->load(['academicYear', 'academicClass', 'academicSection'])),
+                ]);
+            }
+
+            $academicClassSection = AcademicClassSection::create([
+                'academic_year_slug' => $validated['academic_year_slug'],
+                'class_slug' => $validated['academic_class_slug'],
+                'section_slug' => $validated['academic_section_slug'],
+            ]);
 
             return response()->json([
-                'status' => 'Created successfully (restored from trash)',
-                'data' => $this->transform($trashedRecord->load(['academicYear', 'academicClass', 'academicSection'])),
+                'status' => 'Created successfully',
+                'data' => $this->transform($academicClassSection->load(['academicYear', 'academicClass', 'academicSection'])),
             ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'An error occurred while creating the academic class section.',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        $academicClassSection = AcademicClassSection::create([
-            'academic_year_slug' => $validated['academic_year_slug'],
-            'class_slug' => $validated['academic_class_slug'],
-            'section_slug' => $validated['academic_section_slug'],
-        ]);
-
-        return response()->json([
-            'status' => 'Created successfully',
-            'data' => $this->transform($academicClassSection->load(['academicYear', 'academicClass', 'academicSection'])),
-        ]);
     }
 
     public function update(Request $request)
