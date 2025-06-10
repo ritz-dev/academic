@@ -107,40 +107,54 @@ class AcademicClassSectionController extends Controller
 
     public function update(Request $request)
     {
-        $validated = $request->validate([
-            'slug' => 'required|string|exists:academic_class_sections,slug',
-            'academic_year_slug' => 'required|string|exists:academic_years,slug',
-            'academic_class_slug' => 'required|string|exists:academic_classes,slug',
-            'academic_section_slug' => 'required|string|exists:sections,slug'
-        ]);
+        try {
+            $validated = $request->validate([
+                'slug' => 'required|string|exists:academic_class_sections,slug',
+                'academic_year_slug' => 'required|string|exists:academic_years,slug',
+                'academic_class_slug' => 'required|string|exists:academic_classes,slug',
+                'academic_section_slug' => 'required|string|exists:sections,slug'
+            ]);
 
-        $academicClassSection = AcademicClassSection::where('slug', $validated['slug'])->firstOrFail();
+            $academicClassSection = AcademicClassSection::where('slug', $validated['slug'])->firstOrFail();
 
-        $academicClassSection->update([
-            'academic_year_slug' => $validated['academic_year_slug'],
-            'class_slug' => $validated['academic_class_slug'],
-            'section_slug' => $validated['academic_section_slug'],
+            $academicClassSection->update([
+                'academic_year_slug' => $validated['academic_year_slug'],
+                'class_slug' => $validated['academic_class_slug'],
+                'section_slug' => $validated['academic_section_slug'],
 
-        ]);
+            ]);
 
-        return response()->json([
-            'status' => 'Updated successfully',
-            'data' => $this->transform($academicClassSection->load(['academicYear', 'academicClass', 'academicSection'])),
-        ]);
+            return response()->json([
+                'status' => 'Updated successfully',
+                'data' => $this->transform($academicClassSection->load(['academicYear', 'academicClass', 'academicSection'])),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'An error occurred while updating the academic class section.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function delete(Request $request)
     {
-        $validated = $request->validate([
-            'slug' => 'required|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'slug' => 'required|string',
+            ]);
 
-        $academicClassSection = AcademicClassSection::where('slug', $validated['slug'])->firstOrFail();
+            $academicClassSection = AcademicClassSection::where('slug', $validated['slug'])->firstOrFail();
 
-        $academicClassSection->delete();
+            $academicClassSection->delete();
 
-        return response()->json([
-            'status' => 'Deleted successfully',
-        ]);
+            return response()->json([
+                'status' => 'Deleted successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'An error occurred while deleting the academic class section.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

@@ -57,8 +57,6 @@ class StudentEnrollmentController extends Controller
 
             if ($slugs->isNotEmpty()) {
                 $baseUrl = config('services.user_management.url');
-
-                $type = 'student'; // or dynamically set this if needed
                 $endpoint = "{$baseUrl}students";
 
                 if ($endpoint) {
@@ -112,6 +110,25 @@ class StudentEnrollmentController extends Controller
                 'status' => ['required', Rule::in(['active', 'graduated', 'transferred'])],
                 'remarks' => ['nullable', 'string'],
             ]);
+
+            $baseUrl = config('services.user_management.url');
+            $endpoint = "{$baseUrl}students/show";
+
+            if ($endpoint) {
+                $studentResponse = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    // You can include auth header if needed
+                    // 'Authorization' => $request->header('Authorization'),
+                ])->post($endpoint, [
+                    'slug' => $validated['student_slug']
+                ]);
+            }
+
+            if ($studentResponse->status() !== 200 || !$studentResponse->json('data')) {
+                return response()->json([
+                    'message' => 'Student not found in the system.'
+                ], 404);
+            }
         
             // Load class and academic year with a single query using eager loading
             $section = AcademicClassSection::with(['academicYear'])->where('slug', $validated['academic_class_section_slug'])->firstOrFail();
@@ -128,6 +145,8 @@ class StudentEnrollmentController extends Controller
                     'message' => 'This student is already enrolled in the same class for the selected academic year.'
                 ], 422);
             }
+            
+
         
             // Create enrollment
             $enrollment = StudentEnrollment::create([
@@ -200,13 +219,32 @@ class StudentEnrollmentController extends Controller
             ]);
     
             $enrollment = StudentEnrollment::where('slug',$validated['slug'])->firstOrFail();
+
+            $baseUrl = config('services.user_management.url');
+            $endpoint = "{$baseUrl}students/show";
+
+            if ($endpoint) {
+                $studentResponse = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    // You can include auth header if needed
+                    // 'Authorization' => $request->header('Authorization'),
+                ])->post($endpoint, [
+                    'slug' => $validated['student_slug']
+                ]);
+            }
+
+            if ($studentResponse->status() !== 200 || !$studentResponse->json('data')) {
+                return response()->json([
+                    'message' => 'Student not found in the system.'
+                ], 404);
+            }
     
             $section = AcademicClassSection::with(['academicYear', 'class'])
                 ->findOrFail($validated['academic_class_section_id']);
     
             // Check for duplicate enrollment (excluding the current one)
-            $alreadyEnrolled = StudentEnrollment::where('id', '!=', $enrollment->id)
-                ->where('student_id', $validated['student_id'])
+            $alreadyEnrolled = StudentEnrollment::where('slug', '!=', $enrollment->slug)
+                ->where('student_slug', $validated['student_slug'])
                 ->whereHas('academicClassSection', function ($query) use ($section) {
                     $query->where('academic_year_id', $section->academic_year_id);
                 })
