@@ -267,9 +267,8 @@ class StudentEnrollmentController extends Controller
                     'message' => 'Student not found in the system.'
                 ], 404);
             }
-    
-            $section = AcademicClassSection::with(['academicYear', 'class'])
-                ->findOrFail($validated['academic_class_section_slug']);
+
+            $section = AcademicClassSection::with(['academicYear'])->where('slug', $validated['academic_class_section_slug'])->firstOrFail();
     
             // Check for duplicate enrollment (excluding the current one)
             $alreadyEnrolled = StudentEnrollment::where('slug', '!=', $enrollment->slug)
