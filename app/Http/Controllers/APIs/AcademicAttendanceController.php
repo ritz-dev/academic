@@ -36,13 +36,6 @@ class AcademicAttendanceController extends Controller
                 'skip' => ['nullable', 'integer', 'min:0'],
             ]);
 
-            if (!empty($validated['start_date'])) {
-                $validated['start_date_int'] = (int) Carbon::parse($validated['start_date'])->format('Ymd');
-            }
-            if (!empty($validated['end_date'])) {
-                $validated['end_date_int'] = (int) Carbon::parse($validated['end_date'])->format('Ymd');
-            }
-
             $query = AcademicAttendance::with(['weeklySchedule'])
                 ->when(!empty($validated['weekly_schedule_slug']), fn($q) =>
                     $q->where('weekly_schedule_slug', $validated['weekly_schedule_slug']))
@@ -83,7 +76,6 @@ class AcademicAttendanceController extends Controller
 
            $total = (clone $query)->count();
 
-
             if (!empty($validated['skip'])) {
                 $query->skip($validated['skip']);
             }
@@ -123,7 +115,7 @@ class AcademicAttendanceController extends Controller
                 $attendee = $attendeeData[$item->attendee_type][$item->attendee_slug] ?? null;
                 $data = $item->toArray();
 
-                $data['date'] = \Carbon\Carbon::createFromFormat('Ymd', $item->date)->toDateString();
+                $data['date'] = Carbon::createFromFormat('Ymd', $item->date)->toDateString();
                 $data['attendee'] = $attendee;
                 
                 return $data;
@@ -175,7 +167,7 @@ class AcademicAttendanceController extends Controller
                 );
 
                 $dateInput = $request->input('date'); 
-                $formattedDate = (int) \Carbon\Carbon::parse($dateInput)->format('Ymd');
+                $formattedDate = (int) Carbon::parse($dateInput)->format('Ymd');
 
                 $inserted[] = AcademicAttendance::create([
                     'weekly_schedule_slug' => $item['weekly_schedule_slug'],
@@ -310,7 +302,7 @@ class AcademicAttendanceController extends Controller
             );
 
             $dateInput = $request->input('date'); 
-            $formattedDate = (int) \Carbon\Carbon::parse($dateInput)->format('Ymd');
+            $formattedDate = (int) Carbon::parse($dateInput)->format('Ymd');
 
             $attendance->update([
                 'weekly_schedule_slug' => $validated['weekly_schedule_slug'],
