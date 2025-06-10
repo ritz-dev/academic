@@ -240,13 +240,13 @@ class StudentEnrollmentController extends Controller
             }
     
             $section = AcademicClassSection::with(['academicYear', 'class'])
-                ->findOrFail($validated['academic_class_section_id']);
+                ->findOrFail($validated['academic_class_section_slug']);
     
             // Check for duplicate enrollment (excluding the current one)
             $alreadyEnrolled = StudentEnrollment::where('slug', '!=', $enrollment->slug)
                 ->where('student_slug', $validated['student_slug'])
                 ->whereHas('academicClassSection', function ($query) use ($section) {
-                    $query->where('academic_year_id', $section->academic_year_id);
+                    $query->where('academic_year_slug', $section->academic_year_slug);
                 })
                 ->exists();
     
