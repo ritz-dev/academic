@@ -20,8 +20,7 @@ class SectionController extends Controller
                 'skip' => 'nullable|integer|min:0',
             ]);
         
-            $query = Section::with(['academicClassSections'])
-                ->when(!empty($validated['name']), fn($q) => $q->where('name', 'like', '%' . $validated['name'] . '%'));
+            $query = Section::when(!empty($validated['name']), fn($q) => $q->where('name', 'like', '%' . $validated['name'] . '%'));
         
             $total = (clone $query)->count();
         

@@ -50,11 +50,43 @@ class WeeklyScheduleController extends Controller
             }
     
             $results = $query->get();
+
+            // Extract unique student slugs
+            $slugs = $results->pluck('teacher_slug')->filter()->unique()->values();
+
+            $teacherData = collect();
+
+            if ($slugs->isNotEmpty()) {
+                $baseUrl = config('services.user_management.url');
+
+                $type = 'student'; // or dynamically set this if needed
+                $endpoint = "{$baseUrl}teachers";
+
+                if ($endpoint) {
+                    $response = Http::withHeaders([
+                        'Accept' => 'application/json',
+                        // You can include auth header if needed
+                        // 'Authorization' => $request->header('Authorization'),
+                    ])->post($endpoint, [
+                        'slugs' => $slugs
+                    ]);
+
+                    if ($response->successful()) {
+                        $teacherData = collect($response->json('data'))->keyBy('slug');
+                    }
+                }
+            }
+
+            $weeklyWithTeacher = $results->map(function ($result) use ($teacherData) {
+                return array_merge($enrollment->toArray(), [
+                    'teacher' => $teacherData[$result->teacher_slug] ?? null,
+                ]);
+            });
     
             return response()->json([
                 'status' => 'OK! The request was successful',
                 'total' => $total,
-                'data' => $results,
+                'data' => $weeklyWithTeacher,
             ], 200);
     
         } catch (\Exception $e) {

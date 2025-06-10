@@ -23,8 +23,7 @@ class AcademicYearController extends Controller
                 'skip' => 'nullable|integer|min:0',
             ]);
         
-            $query = AcademicYear::with(['academicClassSections'])
-                ->when(!empty($validated['name']), fn($q) => $q->where('name', 'like', '%' . $validated['name'] . '%'));
+            $query = AcademicYear::when(!empty($validated['name']), fn($q) => $q->where('name', 'like', '%' . $validated['name'] . '%'));
         
             $total = (clone $query)->count();
         

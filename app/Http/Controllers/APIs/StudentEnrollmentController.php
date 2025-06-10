@@ -53,8 +53,6 @@ class StudentEnrollmentController extends Controller
             // Extract unique student slugs
             $slugs = $enrollments->pluck('student_slug')->filter()->unique()->values();
 
-            logger($slugs);
-
             $studentData = collect();
 
             if ($slugs->isNotEmpty()) {

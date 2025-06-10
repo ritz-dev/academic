@@ -59,7 +59,7 @@ class AcademicAttendanceController extends Controller
                     $q->where('date', '>=', $startInt);
                 })
                 ->when(!empty($validated['end_date']) && empty($validated['start_date']), function ($q) use ($validated) {
-                    $endInt = (int) \Carbon\Carbon::parse($validated['end_date'])->format('Ymd');
+                    $endInt = (int) Carbon::parse($validated['end_date'])->format('Ymd');
                     $q->where('date', '<=', $endInt);
                 })
                 ->when(!empty($validated['start_time']), function ($q) use ($validated) {
