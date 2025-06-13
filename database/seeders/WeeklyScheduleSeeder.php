@@ -16,15 +16,21 @@ class WeeklyScheduleSeeder extends Seeder
         $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
         $academicYear = AcademicYear::where('status', 'Completed')->first();
-        
-        $sections = AcademicClassSection::where('academic_year_slug', $academicYear->slug)->with(['academicYear', 'academicClass', 'academicSection'])->get();
+
+        if (!$academicYear) {
+            $this->command->error('No completed academic year found.');
+            return;
+        }
+
+        $sections = AcademicClassSection::where('academic_year_slug', $academicYear->slug)
+            ->with(['academicYear', 'academicClass', 'academicSection'])
+            ->get();
+
         $subjects = Subject::all();
         $teacherApiUrl = config('services.user_management.url') . 'teachers';
 
-        // Fetch teacher info based on the section ID
         $response = Http::withHeaders([
             'Accept' => 'application/json',
-            // 'Authorization' => $request->header('Authorization'),
         ])->post($teacherApiUrl, []);
 
         if (!$response->ok()) {
@@ -45,12 +51,12 @@ class WeeklyScheduleSeeder extends Seeder
         }
 
         $indexx = 0;
+        $teacherSchedule = []; // [teacher_slug][day_of_week][] = ['start' => ..., 'end' => ...]
 
         foreach ($sections as $section) {
             foreach ($daysOfWeek as $day) {
-                // generate unique slug for break slot
+                // Break slot
                 $customId = generateCustomId($indexx++);
-        
                 WeeklySchedule::create([
                     'slug' => $customId,
                     'academic_class_section_slug' => $section->slug,
@@ -64,7 +70,7 @@ class WeeklyScheduleSeeder extends Seeder
                     'type' => 'break',
                     'academic_info' => "Academic Year: {$academicYear->year}, Class: {$section->academicClass->name}, Section: {$section->academicSection->name}",
                 ]);
-        
+
                 // Class slots
                 $classSlots = [
                     ['start' => '09:00', 'end' => '10:30'],
@@ -72,21 +78,53 @@ class WeeklyScheduleSeeder extends Seeder
                     ['start' => '13:00', 'end' => '14:30'],
                     ['start' => '14:30', 'end' => '16:00'],
                 ];
-        
+
                 foreach ($classSlots as $slot) {
                     $subject = $subjects->random();
-                    $randomTeacher = collect($teachers)->random();
-        
-                    // generate unique slug for each class slot
+                    $assignedTeacher = null;
+
+                    foreach (collect($teachers)->shuffle() as $teacher) {
+                        $slug = $teacher['slug'];
+                        $conflicts = false;
+
+                        $assignedSlots = $teacherSchedule[$slug][$day] ?? [];
+
+                        foreach ($assignedSlots as $assigned) {
+                            if (
+                                ($slot['start'] < $assigned['end']) &&
+                                ($assigned['start'] < $slot['end'])
+                            ) {
+                                $conflicts = true;
+                                break;
+                            }
+                        }
+
+                        if (!$conflicts) {
+                            $assignedTeacher = $teacher;
+
+                            // Track assigned slot
+                            $teacherSchedule[$slug][$day][] = [
+                                'start' => $slot['start'],
+                                'end' => $slot['end']
+                            ];
+                            break;
+                        }
+                    }
+
+                    if (!$assignedTeacher) {
+                        $this->command->warn("No available teacher found for {$section->slug} on {$day} at {$slot['start']}");
+                        continue;
+                    }
+
                     $customId = generateCustomId($indexx++);
-        
+
                     WeeklySchedule::create([
                         'slug' => $customId,
                         'academic_class_section_slug' => $section->slug,
                         'subject_slug' => $subject->slug,
-                        'teacher_slug' => $randomTeacher['slug'] ?? null,
+                        'teacher_slug' => $assignedTeacher['slug'],
                         'subject_name' => $subject->name,
-                        'teacher_name' => $randomTeacher['teacher_name'] ?? null,
+                        'teacher_name' => $assignedTeacher['teacher_name'],
                         'day_of_week' => $day,
                         'start_time' => $slot['start'],
                         'end_time' => $slot['end'],
@@ -96,5 +134,7 @@ class WeeklyScheduleSeeder extends Seeder
                 }
             }
         }
+
+        $this->command->info('Weekly schedules seeded successfully without teacher time conflicts.');
     }
 }

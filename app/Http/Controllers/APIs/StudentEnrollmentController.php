@@ -177,7 +177,7 @@ class StudentEnrollmentController extends Controller
         
     }
 
-    public function show(Request $request)
+    public function show (Request $request)
     {
         try {
             $validated = $request->validate([
@@ -229,7 +229,7 @@ class StudentEnrollmentController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update (Request $request)
     {
         try {
             $validated = $request->validate([
@@ -313,7 +313,7 @@ class StudentEnrollmentController extends Controller
         
     }
 
-    public function handleAction(Request $request)
+    public function handleAction (Request $request)
     {
         $request->validate([
             'slug' => 'required|string|exists:student_enrollments,slug',
@@ -366,7 +366,7 @@ class StudentEnrollmentController extends Controller
         }
     }
 
-    public function byClassSection(Request $request)
+    public function byClassSection (Request $request)
     {
         try {
             $validated = $request->validate([

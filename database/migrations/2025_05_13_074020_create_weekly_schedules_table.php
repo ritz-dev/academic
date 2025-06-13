@@ -33,14 +33,12 @@ return new class extends Migration
 
             // Optional: to prevent duplicates
             $table->unique(['academic_class_section_slug', 'day_of_week', 'start_time'], 'unique_weekly_schedule');
+
             // Optional: indexing for performance
             $table->index(['academic_class_section_slug', 'day_of_week']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('weekly_schedules');
