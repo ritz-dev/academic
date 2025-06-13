@@ -166,7 +166,7 @@ class AcademicAttendanceController extends Controller
                     $timestamp->format('Y-m-d H:i:s')
                 );
 
-                $dateInput = $request->input('date'); 
+                $dateInput = $item['date']; 
                 $formattedDate = (int) Carbon::parse($dateInput)->format('Ymd');
 
                 $inserted[] = AcademicAttendance::create([
