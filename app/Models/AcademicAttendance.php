@@ -5,12 +5,9 @@ namespace App\Models;
 use Ramsey\Uuid\Guid\Guid;
 use App\Models\WeeklySchedule;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AcademicAttendance extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = [
         'slug',
         'previous_hash',

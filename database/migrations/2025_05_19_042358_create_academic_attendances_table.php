@@ -35,7 +35,6 @@ return new class extends Migration
             $table->string('hash')->nullable();
 
             $table->timestamps();
-            $table->softDeletes();
 
             // Foreign keys
             $table->foreign('weekly_schedule_slug')->references('slug')->on('weekly_schedules')->onDelete('cascade');
