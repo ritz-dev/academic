@@ -39,7 +39,7 @@ return new class extends Migration
 
             // Foreign keys
             $table->foreign('weekly_schedule_slug')->references('slug')->on('weekly_schedules')->onDelete('cascade');
-
+            $table->foreign('academic_class_section_slug')->references('slug')->on('academic_class_sections')->onDelete('cascade');
             // $table->unique(['attendee_type', 'attendee_slug', 'weekly_schedule_slug', 'date'], 'attendee_schedule_unique');
             // $table->index(['attendee_type', 'attendee_slug'], 'attendee_type_index');
         });
