@@ -30,8 +30,8 @@ class AcademicAttendanceController extends Controller
                 'attendance_type' => ['nullable', 'in:class,exam,event'],
                 'start_date' => ['nullable', 'date'],
                 'end_date' => ['nullable', 'date'],
-                'start_time' => ['nullable', 'date_format:H:i:s'],
-                'end_time' => ['nullable', 'date_format:H:i:s'],
+                'start_time' => ['nullable', 'date_format:H:i'],
+                'end_time' => ['nullable', 'date_format:H:i'],
                 'limit' => ['nullable', 'integer', 'min:1'],
                 'skip' => ['nullable', 'integer', 'min:0'],
             ]);
