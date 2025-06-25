@@ -15,10 +15,10 @@ class WeeklyScheduleSeeder extends Seeder
     {
         $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-        $academicYear = AcademicYear::where('status', 'Completed')->first();
+        $academicYear = AcademicYear::where('status', 'In Progress')->first();
 
         if (!$academicYear) {
-            $this->command->error('No completed academic year found.');
+            $this->command->error('No academic year found.');
             return;
         }
 
