@@ -15,7 +15,10 @@ class StudentEnrollmentSeeder extends Seeder
     public function run(): void
     {
 
-        $sections = AcademicClassSection::first();
+        $sections = AcademicClassSection::whereHas('academicYear', function($q) {
+                        $q->where('status', 'In Progress');
+                    })->first();
+                    
         $studentsApiUrl = config('services.user_management.url') . 'students';
     
         $response = Http::withHeaders([
@@ -29,8 +32,6 @@ class StudentEnrollmentSeeder extends Seeder
         }
         
         $students = $response->json('data') ?? [];
-
-        $sectionCount = $sections->count();
 
         foreach ($students as $index => $student) {
             StudentEnrollment::create([

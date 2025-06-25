@@ -16,7 +16,9 @@ class AcademicAttendanceSeeder extends Seeder
      */
     public function run(): void
     {
-        $sections = AcademicClassSection::first();
+        $sections = AcademicClassSection::whereHas('academicYear', function($q) {
+                        $q->where('status', 'In Progress');
+                    })->first();
 
         $schedule = WeeklySchedule::where('type', 'class')->first();
         
