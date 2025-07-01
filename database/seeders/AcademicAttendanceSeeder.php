@@ -125,7 +125,6 @@ class AcademicAttendanceSeeder extends Seeder
                     'status' => 'present',
                     'attendance_type' => 'class',
                     'approved_slug' => $weeklySchedule->teacher_slug,
-                    'approved_name' => 'system',
                     'date' => $dateInt,
                     'remark' => null,
                 ]);

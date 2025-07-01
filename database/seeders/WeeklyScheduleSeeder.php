@@ -91,8 +91,9 @@ class WeeklyScheduleSeeder extends Seeder
                     $assignedTeacher = $subjectTeacherMap[$subject->slug];
 
 
-                    $slug = $teacher['slug'];
+                    $slug = $assignedTeacher['slug'];
                     $conflicts = false;
+                    $assignedSlots = $teacherSchedule[$slug][$day] ?? [];
 
                     foreach ($assignedSlots as $assigned) {
                         if (
@@ -108,8 +109,6 @@ class WeeklyScheduleSeeder extends Seeder
                         $this->command->warn("Teacher {$assignedTeacher['teacher_name']} not available for {$section->slug} on {$day} at {$slot['start']}");
                         continue;
                     }
-
-                    $assignedTeacher = $teacher;
 
                     // Track assigned slot
                     $teacherSchedule[$slug][$day][] = [
