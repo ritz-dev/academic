@@ -15,9 +15,10 @@ class StudentEnrollmentSeeder extends Seeder
     public function run(): void
     {
 
-        $sections = AcademicClassSection::whereHas('academicYear', function($q) {
+        $sections = AcademicClassSection::with(['academicYear', 'academicClass', 'academicSection'])
+                    ->whereHas('academicYear', function($q) {
                         $q->where('status', 'In Progress');
-                    })->first();
+                    })->get();
                     
         $studentsApiUrl = config('services.user_management.url') . 'students';
     
@@ -33,21 +34,31 @@ class StudentEnrollmentSeeder extends Seeder
         
         $students = $response->json('data') ?? [];
 
-        foreach ($students as $index => $student) {
-            StudentEnrollment::create([
-                'slug' => generateCustomId($index),
-                'student_slug' => $student['slug'], // Make sure 'slug' is the correct identifier
-                'academic_class_section_slug' => $sections['slug'],
-                'student_name' => $student['student_name'] ?? null,
-                'roll_number' => rand(1, 100),
-                'admission_date' => now()->subMonths(rand(1, 12)),
-                'enrollment_type' => 'new',
-                'previous_school' => null,
-                'graduation_date' => null,
-                'status' => 'active',
-                'academic_info' => null,
-                'remarks' => 'Auto seeded enrollment.',
-            ]);
+        $studentsPerSection = 5;
+        $sectionCount = $sections->count();
+
+        foreach ($sections as $sectionIndex => $section) {
+            for ($i = 0; $i < $studentsPerSection; $i++) {
+                $studentIndex = $sectionIndex * $studentsPerSection + $i;
+                if (!isset($students[$studentIndex])) {
+                    break;
+                }
+                $student = $students[$studentIndex];
+                StudentEnrollment::create([
+                    'slug' => generateCustomId($studentIndex),
+                    'student_slug' => $student['slug'],
+                    'academic_class_section_slug' => $section['slug'],
+                    'student_name' => $student['student_name'] ?? null,
+                    'roll_number' => rand(1, 100),
+                    'admission_date' => now()->subMonths(rand(1, 12)),
+                    'enrollment_type' => 'new',
+                    'previous_school' => null,
+                    'graduation_date' => null,
+                    'status' => 'active',
+                    'academic_info' => 'Academic Year: ' . $section->academicYear->year,
+                    'remarks' => 'Auto seeded enrollment.',
+                ]);
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ class AcademicClassSeeder extends Seeder
      */
     public function run(): void
     {
-        $classNames = range(1, 10); // [1, 2, 3, ..., 10]
+        $classNames = range(1, 2); // [1, 2, 3, ..., 10]
 
         foreach ($classNames as $index => $number) {
             $customId = generateCustomId($index);

@@ -12,7 +12,7 @@ class SectionSeeder extends Seeder
      */
     public function run(): void
     {
-        $sections = ['Section A', 'Section B', 'Section C', 'Section D', 'Section E'];
+        $sections = ['Section A', 'Section B'];
 
         foreach ($sections as $index => $sectionName) {
             Section::create([
