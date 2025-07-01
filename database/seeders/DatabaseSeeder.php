@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             AcademicClassSectionSeeder::class,
             StudentEnrollmentSeeder::class,
             WeeklyScheduleSeeder::class,
-            AcademicAttendanceSeeder::class,
+            // AcademicAttendanceSeeder::class,
         ]);
     }
 }
