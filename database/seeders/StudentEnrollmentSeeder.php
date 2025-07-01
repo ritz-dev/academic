@@ -55,7 +55,7 @@ class StudentEnrollmentSeeder extends Seeder
                     'previous_school' => null,
                     'graduation_date' => null,
                     'status' => 'active',
-                    'academic_info' => 'Academic Year: ' . $section->academicYear->year,
+                    'academic_info' => 'Academic Year: ' . $section->academicYear->year . ', Class: ' . $section->academicClass->name . ', Section: ' . $section->academicSection->name,
                     'remarks' => 'Auto seeded enrollment.',
                 ]);
             }

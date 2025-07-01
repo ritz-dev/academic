@@ -12,7 +12,7 @@ class SubjectSeeder extends Seeder
      */
     public function run(): void
     {
-        $subjects = ['Math', 'English', 'Myanmar', 'Science', 'Geography', 'History'];
+        $subjects = ['Math', 'English', 'Myanmar', 'Science', 'Geography'];
 
         foreach ($subjects as $index => $subjectName) {
             Subject::create([

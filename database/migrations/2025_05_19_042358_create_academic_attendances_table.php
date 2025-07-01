@@ -26,7 +26,6 @@ return new class extends Migration
             $table->enum('status', ['present', 'absent', 'late', 'excused']);
             $table->enum('attendance_type',['class', 'exam', 'event'])->default('class');
             $table->string('approved_slug')->nullable();
-            $table->string('approved_name')->nullable(); 
             $table->unsignedBigInteger('date');
             $table->datetime('modified')->nullable();
             $table->string('modified_by')->nullable();

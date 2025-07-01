@@ -151,6 +151,7 @@ class AcademicAttendanceController extends Controller
                 'attendances.*.remark' => 'nullable|string',
                 'attendances.*.attendance_type' => 'nullable|in:class,exam,event',
                 'attendances.*.date' => 'required|date',
+                'attendances.*.approved_slug' => 'nullable|string', // Assuming no approval slug is provided
             ]);
 
             $inserted = [];
@@ -180,6 +181,7 @@ class AcademicAttendanceController extends Controller
                     'attendee_type' => $item['attendee_type'],
                     'status' => $item['status'],
                     'attendance_type' => $item['attendance_type'],
+                    'approved_slug' => $item['approved_slug'] ?? null,
         
                     'date' => $formattedDate,
                     'modified' => null,
@@ -280,6 +282,7 @@ class AcademicAttendanceController extends Controller
                 'status' => 'required|in:present,absent,late,excused',
                 'remark' => 'nullable|string',
                 'attendance_type' => 'nullable|in:class,exam,event',
+                'approved_slug' => 'nullable|string', // Assuming no approval slug is provided
                 'date' => 'required|date',
             ]);
 
@@ -315,6 +318,7 @@ class AcademicAttendanceController extends Controller
                 'attendee_type' => $validated['attendee_type'],
                 'status' => $validated['status'],
                 'attendance_type' => $validated['attendance_type'] ?? 'class',
+                'approved_slug' => $validated['approved_slug'] ?? null,
 
                 'date' => $formattedDate,
                 'modified' => $timestamp,

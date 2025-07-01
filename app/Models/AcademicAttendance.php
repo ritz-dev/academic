@@ -20,6 +20,7 @@ class AcademicAttendance extends Model
         'attendee_name',
         'attendee_type',
         'attendance_type',
+        'approved_slug',
         'status',
         'date',
         'remark',

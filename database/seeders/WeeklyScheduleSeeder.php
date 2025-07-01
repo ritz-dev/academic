@@ -53,6 +53,13 @@ class WeeklyScheduleSeeder extends Seeder
         $indexx = 0;
         $teacherSchedule = []; // [teacher_slug][day_of_week][] = ['start' => ..., 'end' => ...]
 
+        $subjectTeacherMap = [];
+        $teacherCount = count($teachers);
+
+        foreach ($subjects as $i => $subject) {
+            $subjectTeacherMap[$subject->slug] = $teachers[$i % $teacherCount];
+        }
+        
         foreach ($sections as $section) {
             foreach ($daysOfWeek as $day) {
                 // Break slot
@@ -81,40 +88,34 @@ class WeeklyScheduleSeeder extends Seeder
 
                 foreach ($classSlots as $slot) {
                     $subject = $subjects->random();
-                    $assignedTeacher = null;
+                    $assignedTeacher = $subjectTeacherMap[$subject->slug];
 
-                    foreach (collect($teachers)->shuffle() as $teacher) {
-                        $slug = $teacher['slug'];
-                        $conflicts = false;
 
-                        $assignedSlots = $teacherSchedule[$slug][$day] ?? [];
+                    $slug = $teacher['slug'];
+                    $conflicts = false;
 
-                        foreach ($assignedSlots as $assigned) {
-                            if (
-                                ($slot['start'] < $assigned['end']) &&
-                                ($assigned['start'] < $slot['end'])
-                            ) {
-                                $conflicts = true;
-                                break;
-                            }
-                        }
-
-                        if (!$conflicts) {
-                            $assignedTeacher = $teacher;
-
-                            // Track assigned slot
-                            $teacherSchedule[$slug][$day][] = [
-                                'start' => $slot['start'],
-                                'end' => $slot['end']
-                            ];
+                    foreach ($assignedSlots as $assigned) {
+                        if (
+                            ($slot['start'] < $assigned['end']) &&
+                            ($assigned['start'] < $slot['end'])
+                        ) {
+                            $conflicts = true;
                             break;
                         }
                     }
 
-                    if (!$assignedTeacher) {
-                        $this->command->warn("No available teacher found for {$section->slug} on {$day} at {$slot['start']}");
+                    if ($conflicts) {
+                        $this->command->warn("Teacher {$assignedTeacher['teacher_name']} not available for {$section->slug} on {$day} at {$slot['start']}");
                         continue;
                     }
+
+                    $assignedTeacher = $teacher;
+
+                    // Track assigned slot
+                    $teacherSchedule[$slug][$day][] = [
+                        'start' => $slot['start'],
+                        'end' => $slot['end']
+                    ];
 
                     $customId = generateCustomId($indexx++);
 
@@ -122,8 +123,8 @@ class WeeklyScheduleSeeder extends Seeder
                         'slug' => $customId,
                         'academic_class_section_slug' => $section->slug,
                         'subject_slug' => $subject->slug,
-                        'teacher_slug' => $assignedTeacher['slug'],
                         'subject_name' => $subject->name,
+                        'teacher_slug' => $assignedTeacher['slug'],
                         'teacher_name' => $assignedTeacher['teacher_name'],
                         'day_of_week' => $day,
                         'start_time' => $slot['start'],

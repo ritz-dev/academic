@@ -85,24 +85,28 @@ class AcademicAttendanceSeeder extends Seeder
 
         if($schedule->type !== 'break') {
 
-            AcademicAttendance::create([
-                'slug' => generateCustomId(0),
-                'previous_hash' => $lastHash,
-                'hash' => 'teacherhash' . $teachers[0]['slug'],
-                'weekly_schedule_slug' => $schedule->slug,
-                'subject' => $schedule->subject_name,
-                'academic_class_section_slug' => $sections->slug,
-                'academic_info' => $schedule->academic_info,
-                'attendee_slug' => $teachers[0]['slug'],
-                'attendee_name' => $teachers[0]['teacher_name'],
-                'attendee_type' => 'teacher',
-                'status' => 'present',
-                'attendance_type' => 'class',
-                'date' => $dateInt,
-                'remark' => null,
-            ]);
+            // AcademicAttendance::create([
+            //     'slug' => generateCustomId(0),
+            //     'previous_hash' => $lastHash,
+            //     'hash' => 'teacherhash' . $teachers[0]['slug'],
+            //     'weekly_schedule_slug' => $schedule->slug,
+            //     'subject' => $schedule->subject_name,
+            //     'academic_class_section_slug' => $sections->slug,
+            //     'academic_info' => $schedule->academic_info,
+            //     'attendee_slug' => $teachers[0]['slug'],
+            //     'attendee_name' => $teachers[0]['teacher_name'],
+            //     'attendee_type' => 'teacher',
+            //     'status' => 'present',
+            //     'attendance_type' => 'class',
+            //     'approved_slug' => null,
+            //     'approved_name' => 'system',
+            //     'date' => $dateInt,
+            //     'remark' => null,
+            // ]);
 
-            $lastHash = 'teacherhash' . $teachers[0]['slug'];
+            // $lastHash = 'teacherhash' . $teachers[0]['slug'];
+
+            $weeklySchedule = WeeklySchedule::where('slug', $schedule->slug)->first();
 
             foreach ($students as $index => $student) {
                 $customId = generateCustomId($index + 1);
@@ -120,6 +124,8 @@ class AcademicAttendanceSeeder extends Seeder
                     'attendee_type' => 'student',
                     'status' => 'present',
                     'attendance_type' => 'class',
+                    'approved_slug' => $weeklySchedule->teacher_slug,
+                    'approved_name' => 'system',
                     'date' => $dateInt,
                     'remark' => null,
                 ]);
