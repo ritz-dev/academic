@@ -117,7 +117,7 @@ class AcademicClassController extends Controller
 
             $validated = $request->validate([
                 'slug' => ['required', 'string', 'exists:academic_classes,slug'],
-                'name' => ['required, string, max:255', Rule::unique('academic_classes', 'name')->ignore($academicClass->id)],
+                'name' => ['required', 'string', 'max:255', Rule::unique('academic_classes', 'name')->ignore($academicClass->id)],
             ]);
 
             $academicClass->update($validated);
