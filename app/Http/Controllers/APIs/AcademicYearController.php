@@ -140,6 +140,42 @@ class AcademicYearController extends Controller
         }
     }
 
+    public function update(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'slug' => ['required', 'string', 'exists:academic_years,slug'],
+                'year' => ['required', 'string', 'unique:academic_years,year'],
+                'start_date' => ['required', 'date'],
+                'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+                'status' => ['required', 'in:Upcoming,In Progress,Completed'],
+            ]);
+
+            $academicYear = AcademicYear::where('slug', $validated['slug'])->firstOrFail();
+
+            $validated['start_date'] = (int) Carbon::parse($validated['start_date'])->format('Ymd');
+            $validated['end_date'] = (int) Carbon::parse($validated['end_date'])->format('Ymd');
+
+            $academicYear->update($validated);
+
+            return response()->json([
+                'message' => 'Academic year updated successfully.',
+                'data' => $academicYear,
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the academic year.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
     public function handleAction(Request $request)
     {
         try {
