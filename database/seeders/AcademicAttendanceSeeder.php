@@ -36,28 +36,6 @@ class AcademicAttendanceSeeder extends Seeder
             return;
         }
 
-        // $studentApiUrl = config('services.user_management.url') . 'students';
-
-        // // Fetch teacher info based on the section ID
-        // $response = Http::withHeaders([
-        //     'Accept' => 'application/json',
-        //     // 'Authorization' => $request->header('Authorization'),
-        // ])->post($studentApiUrl, ['limit' => 10]);
-
-        // if (!$response->ok()) {
-        //     $this->command->error('Failed to fetch teachers from user management service.');
-        //     return;
-        // }
-
-        // $studentsArray = $response->json('data') ?? [];
-
-        // $students = collect($studentsArray);
-
-        // if ($students->isEmpty()) {
-        //     $this->command->error('No students found for the section. Please run the StudentEnrollmentSeeder first.');
-        //     return;
-        // }
-
         $teacherApiUrl = config('services.user_management.url') . 'teachers';
 
         // Fetch teacher info based on the section ID

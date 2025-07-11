@@ -15,20 +15,20 @@ class AcademicYearSeeder extends Seeder
         $academicYears = [
             [
                 'year' => '2023-2024',
-                'start_date' => '2023-08-01',
-                'end_date' => '2024-10-30',
+                'start_date' => 20230801,
+                'end_date' => 20241030,
                 'status' => 'Completed'
             ],
             [
                 'year' => '2024-2025',
-                'start_date' => '2024-08-01',
-                'end_date' => '2025-10-30',
+                'start_date' => 20240801,
+                'end_date' => 20251030,
                 'status' => 'In Progress'
             ],
             [
                 'year' => '2025-2026',
-                'start_date' => '2025-08-01',
-                'end_date' => '2026-10-30',
+                'start_date' => 20250801,
+                'end_date' => 20261030,
                 'status' => 'Upcoming'
             ]
         ];

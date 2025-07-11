@@ -26,7 +26,6 @@ Route::prefix('class-sections')->group(function(){
 });
 
 Route::prefix('academic-years')->group(function(){
-
     Route::post('/',[AcademicYearController::class,'index']);
     Route::post('store',[AcademicYearController::class,'store']);
     Route::post('show',[AcademicYearController::class,'show']);

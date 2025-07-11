@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('slug')->unique();
             $table->string('year')->unique();
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->unsignedBigInteger('start_date');
+            $table->unsignedBigInteger('end_date');
             $table->enum('status',['Upcoming','In Progress','Completed'])->default('Upcoming');
             $table->timestamps();
             $table->softDeletes();

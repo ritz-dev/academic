@@ -15,7 +15,6 @@ class AcademicYearController extends Controller
 
     public function index(Request $request)
     {
-        return response()->json(AcademicYear::get());
         try {
             $validated = $request->validate([
                 'name' => 'nullable|string',
@@ -36,6 +35,13 @@ class AcademicYearController extends Controller
             }
         
             $results = $query->get();
+
+            $results = $results->map(function ($item) use ($attendeeData) {
+                $data['start_date'] = Carbon::createFromFormat('Ymd', $item->start_date)->toDateString();
+                $data['end_date'] = Carbon::createFromFormat('Ymd', $item->end_date)->toDateString();
+                
+                return $data;
+            });
         
             return response()->json([
                 'status' => 'OK! The request was successful',
@@ -60,6 +66,9 @@ class AcademicYearController extends Controller
                 'status' => 'in:Upcoming,In Progress,Completed',
             ]);
 
+            $validated['start_date'] = (int) Carbon::parse($validated['start_date'])->format('Ymd');
+            $validated['end_date'] = (int) Carbon::parse($validated['end_date'])->format('Ymd');
+            
             $academicYear = AcademicYear::create($validated);
 
             return response()->json([
