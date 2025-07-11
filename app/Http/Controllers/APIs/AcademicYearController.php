@@ -144,15 +144,16 @@ class AcademicYearController extends Controller
     public function update(Request $request)
     {
         try {
+
+            $academicYear = AcademicYear::where('slug', $validated['slug'])->firstOrFail();
+
             $validated = $request->validate([
                 'slug' => ['required', 'string', 'exists:academic_years,slug'],
-                'year' => ['required', 'string', Rule::unique('students', 'student_number')->ignore($student->id)],
+                'year' => ['required', 'string', Rule::unique('academic_years', 'year')->ignore($academicYear->id)],
                 'start_date' => ['required', 'date'],
                 'end_date' => ['required', 'date', 'after_or_equal:start_date'],
                 'status' => ['required', 'in:Upcoming,In Progress,Completed'],
             ]);
-
-            $academicYear = AcademicYear::where('slug', $validated['slug'])->firstOrFail();
 
             $validated['start_date'] = (int) Carbon::parse($validated['start_date'])->format('Ymd');
             $validated['end_date'] = (int) Carbon::parse($validated['end_date'])->format('Ymd');
