@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Models\AcademicClass;
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
