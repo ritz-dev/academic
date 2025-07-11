@@ -37,6 +37,7 @@ Route::prefix('classes')->group(function(){
     Route::post('/',[AcademicClassController::class,'index']);
     Route::post('store',[AcademicClassController::class,'store']);
     Route::post('show',[AcademicClassController::class,'show']);
+    Route::post('update',[AcademicClassController::class,'update']);
     Route::post('action',[AcademicClassController::class,'handleAction']);
 });
 
@@ -44,6 +45,7 @@ Route::prefix('sections')->group(function(){
     Route::post('/',[SectionController::class,'index']);
     Route::post('store',[SectionController::class,'store']);
     Route::post('show',[SectionController::class,'show']);
+    Route::post('update',[SectionController::class,'update']);
     Route::post('action',[SectionController::class,'handleAction']);
 });
 

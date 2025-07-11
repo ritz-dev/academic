@@ -177,7 +177,6 @@ class AcademicYearController extends Controller
         }
     }
 
-
     public function handleAction(Request $request)
     {
         try {

@@ -108,6 +108,38 @@ class SectionController extends Controller
         }
     }
 
+    public function update(Request $request)
+    {
+        try {
+
+            $academicSection = Section::where('slug', $request->slug)->firstOrFail();
+
+            $validated = $request->validate([
+                'slug' => ['required', 'string', 'exists:sections,slug'],
+                'name' => ['required, string, max:255', Rule::unique('sections', 'name')->ignore($academicSection->id)],
+            ]);
+
+            $academicSection->update($validated);
+
+            return response()->json([
+                'message' => 'Academic section created successfully.',
+                'data' => $academicSection
+            ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while creating the academic section.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function handleAction(Request $request)
     {
         try {

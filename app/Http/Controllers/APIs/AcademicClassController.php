@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Models\AcademicClass;
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -104,6 +105,38 @@ class AcademicClassController extends Controller
             return response()->json([
                 'message' => 'An error occurred.',
                 'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        try {
+
+            $academicClass = AcademicClass::where('slug', $request->slug)->firstOrFail();
+
+            $validated = $request->validate([
+                'slug' => ['required', 'string', 'exists:academic_classes,slug'],
+                'name' => ['required, string, max:255', Rule::unique('academic_classes', 'name')->ignore($academicClass->id)],
+            ]);
+
+            $academicClass->update($validated);
+
+            return response()->json([
+                'message' => 'Academic class created successfully.',
+                'data' => $academicClass
+            ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while creating the academic class.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
