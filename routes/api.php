@@ -29,7 +29,7 @@ Route::prefix('academic-years')->group(function(){
     Route::post('/',[AcademicYearController::class,'index']);
     Route::post('store',[AcademicYearController::class,'store']);
     Route::post('show',[AcademicYearController::class,'show']);
-    Route::put('update',[AcademicYearController::class,'update']);
+    Route::post('update',[AcademicYearController::class,'update']);
     Route::post('action',[AcademicYearController::class,'handleAction']);
 });
 
@@ -51,7 +51,7 @@ Route::prefix('grades')->group(function(){
     Route::post('list',[GradeController::class,'list']);
     Route::post('create',[GradeController::class,'create']);
     Route::post('detail',[GradeController::class,'detail']);
-    Route::put('update',[GradeController::class,'update']);
+    Route::post('update',[GradeController::class,'update']);
     Route::post('delete',[GradeController::class,'delete']);
 });
 
@@ -107,7 +107,7 @@ Route::prefix('student-leave')->group(function(){
 //     Route::post('list',[ExamController::class,'list']);
 //     Route::post('create',[ExamController::class,'create']);
 //     Route::post('detail',[ExamController::class,'detail']);
-//     Route::put('update',[ExamController::class,'update']);
+//     Route::post('update',[ExamController::class,'update']);
 //     Route::post('delete',[ExamController::class,'delete']);
 // });
 
@@ -115,7 +115,7 @@ Route::prefix('student-leave')->group(function(){
 //     Route::post('list',[ExamScheduleController::class,'list']);
 //     Route::post('create',[ExamScheduleController::class,'create']);
 //     Route::post('detail',[ExamScheduleController::class,'detail']);
-//     Route::put('update',[ExamScheduleController::class,'update']);
+//     Route::post('update',[ExamScheduleController::class,'update']);
 //     Route::post('delete',[ExamScheduleController::class,'delete']);
 // });
 
@@ -123,7 +123,7 @@ Route::prefix('student-leave')->group(function(){
 //     Route::post('list',[HolidayController::class,'list']);
 //     Route::post('create',[HolidayController::class,'create']);
 //     Route::post('detail',[HolidayController::class,'detail']);
-//     Route::put('update',[HolidayController::class,'update']);
+//     Route::post('update',[HolidayController::class,'update']);
 //     Route::post('delete',[HolidayController::class,'delete']);
 // });
 
