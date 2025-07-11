@@ -6,6 +6,7 @@ use Exception;
 use App\Models\AcademicYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -145,7 +146,7 @@ class AcademicYearController extends Controller
         try {
             $validated = $request->validate([
                 'slug' => ['required', 'string', 'exists:academic_years,slug'],
-                'year' => ['required', 'string', 'unique:academic_years,year'],
+                'year' => ['required', 'string', Rule::unique('students', 'student_number')->ignore($student->id)],
                 'start_date' => ['required', 'date'],
                 'end_date' => ['required', 'date', 'after_or_equal:start_date'],
                 'status' => ['required', 'in:Upcoming,In Progress,Completed'],
