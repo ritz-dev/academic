@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Models\AcademicClass;
 use App\Http\Controllers\Controller;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -117,7 +116,7 @@ class AcademicClassController extends Controller
 
             $validated = $request->validate([
                 'slug' => ['required', 'string', 'exists:academic_classes,slug'],
-                'name' => ['required', 'string', 'max:255', Rule::unique('academic_classes', 'name')->ignore($academicClass->id)],
+                'name' => ['required', 'string', 'max:255'],
             ]);
 
             $academicClass->update($validated);
