@@ -116,7 +116,7 @@ class SectionController extends Controller
 
             $validated = $request->validate([
                 'slug' => ['required', 'string', 'exists:sections,slug'],
-                'name' => ['required, string, max:255', Rule::unique('sections', 'name')->ignore($academicSection->id)],
+                'name' => ['required, string, max:255'],
             ]);
 
             $academicSection->update($validated);
