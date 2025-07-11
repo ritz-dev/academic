@@ -36,11 +36,12 @@ class AcademicYearController extends Controller
         
             $results = $query->get();
 
-            $results = $results->map(function ($item) use ($attendeeData) {
-                $data['start_date'] = Carbon::createFromFormat('Ymd', $item->start_date)->toDateString();
-                $data['end_date'] = Carbon::createFromFormat('Ymd', $item->end_date)->toDateString();
-                
-                return $data;
+            $results = $results->map(function ($item) {
+                return [
+                    ...$item,
+                    'start_date' => Carbon::createFromFormat('Ymd', $item->start_date)->toDateString(),
+                    'end_date' => Carbon::createFromFormat('Ymd', $item->end_date)->toDateString(),
+                ];
             });
         
             return response()->json([
