@@ -145,7 +145,7 @@ class AcademicYearController extends Controller
     {
         try {
 
-            $academicYear = AcademicYear::where('slug', $validated['slug'])->firstOrFail();
+            $academicYear = AcademicYear::where('slug', $request->slug)->firstOrFail();
 
             $validated = $request->validate([
                 'slug' => ['required', 'string', 'exists:academic_years,slug'],
