@@ -12,8 +12,6 @@ class SubjectController extends Controller
 {
     public function index(Request $request)
     {
-        return response()->json(Subject::get());
-
         try {
             $validated = $request->validate([
                 'name' => 'nullable|string',

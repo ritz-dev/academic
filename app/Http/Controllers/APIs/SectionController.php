@@ -116,7 +116,7 @@ class SectionController extends Controller
 
             $validated = $request->validate([
                 'slug' => ['required', 'string', 'exists:sections,slug'],
-                'name' => ['required, string, max:255'],
+                'name' => ['required', 'string', 'max:255'],
             ]);
 
             $academicSection->update($validated);
