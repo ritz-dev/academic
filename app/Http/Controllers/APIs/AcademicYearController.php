@@ -27,9 +27,11 @@ class AcademicYearController extends Controller
                 'skip' => ['nullable', 'integer', 'min:0'],
             ]);
 
-            $query = AcademicYear::query()
+            $query = AcademicYear::with([
+                'academicClassSections' => fn ($q) => $q->with(['class', 'section']),
+            ])
                 ->when(!empty($validated['name']), fn($q) =>
-                    $q->where('name', 'like', '%' . $validated['name'] . '%'))
+                    $q->where('year', 'like', '%' . $validated['name'] . '%'))
                 ->when(!empty($validated['status']), fn($q) =>
                     $q->where('status', $validated['status']))
                 ->when(!empty($validated['start_date']) && !empty($validated['end_date']), function ($q) use ($validated) {
@@ -59,9 +61,21 @@ class AcademicYearController extends Controller
 
             $results = $query->get()->map(function ($item) {
                 return [
-                    ...$item->toArray(),
+                    'id' => $item->id,
+                    'slug' => $item->slug,
+                    'year' => $item->year,
+                    'status' => $item->status,
                     'start_date' => Carbon::createFromFormat('Ymd', $item->start_date)->toDateString(),
                     'end_date' => Carbon::createFromFormat('Ymd', $item->end_date)->toDateString(),
+                    'academic_class_sections' => $item->academicClassSections->map(function ($section) {
+                        return [
+                            'slug' => $section->slug,
+                            'class_slug' => $section->class_slug,
+                            'class_name' => $section->class->name ?? null,
+                            'section_slug' => $section->section_slug,
+                            'section_name' => $section->section->name ?? null,
+                        ];
+                    }),
                 ];
             });
 
