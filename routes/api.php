@@ -61,6 +61,7 @@ Route::prefix('subjects')->group(function(){
     Route::post('/',[SubjectController::class,'index']);
     Route::post('store',[SubjectController::class,'store']);
     Route::post('show',[SubjectController::class,'show']);
+    Route::post('update',[GradeController::class,'update']);
     Route::post('action',[SubjectController::class,'handleAction']);
 });
 

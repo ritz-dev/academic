@@ -107,6 +107,38 @@ class SubjectController extends Controller
         }
     }
 
+    public function update(Request $request)
+    {
+        try {
+
+            $subject = Subject::where('slug', $request->slug)->firstOrFail();
+
+            $validated = $request->validate([
+                'slug' => ['required', 'string', 'exists:subjects,slug'],
+                'name' => ['required', 'string', 'max:255'],
+            ]);
+
+            $subject->update($validated);
+
+            return response()->json([
+                'message' => 'Subject created successfully.',
+                'data' => $academicSection
+            ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the subject.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function handleAction(Request $request)
     {
         try {
