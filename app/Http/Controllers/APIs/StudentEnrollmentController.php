@@ -123,11 +123,11 @@ class StudentEnrollmentController extends Controller
                 ]);
             }
 
-            if ($studentResponse->status() !== 200 || !$studentResponse->json('data')) {
-                return response()->json([
-                    'message' => 'Student not found in the system.'
-                ], 404);
-            }
+            // if ($studentResponse->status() !== 200 || !$studentResponse->json('data')) {
+            //     return response()->json([
+            //         'message' => 'Student not found in the system.'
+            //     ], 404);
+            // }
         
             // Load class and academic year with a single query using eager loading
             $section = AcademicClassSection::with(['academicYear'])->where('slug', $validated['academic_class_section_slug'])->firstOrFail();
