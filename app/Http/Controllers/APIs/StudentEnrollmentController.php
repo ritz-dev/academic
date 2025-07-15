@@ -123,11 +123,10 @@ class StudentEnrollmentController extends Controller
                 ]);
             }
 
-            // if ($studentResponse->status() !== 200 || !$studentResponse->json('data')) {
-            //     return response()->json([
-            //         'message' => 'Student not found in the system.'
-            //     ], 404);
-            // }
+            if (!$response->ok()) {
+                $this->command->error('Failed to fetch students from user management service.');
+                return;
+            }
         
             // Load class and academic year with a single query using eager loading
             $section = AcademicClassSection::with(['academicYear'])->where('slug', $validated['academic_class_section_slug'])->firstOrFail();
@@ -145,8 +144,6 @@ class StudentEnrollmentController extends Controller
                 ], 422);
             }
             
-
-        
             // Create enrollment
             $enrollment = StudentEnrollment::create([
                 'student_slug' => $validated['student_slug'],
