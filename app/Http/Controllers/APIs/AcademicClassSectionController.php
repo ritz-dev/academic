@@ -131,7 +131,7 @@ class AcademicClassSectionController extends Controller
     {
         try {
             $validated = $request->validate([
-                'slug' => 'request|string|exists:academic_class_sections,slug',
+                'slug' => 'required|string|exists:academic_class_sections,slug',
                 'year_slug' => 'required|string|exists:academic_years,slug',
                 'class_slug' => 'required|string|exists:academic_classes,slug',
                 'section_slug' => 'required|string|exists:sections,slug',
