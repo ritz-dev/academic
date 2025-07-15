@@ -127,36 +127,66 @@ class AcademicClassSectionController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request,)
     {
         try {
             $validated = $request->validate([
-                'slug' => 'required|string|exists:academic_class_sections,slug',
+                'slug' => 'request|string|exists:academic_class_sections,slug',
                 'academic_year_slug' => 'required|string|exists:academic_years,slug',
                 'academic_class_slug' => 'required|string|exists:academic_classes,slug',
-                'academic_section_slug' => 'required|string|exists:sections,slug'
+                'academic_section_slug' => 'required|string|exists:sections,slug',
             ]);
 
-            $academicClassSection = AcademicClassSection::where('slug', $validated['slug'])->firstOrFail();
+            $existing = AcademicClassSection::where('slug', $validated['slug'])->first();
 
-            $academicClassSection->update([
+            if (!$existing) {
+                return response()->json([
+                    'status' => 'fail',
+                    'message' => 'Academic class section not found.',
+                ], 404);
+            }
+
+            // Check if another record with the same combination exists (excluding this one)
+            $duplicate = AcademicClassSection::withTrashed()
+                ->where('academic_year_slug', $validated['academic_year_slug'])
+                ->where('class_slug', $validated['academic_class_slug'])
+                ->where('section_slug', $validated['academic_section_slug'])
+                ->where('slug', '!=', $validated['slug'])
+                ->first();
+
+            if ($duplicate) {
+                if ($duplicate->trashed()) {
+                    return response()->json([
+                        'status' => 'fail',
+                        'message' => 'Another academic class section with the same values exists in trash.',
+                    ], 409);
+                }
+
+                return response()->json([
+                    'status' => 'fail',
+                    'message' => 'Academic class section already exists.',
+                ], 409);
+            }
+
+            // Perform update
+            $existing->update([
                 'academic_year_slug' => $validated['academic_year_slug'],
                 'class_slug' => $validated['academic_class_slug'],
                 'section_slug' => $validated['academic_section_slug'],
-
             ]);
 
             return response()->json([
                 'status' => 'Updated successfully',
-                'data' => $this->transform($academicClassSection->load(['academicYear', 'academicClass', 'academicSection'])),
+                'data' => $this->transform($existing->fresh()->load(['academicYear', 'academicClass', 'academicSection'])),
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'An error occurred while updating the academic class section.',
+                'status' => 'error',
                 'message' => $e->getMessage(),
             ], 500);
         }
     }
+
 
     public function delete(Request $request)
     {
