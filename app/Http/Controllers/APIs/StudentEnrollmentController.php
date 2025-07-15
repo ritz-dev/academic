@@ -100,7 +100,6 @@ class StudentEnrollmentController extends Controller
             $validated = $request->validate([
                 'student_slug' => ['required', 'string'],
                 'academic_class_section_slug' => ['required', 'exists:academic_class_sections,slug'],
-                'student_name' => ['required', 'string', 'max:255'],
                 'roll_number' => ['nullable', 'integer'],
                 'admission_date' => ['nullable', 'date'],
                 'enrollment_type' => ['required', Rule::in(['new', 'transfer', 're-admission'])],
@@ -152,7 +151,7 @@ class StudentEnrollmentController extends Controller
             $enrollment = StudentEnrollment::create([
                 'student_slug' => $validated['student_slug'],
                 'academic_class_section_slug' => $validated['academic_class_section_slug'],
-                'student_name' => $request->input('student_name'),
+                'student_name' => $studentResponse->json('data')['student_name'],
                 'roll_number' => $request->input('roll_number'),
                 'admission_date' => $request->input('admission_date'),
                 'enrollment_type' => $request->input('enrollment_type', 'new'),
