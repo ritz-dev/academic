@@ -216,10 +216,7 @@ class StudentEnrollmentController extends Controller
 
             $enrollment->student = $enrollmentData;
 
-            return response()->json([
-                'status' => 'OK! The request was successful',
-                'data' => $enrollment,
-            ]);
+            return response()->json($enrollment);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
