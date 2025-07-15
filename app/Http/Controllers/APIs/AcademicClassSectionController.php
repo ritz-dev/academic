@@ -21,28 +21,37 @@ class AcademicClassSectionController extends Controller
                 'limit' => 'nullable|integer|min:1',
                 'skip' => 'nullable|integer|min:0',
             ]);
-        
+
             $query = AcademicClassSection::with(['academicYear', 'academicClass', 'academicSection'])
                 ->when(!empty($validated['academic_year_slug']), fn($q) => $q->where('academic_year', $validated['academic_year_slug']))
                 ->when(!empty($validated['academic_class_slug']), fn($q) => $q->where('class', $validated['academic_class_slug']))
                 ->when(!empty($validated['year']), fn($q) => $q->where('year', 'like', '%' . $validated['year'] . '%'));
-        
+
             $total = (clone $query)->count();
-        
-            // Apply skip and limit
+
             if (!empty($validated['skip'])) {
                 $query->skip($validated['skip']);
             }
+
             if (!empty($validated['limit'])) {
                 $query->take($validated['limit']);
             }
-        
+
             $results = $query->get();
-        
+
             return response()->json([
                 'status' => 'OK! The request was successful',
                 'total' => $total,
-                'data' => $results->map(fn($item) => $this->transform($item)),
+                'data' => $results->map(function ($item) {
+                    return [
+                        'year_slug'     => $item->academicYear?->slug ?? '',
+                        'class_slug'    => $item->academicClass?->slug ?? '',
+                        'section_slug'  => $item->academicSection?->slug ?? '',
+                        'year_name'     => $item->academicYear?->year ?? '',
+                        'class_name'    => $item->academicClass?->name ?? '',
+                        'section_name'  => $item->academicSection?->name ?? '',
+                    ];
+                }),
             ]);
         } catch (\Exception $e) {
             return response()->json([
