@@ -132,9 +132,9 @@ class AcademicClassSectionController extends Controller
         try {
             $validated = $request->validate([
                 'slug' => 'request|string|exists:academic_class_sections,slug',
-                'academic_year_slug' => 'required|string|exists:academic_years,slug',
-                'academic_class_slug' => 'required|string|exists:academic_classes,slug',
-                'academic_section_slug' => 'required|string|exists:sections,slug',
+                'year_slug' => 'required|string|exists:academic_years,slug',
+                'class_slug' => 'required|string|exists:academic_classes,slug',
+                'section_slug' => 'required|string|exists:sections,slug',
             ]);
 
             $existing = AcademicClassSection::where('slug', $validated['slug'])->first();
@@ -148,9 +148,9 @@ class AcademicClassSectionController extends Controller
 
             // Check if another record with the same combination exists (excluding this one)
             $duplicate = AcademicClassSection::withTrashed()
-                ->where('academic_year_slug', $validated['academic_year_slug'])
-                ->where('class_slug', $validated['academic_class_slug'])
-                ->where('section_slug', $validated['academic_section_slug'])
+                ->where('academic_year_slug', $validated['year_slug'])
+                ->where('class_slug', $validated['class_slug'])
+                ->where('section_slug', $validated['section_slug'])
                 ->where('slug', '!=', $validated['slug'])
                 ->first();
 
@@ -170,9 +170,9 @@ class AcademicClassSectionController extends Controller
 
             // Perform update
             $existing->update([
-                'academic_year_slug' => $validated['academic_year_slug'],
-                'class_slug' => $validated['academic_class_slug'],
-                'section_slug' => $validated['academic_section_slug'],
+                'academic_year_slug' => $validated['year_slug'],
+                'class_slug' => $validated['class_slug'],
+                'section_slug' => $validated['section_slug'],
             ]);
 
             return response()->json([
