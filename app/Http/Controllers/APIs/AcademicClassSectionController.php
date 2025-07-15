@@ -179,7 +179,12 @@ class AcademicClassSectionController extends Controller
                 'status' => 'Updated successfully',
                 'data' => $this->transform($existing->fresh()->load(['academicYear', 'academicClass', 'academicSection'])),
             ]);
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors()
+            ], 422);
+        }  catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
