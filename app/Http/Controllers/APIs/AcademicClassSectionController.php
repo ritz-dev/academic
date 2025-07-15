@@ -110,9 +110,9 @@ class AcademicClassSectionController extends Controller
             }
 
             $academicClassSection = AcademicClassSection::create([
-                'academic_year_slug' => $validated['academic_year_slug'],
-                'class_slug' => $validated['academic_class_slug'],
-                'section_slug' => $validated['academic_section_slug'],
+                'academic_year_slug' => $validated['year_slug'],
+                'class_slug' => $validated['class_slug'],
+                'section_slug' => $validated['section_slug'],
             ]);
 
             return response()->json([
