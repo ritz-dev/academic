@@ -210,7 +210,7 @@ class StudentEnrollmentController extends Controller
             }
 
             if ($response->successful()) {
-                $fetched = $response->json('data');
+                $fetched = $response->json();
                 $enrollmentData = $fetched;
             }
 
@@ -232,7 +232,6 @@ class StudentEnrollmentController extends Controller
                 'slug' => ['required', 'string', 'exists:student_enrollments,slug'],
                 'student_slug' => ['required', 'string'],
                 'academic_class_section_slug' => ['required', 'exists:academic_class_sections,slug'],
-                'student_name' => ['required', 'string', 'max:255'],
                 'roll_number' => ['nullable', 'integer'],
                 'admission_date' => ['nullable', 'date'],
                 'enrollment_type' => ['required', Rule::in(['new', 'transfer', 're-admission'])],
@@ -258,10 +257,11 @@ class StudentEnrollmentController extends Controller
                 ]);
             }
 
-            if ($studentResponse->status() !== 200 || !$studentResponse->json('data')) {
+            if (!$studentResponse->ok()) {
+                // Remove `$this->command->error(...)` — this is used in Artisan CLI, not in HTTP controllers
                 return response()->json([
-                    'message' => 'Student not found in the system.'
-                ], 404);
+                    'message' => 'Failed to fetch student from user management service.',
+                ], 500);
             }
 
             $section = AcademicClassSection::with(['academicYear'])->where('slug', $validated['academic_class_section_slug'])->firstOrFail();
@@ -284,7 +284,7 @@ class StudentEnrollmentController extends Controller
             $enrollment->update([
                 'student_slug' => $validated['student_slug'],
                 'academic_class_section_slug' => $validated['academic_class_section_slug'],
-                'student_name' => $request->input('student_name'),
+                'student_name' => $studentResponse->json()['student_name'],
                 'roll_number' => $request->input('roll_number'),
                 'admission_date' => $request->input('admission_date'),
                 'enrollment_type' => $request->input('enrollment_type', 'new'),
