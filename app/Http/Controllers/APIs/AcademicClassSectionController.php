@@ -44,6 +44,7 @@ class AcademicClassSectionController extends Controller
                 'total' => $total,
                 'data' => $results->map(function ($item) {
                     return [
+                        'slug'          => $item->slug ?? '',
                         'year_slug'     => $item->academicYear?->slug ?? '',
                         'class_slug'    => $item->academicClass?->slug ?? '',
                         'section_slug'  => $item->academicSection?->slug ?? '',
