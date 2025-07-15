@@ -15,7 +15,65 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 class AcademicYearController extends Controller
 {
 
-    
+    public function index(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => ['nullable', 'string'],
+                'start_date' => ['nullable', 'date'],
+                'end_date' => ['nullable', 'date'],
+                'status' => ['nullable', 'string'],
+                'limit' => ['nullable', 'integer', 'min:1'],
+                'skip' => ['nullable', 'integer', 'min:0'],
+            ]);
+
+            $query = AcademicYear::query()
+                ->when(!empty($validated['name']), fn($q) =>
+                    $q->where('year', 'like', '%' . $validated['name'] . '%'))
+                ->when(!empty($validated['status']), fn($q) =>
+                    $q->where('status', $validated['status']))
+                ->when(!empty($validated['start_date']) && !empty($validated['end_date']), function ($q) use ($validated) {
+                    $startInt = (int) Carbon::parse($validated['start_date'])->format('Ymd');
+                    $endInt = (int) Carbon::parse($validated['end_date'])->format('Ymd');
+                    $q->whereBetween('start_date', [$startInt, $endInt]);
+                })
+                ->when(!empty($validated['start_date']) && empty($validated['end_date']), function ($q) use ($validated) {
+                    $startInt = (int) Carbon::parse($validated['start_date'])->format('Ymd');
+                    $q->where('start_date', '>=', $startInt);
+                })
+                ->when(!empty($validated['end_date']) && empty($validated['start_date']), function ($q) use ($validated) {
+                    $endInt = (int) Carbon::parse($validated['end_date'])->format('Ymd');
+                    $q->where('start_date', '<=', $endInt);
+                })
+                ->orderByDesc('start_date');
+
+            $total = (clone $query)->count();
+
+            if (!empty($validated['skip'])) {
+                $query->skip($validated['skip']);
+            }
+
+            if (!empty($validated['limit'])) {
+                $query->take($validated['limit']);
+            }
+
+            $results = $query->get()->map(function ($item) {
+                return [...$item->toArray()];
+            });
+
+            return response()->json([
+                'status' => 'OK! The request was successful',
+                'total' => $total,
+                'data' => $results,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'Bad Request! The request is invalid.',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
     public function store(Request $request)
     {
         try {

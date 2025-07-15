@@ -76,15 +76,15 @@ class AcademicClassSectionController extends Controller
     {
         try {
             $validated = $request->validate([
-                'academic_year_slug' => 'required|string|exists:academic_years,slug',
-                'academic_class_slug' => 'required|string|exists:academic_classes,slug',
-                'academic_section_slug' => 'required|string|exists:sections,slug',
+                'year_slug' => 'required|string|exists:academic_years,slug',
+                'class_slug' => 'required|string|exists:academic_classes,slug',
+                'section_slug' => 'required|string|exists:sections,slug',
             ]);
 
             $trashedRecord = AcademicClassSection::onlyTrashed()
-            ->where('academic_year_slug', $validated['academic_year_slug'])
-            ->where('class_slug', $validated['academic_class_slug'])
-            ->where('section_slug', $validated['academic_section_slug'])
+            ->where('academic_year_slug', $validated['year_slug'])
+            ->where('class_slug', $validated['class_slug'])
+            ->where('section_slug', $validated['section_slug'])
             ->first();
 
             if ($trashedRecord) {
