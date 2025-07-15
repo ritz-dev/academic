@@ -123,9 +123,12 @@ class StudentEnrollmentController extends Controller
                 ]);
             }
 
-            if (!$response->ok()) {
-                $this->command->error('Failed to fetch students from user management service.');
-                return;
+            
+            if (!$studentResponse->ok()) {
+                // Remove `$this->command->error(...)` — this is used in Artisan CLI, not in HTTP controllers
+                return response()->json([
+                    'message' => 'Failed to fetch student from user management service.',
+                ], 500);
             }
         
             // Load class and academic year with a single query using eager loading
@@ -148,7 +151,7 @@ class StudentEnrollmentController extends Controller
             $enrollment = StudentEnrollment::create([
                 'student_slug' => $validated['student_slug'],
                 'academic_class_section_slug' => $validated['academic_class_section_slug'],
-                'student_name' => $studentResponse->json('data')['student_name'],
+                'student_name' => $studentResponse->json()['student_name'],
                 'roll_number' => $request->input('roll_number'),
                 'admission_date' => $request->input('admission_date'),
                 'enrollment_type' => $request->input('enrollment_type', 'new'),
