@@ -88,9 +88,9 @@ class AcademicClassSectionController extends Controller
 
             if ($existing) {
                 return response()->json([
-                    'status' => 'Already exists',
-                    'data' => $this->transform($existing->load(['academicYear', 'academicClass', 'academicSection'])),
-                ]);
+                    'status' => 'fail',
+                    'message' => 'Academic class section already exists.',
+                ], 409); // 409 Conflict
             }
 
             $trashedRecord = AcademicClassSection::onlyTrashed()
