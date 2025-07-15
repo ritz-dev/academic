@@ -18,9 +18,12 @@ class SectionController extends Controller
                 'name' => 'nullable|string',
                 'limit' => 'nullable|integer|min:1',
                 'skip' => 'nullable|integer|min:0',
+                'notIn'=> 'nullable|array',
             ]);
         
-            $query = Section::when(!empty($validated['name']), fn($q) => $q->where('name', 'like', '%' . $validated['name'] . '%'));
+            $query = Section::query()
+                ->when(!empty($validated['name']), fn($q) => $q->where('name', 'like', '%' . $validated['name'] . '%'))
+                ->when(!empty($validated['notIn']), fn($q)=> $q->whereNotIn('slug', $notIn));
         
             $total = (clone $query)->count();
         
