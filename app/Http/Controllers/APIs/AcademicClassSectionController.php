@@ -81,7 +81,7 @@ class AcademicClassSectionController extends Controller
                 'section_slug' => 'required|string|exists:sections,slug',
             ]);
 
-            $existing = AcademicClassSection::where('year_slug', $validated['year_slug'])
+            $existing = AcademicClassSection::where('academic_year_slug', $validated['year_slug'])
                 ->where('class_slug', $validated['class_slug'])
                 ->where('section_slug', $validated['section_slug'])
                 ->first();
