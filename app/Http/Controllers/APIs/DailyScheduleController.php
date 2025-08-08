@@ -36,7 +36,7 @@ class DailyScheduleController extends Controller
             $currentDate = $startDate->copy();
 
             // Optional: prevent duplicates
-            DailySchedule::where('academic_class_section_slug', $section->id)
+            DailySchedule::where('academic_class_section_slug', $section->slug)
                 ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
                 ->delete();
 
@@ -48,7 +48,7 @@ class DailyScheduleController extends Controller
                     DailySchedule::create([
                         // 'slug' => (string) Str::uuid(),
                         'date' => $currentDate->toDateString(),
-                        'academic_class_section_slug' => $section->id,
+                        'academic_class_section_slug' => $section->slug,
                         'subject_id' => null,
                         'teacher_id' => null,
                         'start_time' => null,
@@ -60,7 +60,7 @@ class DailyScheduleController extends Controller
                         'academic_info' => 'info'
                     ]);
                 } else {
-                    $weeklySlots = WeeklySchedule::where('academic_class_section_slug', $section->id)
+                    $weeklySlots = WeeklySchedule::where('academic_class_section_slug', $section->slug)
                         ->where('day_of_week', $dayName)
                         ->get();
 
@@ -68,7 +68,7 @@ class DailyScheduleController extends Controller
                         DailySchedule::create([
                             // 'slug' => (string) Str::uuid(),
                             'date' => $currentDate->toDateString(),
-                            'academic_class_section_slug' => $section->id,
+                            'academic_class_section_slug' => $section->slug,
                             'subject_id' => $slot->subject_id,
                             'teacher_id' => $slot->teacher_id,
                             'start_time' => $slot->start_time,
@@ -119,7 +119,7 @@ class DailyScheduleController extends Controller
             ], 404);
         }
 
-        $schedules = DailySchedule::where('academic_class_section_slug', $section->id)->get();
+        $schedules = DailySchedule::where('academic_class_section_slug', $section->slug)->get();
 
         if ($schedules->isEmpty()) {
             return response()->json([
