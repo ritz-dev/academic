@@ -57,6 +57,7 @@ class DailyScheduleController extends Controller
                         'is_holiday' => true,
                         'holiday_type' => 'weekly',
                         'note' => 'Weekly Holiday',
+                        'academic_info' => null
                     ]);
                 } else {
                     $weeklySlots = WeeklySchedule::where('academic_class_section_slug', $section->id)
@@ -75,6 +76,7 @@ class DailyScheduleController extends Controller
                             'type' => $slot->type,
                             'is_holiday' => false,
                             'note' => null,
+                            'academic_info' => null
                         ]);
                     }
                 }
