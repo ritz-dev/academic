@@ -117,7 +117,7 @@ class DailyScheduleController extends Controller
             ], 404);
         }
 
-        $schedules = DailySchedule::where('academic_class_section_id', $section->id)->get();
+        $schedules = DailySchedule::where('academic_class_section_slug', $section->id)->get();
 
         if ($schedules->isEmpty()) {
             return response()->json([
